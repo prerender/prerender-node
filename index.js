@@ -52,15 +52,16 @@ prerender.shouldShowPrerenderedPage = function(req) {
   if(extensionsToIgnore.some(function(extension){return req.url.indexOf(extension) !== -1;})) return false;
 
   //if it is a bot and not requesting a resource and is not whitelisted...dont prerender
-  if(Array.isArray(this.whitelist) && this.whitelist.every(function(whitelisted){return req.url.indexOf(whitelisted) === -1;})) return false;
+  if(Array.isArray(this.whitelist) && this.whitelist.every(function(whitelisted){return (new RegExp(whitelisted)).test(req.url) === false;})) return false;
 
   //if it is a bot and not requesting a resource and is not blacklisted(url or referer)...dont prerender
   if(Array.isArray(this.blacklist) && this.blacklist.some(function(blacklisted){
     var blacklistedUrl = false
-      , blacklistedReferer = false;
+      , blacklistedReferer = false
+      , regex = new RegExp(blacklisted);
 
-    blacklistedUrl = req.url.indexOf(blacklisted) !== -1;
-    if(req.headers['referer']) blacklistedReferer = req.headers['referer'].indexOf(blacklisted) !== -1;
+    blacklistedUrl = regex.test(req.url) === true;
+    if(req.headers['referer']) blacklistedReferer = regex.test(req.headers['referer']) === true;
 
     return blacklistedUrl || blacklistedReferer;
   })) return false;

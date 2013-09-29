@@ -28,22 +28,22 @@ app.use(require('prerender-node'));
 
 ### Whitelist
 
-Whitelist a single url path or multiple url paths. If a whitelist is supplied, only url's containing a whitelist path will be prerendered.
+Whitelist a single url path or multiple url paths. Compares using regex, so be specific when possible. If a whitelist is supplied, only url's containing a whitelist path will be prerendered.
 ```js
-app.use(require('prerender-node').whitelisted('/search'));
+app.use(require('prerender-node').whitelisted('^/search'));
 ```
 ```js
-app.use(require('prerender-node').whitelisted(['/search', '/profile']));
+app.use(require('prerender-node').whitelisted(['/search', '/users/.*/profile']));
 ```
 
 ### Blacklist
 
-Blacklist a single url path or multiple url paths. If a blacklist is supplied, all url's will be prerendered except ones containing a blacklist path.
+Blacklist a single url path or multiple url paths. Compares using regex, so be specific when possible. If a blacklist is supplied, all url's will be prerendered except ones containing a blacklist path.
 ```js
-app.use(require('prerender-node').blacklisted('/search'));
+app.use(require('prerender-node').blacklisted('^/search'));
 ```
 ```js
-app.use(require('prerender-node').blacklisted(['/search', '/profile']));
+app.use(require('prerender-node').blacklisted(['/search', '/users/.*/profile']));
 ```
 
 ### Using your own prerender service

@@ -56,6 +56,18 @@ describe('Prerender', function(){
     assert.equal(res.send.callCount, 0);
   });
 
+  it('should call next() if the url is not part of the regex specific whitelist', function(){
+    var req = { url: '/saved/search/blah', headers: { 'user-agent': bot } },
+      res = { send: sinon.stub() },
+      next = sinon.stub();
+
+    prerender.whitelisted(['^/search', '/help'])(req, res, next);
+    
+    delete prerender.whitelist;
+    assert.equal(next.callCount, 1);
+    assert.equal(res.send.callCount, 0);
+  });
+
   it('should return a prerendered response if the url is part of the whitelist', function(){
     var req = { url: '/search/things?query=blah', headers: { 'user-agent': bot } },
       res = { send: sinon.stub() },
@@ -73,12 +85,41 @@ describe('Prerender', function(){
     assert.equal(res.send.getCall(0).args[0], '<html></html>');
   });
 
+  it('should return a prerendered response if the url is part of the regex specific whitelist', function(){
+    var req = { url: '/search/things?query=blah', headers: { 'user-agent': bot } },
+      res = { send: sinon.stub() },
+      next = sinon.stub();
+
+    sinon.stub(prerender, 'getPrerenderedPageResponse').callsArgWith(1, {statusCode: 200, body: '<html></html>'});
+
+    prerender.whitelisted(['^/search.*query', '/help'])(req, res, next);
+
+    prerender.getPrerenderedPageResponse.restore();
+
+    delete prerender.whitelist;
+    assert.equal(next.callCount, 0);
+    assert.equal(res.send.callCount, 1);
+    assert.equal(res.send.getCall(0).args[0], '<html></html>');
+  });
+
   it('should call next() if the url is part of the blacklist', function(){
     var req = { url: '/search/things?query=blah', headers: { 'user-agent': bot } },
       res = { send: sinon.stub() },
       next = sinon.stub();
 
     prerender.blacklisted(['/search', '/help'])(req, res, next);
+    
+    delete prerender.blacklist;
+    assert.equal(next.callCount, 1);
+    assert.equal(res.send.callCount, 0);
+  });
+
+  it('should call next() if the url is part of the regex specific blacklist', function(){
+    var req = { url: '/search/things?query=blah', headers: { 'user-agent': bot } },
+      res = { send: sinon.stub() },
+      next = sinon.stub();
+
+    prerender.blacklisted(['^/search', '/help'])(req, res, next);
     
     delete prerender.blacklist;
     assert.equal(next.callCount, 1);
@@ -102,12 +143,41 @@ describe('Prerender', function(){
     assert.equal(res.send.getCall(0).args[0], '<html></html>');
   });
 
+  it('should return a prerendered response if the url is not part of the regex specific blacklist', function(){
+    var req = { url: '/profile/search/blah', headers: { 'user-agent': bot } },
+      res = { send: sinon.stub() },
+      next = sinon.stub();
+
+    sinon.stub(prerender, 'getPrerenderedPageResponse').callsArgWith(1, {statusCode: 200, body: '<html></html>'});
+
+    prerender.blacklisted(['^/search', '/help'])(req, res, next);
+
+    prerender.getPrerenderedPageResponse.restore();
+
+    delete prerender.blacklist;
+    assert.equal(next.callCount, 0);
+    assert.equal(res.send.callCount, 1);
+    assert.equal(res.send.getCall(0).args[0], '<html></html>');
+  });
+
   it('should call next() if the referer is part of the blacklist', function(){
     var req = { url: '/api/results', headers: { referer: '/search', 'user-agent': bot } },
       res = { send: sinon.stub() },
       next = sinon.stub();
 
     prerender.blacklisted(['/search', '/help'])(req, res, next);
+    
+    delete prerender.blacklist;
+    assert.equal(next.callCount, 1);
+    assert.equal(res.send.callCount, 0);
+  });
+
+  it('should call next() if the referer is part of the regex specific blacklist', function(){
+    var req = { url: '/api/results', headers: { referer: '/search', 'user-agent': bot } },
+      res = { send: sinon.stub() },
+      next = sinon.stub();
+
+    prerender.blacklisted(['^/search', '/help'])(req, res, next);
     
     delete prerender.blacklist;
     assert.equal(next.callCount, 1);
@@ -122,6 +192,23 @@ describe('Prerender', function(){
     sinon.stub(prerender, 'getPrerenderedPageResponse').callsArgWith(1, {statusCode: 200, body: '<html></html>'});
 
     prerender.blacklisted(['/profile', '/help'])(req, res, next);
+
+    prerender.getPrerenderedPageResponse.restore();
+
+    delete prerender.blacklist;
+    assert.equal(next.callCount, 0);
+    assert.equal(res.send.callCount, 1);
+    assert.equal(res.send.getCall(0).args[0], '<html></html>');
+  });
+
+  it('should return a prerendered response if the referer is not part of the regex specific blacklist', function(){
+    var req = { url: '/api/results', headers: { referer: '/profile/search', 'user-agent': bot } },
+      res = { send: sinon.stub() },
+      next = sinon.stub();
+
+    sinon.stub(prerender, 'getPrerenderedPageResponse').callsArgWith(1, {statusCode: 200, body: '<html></html>'});
+
+    prerender.blacklisted(['^/search', '/help'])(req, res, next);
 
     prerender.getPrerenderedPageResponse.restore();
 
