@@ -52,10 +52,10 @@ prerender.shouldShowPrerenderedPage = function(req) {
   if(extensionsToIgnore.some(function(extension){return req.url.indexOf(extension) !== -1;})) return false;
 
   //if it is a bot and not requesting a resource and is not whitelisted...dont prerender
-  if(Array.isArray(this.whitelist) && this.whitelist.some(function(whitelisted){return req.url.indexOf(whitelisted) === -1;})) return false;
+  if(Array.isArray(this.whitelist) && this.whitelist.every(function(whitelisted){return req.url.indexOf(whitelisted) === -1;})) return false;
 
   //if it is a bot and not requesting a resource and is not blacklisted(url or referer)...dont prerender
-  if(Array.isArray(this.blacklist) && this.blacklist.every(function(blacklisted){
+  if(Array.isArray(this.blacklist) && this.blacklist.some(function(blacklisted){
     var blacklistedUrl = false
       , blacklistedReferer = false;
 

@@ -49,7 +49,7 @@ describe('Prerender', function(){
       res = { send: sinon.stub() },
       next = sinon.stub();
 
-    prerender.whitelisted(['/search'])(req, res, next);
+    prerender.whitelisted(['/search', '/help'])(req, res, next);
     
     delete prerender.whitelist;
     assert.equal(next.callCount, 1);
@@ -63,7 +63,7 @@ describe('Prerender', function(){
 
     sinon.stub(prerender, 'getPrerenderedPageResponse').callsArgWith(1, {statusCode: 200, body: '<html></html>'});
 
-    prerender.whitelisted(['/search'])(req, res, next);
+    prerender.whitelisted(['/search', '/help'])(req, res, next);
 
     prerender.getPrerenderedPageResponse.restore();
 
@@ -78,7 +78,7 @@ describe('Prerender', function(){
       res = { send: sinon.stub() },
       next = sinon.stub();
 
-    prerender.blacklisted(['/search'])(req, res, next);
+    prerender.blacklisted(['/search', '/help'])(req, res, next);
     
     delete prerender.blacklist;
     assert.equal(next.callCount, 1);
@@ -92,7 +92,7 @@ describe('Prerender', function(){
 
     sinon.stub(prerender, 'getPrerenderedPageResponse').callsArgWith(1, {statusCode: 200, body: '<html></html>'});
 
-    prerender.blacklisted(['/search'])(req, res, next);
+    prerender.blacklisted(['/search', '/help'])(req, res, next);
 
     prerender.getPrerenderedPageResponse.restore();
 
@@ -107,7 +107,7 @@ describe('Prerender', function(){
       res = { send: sinon.stub() },
       next = sinon.stub();
 
-    prerender.blacklisted(['/search'])(req, res, next);
+    prerender.blacklisted(['/search', '/help'])(req, res, next);
     
     delete prerender.blacklist;
     assert.equal(next.callCount, 1);
@@ -121,7 +121,7 @@ describe('Prerender', function(){
 
     sinon.stub(prerender, 'getPrerenderedPageResponse').callsArgWith(1, {statusCode: 200, body: '<html></html>'});
 
-    prerender.blacklisted(['/profile'])(req, res, next);
+    prerender.blacklisted(['/profile', '/help'])(req, res, next);
 
     prerender.getPrerenderedPageResponse.restore();
 
