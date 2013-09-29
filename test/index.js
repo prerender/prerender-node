@@ -102,6 +102,35 @@ describe('Prerender', function(){
     assert.equal(res.send.getCall(0).args[0], '<html></html>');
   });
 
+  it('should call next() if the referer is part of the blacklist', function(){
+    var req = { url: '/api/results', headers: { referer: '/search', 'user-agent': bot } },
+      res = { send: sinon.stub() },
+      next = sinon.stub();
+
+    prerender.blacklisted(['/search'])(req, res, next);
+    
+    delete prerender.blacklist;
+    assert.equal(next.callCount, 1);
+    assert.equal(res.send.callCount, 0);
+  });
+
+  it('should return a prerendered response if the referer is not part of the blacklist', function(){
+    var req = { url: '/api/results', headers: { referer: '/search', 'user-agent': bot } },
+      res = { send: sinon.stub() },
+      next = sinon.stub();
+
+    sinon.stub(prerender, 'getPrerenderedPageResponse').callsArgWith(1, {statusCode: 200, body: '<html></html>'});
+
+    prerender.blacklisted(['/profile'])(req, res, next);
+
+    prerender.getPrerenderedPageResponse.restore();
+
+    delete prerender.blacklist;
+    assert.equal(next.callCount, 0);
+    assert.equal(res.send.callCount, 1);
+    assert.equal(res.send.getCall(0).args[0], '<html></html>');
+  });
+
   describe('#whitelisted', function(){
     it('should return the prerendered middleware function', function(){
       assert.equal(prerender.whitelisted(), prerender);

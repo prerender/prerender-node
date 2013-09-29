@@ -45,10 +45,25 @@ prerender.shouldShowPrerenderedPage = function(req) {
   var userAgent = req.headers['user-agent'];
   if(!userAgent) return false;
 
-  if(crawlerUserAgents.indexOf(userAgent.toLowerCase()) === -1) return false; //if is not a bot
-  if(extensionsToIgnore.some(function(extension){return req.url.indexOf(extension) !== -1;})) return false; //if is requesting a resource
-  if(Array.isArray(this.whitelist) && this.whitelist.some(function(whitelisted){return req.url.indexOf(whitelisted) === -1;})) return false; //if is not whitelisted
-  if(Array.isArray(this.blacklist) && this.blacklist.every(function(blacklisted){return req.url.indexOf(blacklisted) !== -1;})) return false; //if is not blacklisted
+  //if it is not a bot...dont prerender
+  if(crawlerUserAgents.indexOf(userAgent.toLowerCase()) === -1) return false;
+
+  //if it is a bot and is requesting a resource...dont prerender
+  if(extensionsToIgnore.some(function(extension){return req.url.indexOf(extension) !== -1;})) return false;
+
+  //if it is a bot and not requesting a resource and is not whitelisted...dont prerender
+  if(Array.isArray(this.whitelist) && this.whitelist.some(function(whitelisted){return req.url.indexOf(whitelisted) === -1;})) return false;
+
+  //if it is a bot and not requesting a resource and is not blacklisted(url or referer)...dont prerender
+  if(Array.isArray(this.blacklist) && this.blacklist.every(function(blacklisted){
+    var blacklistedUrl = false
+      , blacklistedReferer = false;
+
+    blacklistedUrl = req.url.indexOf(blacklisted) !== -1;
+    if(req.headers['referer']) blacklistedReferer = req.headers['referer'].indexOf(blacklisted) !== -1;
+
+    return blacklistedUrl || blacklistedReferer;
+  })) return false;
 
   return true;
 };

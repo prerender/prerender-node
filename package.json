@@ -1,6 +1,6 @@
 {
   "name": "prerender-node",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "express middleware for serving prerendered javascript-rendered pages for SEO",
   "author": "Todd Hooper",
   "license": "MIT",
@@ -18,5 +18,8 @@
   "devDependencies": {
     "mocha": "~1.13.0",
     "sinon": "~1.7.3"
+  },
+  "scripts": {
+    "test": "mocha"
   }
 }
