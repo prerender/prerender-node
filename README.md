@@ -1,30 +1,56 @@
 Prerender Node
 =========================== 
 
-This npm package installs express middleware that prerenders a javascript-rendered page and returns the HTML to a search engine crawler for SEO. It checks the agent string on the request for a crawler, and continues on to your normal routes if the requester is not a crawler.
+Are you using backbone, angular, emberjs, etc, but you're unsure about the SEO implications?
 
-## How it works
-* Check to make sure the request is from a crawler and we aren't requesting a resource (js, css, etc...)
-* Make a `GET` request to the [prerender service](https://github.com/collectiveip/prerender) for the page's prerendered HTML
-* Return that HTML to the crawler
-
-## Installation
+Use this express middleware that prerenders a javascript-rendered page and returns the HTML to the search engine crawler for SEO.
 
 via npm:
 
-    $ npm install prerender-node
+    $ npm install prerender-node --save
 
-## Usage
-
-When you set up your express app, add:
+And when you set up your express app, add:
 
 ```js
 app.use(require('prerender-node'));
 ```
 
-If you've deployed the prerender service on your own, set the `PRERENDER_URL` environment variable so that this package points there instead. Otherwise, it will default to the service already deployed at `http://prerender.herokuapp.com`
+## How it works
+1. Check to make sure we should show a prerendered page
+	1. Check if the request is from a crawler (agent string)
+	2. Check to make sure we aren't requesting a resource (js, css, etc...)
+	3. (optional) Check to make sure the url is in the whitelist
+	4. (optional) Check to make sure the url isn't in the blacklist
+2. Make a `GET` request to the [prerender service](https://github.com/collectiveip/prerender)(phantomjs server) for the page's prerendered HTML
+3. Return that HTML to the crawler
 
-	$ export PRERENDER_URL=<new url>
+## Customization
+
+### Whitelist
+
+Whitelist a single url path or multiple url paths. If a whitelist is supplied, only url's containing a whitelist path will be prerendered.
+```js
+app.use(require('prerender-node').whitelisted('/search'));
+```
+```js
+app.use(require('prerender-node').whitelisted(['/search', '/profile']));
+```
+
+### Blacklist
+
+Blacklist a single url path or multiple url paths. If a blacklist is supplied, all url's will be prerendered except ones containing a blacklist path.
+```js
+app.use(require('prerender-node').blacklisted('/search'));
+```
+```js
+app.use(require('prerender-node').blacklisted(['/search', '/profile']));
+```
+
+### Using your own prerender service
+
+If you've deployed the prerender service on your own, set the `PRERENDER_SERVICE_URL` environment variable so that this package points there instead. Otherwise, it will default to the service already deployed at `http://prerender.herokuapp.com`
+
+	$ export PRERENDER_SERVICE_URL=<new url>
 
 ## Contributing
 

@@ -1,7 +1,9 @@
 {
   "name": "prerender-node",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "express middleware for serving prerendered javascript-rendered pages for SEO",
+  "author": "Todd Hooper",
+  "license": "MIT",
   "main": "index.js",
   "repository": {
     "type": "git",
@@ -13,6 +15,8 @@
     "emberjs",
     "seo"
   ],
-  "author": "Todd Hooper",
-  "license": "MIT"
+  "devDependencies": {
+    "mocha": "~1.13.0",
+    "sinon": "~1.7.3"
+  }
 }
