@@ -46,7 +46,7 @@ prerender.shouldShowPrerenderedPage = function(req) {
   if(!userAgent) return false;
 
   //if it is not a bot...dont prerender
-  if(crawlerUserAgents.indexOf(userAgent.toLowerCase()) === -1) return false;
+  if(crawlerUserAgents.every(function(crawlerUserAgent){ return userAgent.toLowerCase().indexOf(crawlerUserAgent.toLowerCase()) === -1;})) return false;
 
   //if it is a bot and is requesting a resource...dont prerender
   if(extensionsToIgnore.some(function(extension){return req.url.indexOf(extension) !== -1;})) return false;

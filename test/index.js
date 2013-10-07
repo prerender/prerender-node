@@ -1,7 +1,7 @@
 var assert = require('assert')
   , sinon = require('sinon')
   , prerender = require('../index')
-  , bot = 'googlebot'
+  , bot = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
   , user = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.76 Safari/537.36';
 
 describe('Prerender', function(){
