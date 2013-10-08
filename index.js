@@ -1,4 +1,4 @@
-var http = require('http');
+var phantom = require('phantom');
 
 var crawlerUserAgents = [
   'googlebot',
@@ -23,11 +23,31 @@ var prerender = module.exports = function(req, res, next) {
 
   if(!prerender.shouldShowPrerenderedPage(req)) return next();
 
-  prerender.getPrerenderedPageResponse(req, function(prerenderedResponse){
+  phantom.create({
+      binary: require('phantomjs').path
+  }, function(phantom) {
+    phantom.createPage(function(page) {
+      page.open(req.protocol + "://" + req.get('host') + req.url, function (status) {
+        if ('fail' === status) {
+          page.close();
+          next();
+        } else {
+          setTimeout(function(){
+              page.evaluate(function () {
+                  return document && document.getElementsByTagName('html')[0].outerHTML
+              }, function(documentHTML) {
+                  var matches = documentHTML.match(/<script(?:.*?)>(?:[\S\s]*?)<\/script>/g);
 
-    if(prerenderedResponse && prerenderedResponse.statusCode === 200) return res.send(prerenderedResponse.body);
-
-    next();
+                  for( var i = 0; matches && i < matches.length; i++) {
+                      documentHTML = documentHTML.replace(matches[i], '');
+                  }
+                  res.send(documentHTML);
+                  page.close();
+              });
+          }, 50);
+        };
+      });
+    });
   });
 };
 
@@ -67,32 +87,4 @@ prerender.shouldShowPrerenderedPage = function(req) {
   })) return false;
 
   return true;
-};
-
-prerender.getPrerenderedPageResponse = function(req, callback) {
-  http.get(prerender.buildApiUrl(req), function(res) {
-
-    var pageData = "";
-    res.on('data', function (chunk) {
-      pageData += chunk;
-    });
-
-    res.on('end', function(){
-      res.body = pageData;
-      callback(res);
-    });
-  }).on('error', function(e) {
-    callback(null);
-  });
-};
-
-prerender.buildApiUrl = function(req) {
-  var prerenderUrl = prerender.getPrerenderServiceUrl();
-  var forwardSlash = prerenderUrl.indexOf('/', prerenderUrl.length - 1) !== -1 ? '' : '/';
-  var fullUrl = req.protocol + "://" + req.get('host') + req.url;
-  return prerenderUrl + forwardSlash + fullUrl
-};
-
-prerender.getPrerenderServiceUrl = function() {
-  return process.env.PRERENDER_SERVICE_URL || 'http://prerender.herokuapp.com/';
 };
