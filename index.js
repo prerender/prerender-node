@@ -4,7 +4,8 @@ var crawlerUserAgents = [
   'googlebot',
   'yahoo',
   'bingbot',
-  'baiduspider'
+  'baiduspider',
+  'facebookexternalhit'
 ];
 
 var extensionsToIgnore = [
@@ -16,7 +17,33 @@ var extensionsToIgnore = [
   '.jpeg',
   '.gif',
   '.pdf',
-  '.doc'
+  '.doc',
+  '.txt',
+  '.zip',
+  '.mp3',
+  '.rar',
+  '.exe',
+  '.wmv',
+  '.doc',
+  '.avi',
+  '.ppt',
+  '.mpg',
+  '.mpeg',
+  '.tif',
+  '.wav',
+  '.mov',
+  '.psd',
+  '.ai',
+  '.xls',
+  '.mp4',
+  '.m4a',
+  '.swf',
+  '.dat',
+  '.dmg',
+  '.iso',
+  '.flv',
+  '.m4v',
+  '.torrent'
 ];
 
 var prerender = module.exports = function(req, res, next) {
