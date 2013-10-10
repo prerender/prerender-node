@@ -1,9 +1,12 @@
 var http = require('http');
 
+// googlebot, yahoo, and bingbot are not in this list because
+// we support _escaped_fragment_ instead of checking user
+// agent for those crawlers
 var crawlerUserAgents = [
-  'googlebot',
-  'yahoo',
-  'bingbot',
+  // 'googlebot',
+  // 'yahoo',
+  // 'bingbot',
   'baiduspider',
   'facebookexternalhit'
 ];
@@ -71,6 +74,9 @@ prerender.blacklisted = function(blacklist) {
 prerender.shouldShowPrerenderedPage = function(req) {  
   var userAgent = req.headers['user-agent'];
   if(!userAgent) return false;
+
+  //if it contains _escaped_fragment_, show prerendered page
+  if(req.url.indexOf('_escaped_fragment_') >= 0) return true;
 
   //if it is not a bot...dont prerender
   if(crawlerUserAgents.every(function(crawlerUserAgent){ return userAgent.toLowerCase().indexOf(crawlerUserAgent.toLowerCase()) === -1;})) return false;
