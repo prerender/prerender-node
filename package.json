@@ -21,5 +21,9 @@
   },
   "scripts": {
     "test": "mocha"
+  },
+  "dependencies": {
+    "phantomjs": "~1.9.2-2",
+    "phantom": "~0.5.2"
   }
 }
