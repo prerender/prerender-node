@@ -172,5 +172,12 @@ describe('Prerender', function(){
       assert.equal(prerender.buildApiUrl(req), 'http://prerenderurl.com/https://google.com/search?q=javascript');
       delete process.env.PRERENDER_SERVICE_URL;
     });
+
+    it('should build the correct api url with an initialization variable url', function(){
+      var req = { protocol: 'https', get: function(){return 'google.com';}, url: '/search?q=javascript' };
+      prerender.set('prerenderServiceUrl', 'http://prerenderurl.com');
+      assert.equal(prerender.buildApiUrl(req), 'http://prerenderurl.com/https://google.com/search?q=javascript');
+      delete prerender.prerenderServiceUrl;
+    });
   });
 });

@@ -5,7 +5,7 @@ Are you using backbone, angular, emberjs, etc, but you're unsure about the SEO i
 
 Use this express middleware that prerenders a javascript-rendered page and returns the HTML to the search engine crawler for SEO.
 
-`Note:` Add the `<meta name="fragment" content="!">` tag to the `<head>` of all of your pages if you are using normal urls or html5 pushstate. If you are using a `#` in your urls, make sure to change it to `#!`. [View Google's ajax crawling protocol](https://developers.google.com/webmasters/ajax-crawling/docs/getting-started)
+`Note:` If you are using a `#` in your urls, make sure to change it to `#!`. [View Google's ajax crawling protocol](https://developers.google.com/webmasters/ajax-crawling/docs/getting-started)
 
 via npm:
 
@@ -57,6 +57,12 @@ If you've deployed the prerender service on your own, set the `PRERENDER_SERVICE
 Or on heroku:
 
 	$ heroku config:add PRERENDER_SERVICE_URL=<new url>
+
+As an alternative, you can pass `prerender_service_url` in the options object during initialization of the middleware
+
+```js
+app.use(require('prerender-node').set('prerenderServiceUrl', '<new url>');
+```
 
 ## Contributing
 

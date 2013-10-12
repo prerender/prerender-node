@@ -1,12 +1,12 @@
 var http = require('http');
 
-// googlebot, yahoo, and bingbot are not in this list because
-// we support _escaped_fragment_ instead of checking user
-// agent for those crawlers
+// googlebot, yahoo, and bingbot are in this list even though
+// we support _escaped_fragment_ to ensure it works for people
+// who might not use the _escaped_fragment_ protocol
 var crawlerUserAgents = [
-  // 'googlebot',
-  // 'yahoo',
-  // 'bingbot',
+  'googlebot',
+  'yahoo',
+  'bingbot',
   'baiduspider',
   'facebookexternalhit'
 ];
@@ -127,5 +127,10 @@ prerender.buildApiUrl = function(req) {
 };
 
 prerender.getPrerenderServiceUrl = function() {
-  return process.env.PRERENDER_SERVICE_URL || 'http://prerender.herokuapp.com/';
+  return this.prerenderServiceUrl || process.env.PRERENDER_SERVICE_URL || 'http://prerender.herokuapp.com/';
 };
+
+prerender.set = function(name, value) {
+  this[name] = value;
+  return this;
+}
