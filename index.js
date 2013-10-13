@@ -8,7 +8,8 @@ var crawlerUserAgents = [
   'yahoo',
   'bingbot',
   'baiduspider',
-  'facebookexternalhit'
+  'facebookexternalhit',
+  'twitterbot'
 ];
 
 var extensionsToIgnore = [
