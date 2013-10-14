@@ -23,7 +23,7 @@ describe('Prerender', function(){
   });
 
   it('should return a prerendered response if user is a bot by checking for _escaped_fragment_', function(){
-    var req = { url: '/path?_escaped_fragment_=yes', headers: { 'user-agent': user } },
+    var req = { url: '/path?_escaped_fragment_=', headers: { 'user-agent': user } },
       res = { send: sinon.stub() },
       next = sinon.stub();
 
@@ -36,6 +36,17 @@ describe('Prerender', function(){
     assert.equal(next.callCount, 0);
     assert.equal(res.send.callCount, 1);
     assert.equal(res.send.getCall(0).args[0], '<html></html>');
+  });
+
+  it('should call next() if the url is a bad url with _escaped_fragment_', function(){
+    var req = { url: '/path?query=params?_escaped_fragment_=', headers: { 'user-agent': user } },
+      res = { send: sinon.stub() },
+      next = sinon.stub();
+
+    prerender(req, res, next);
+    
+    assert.equal(next.callCount, 1);
+    assert.equal(res.send.callCount, 0);
   });
 
   it('should call next() if user is not a bot by checking agent string', function(){

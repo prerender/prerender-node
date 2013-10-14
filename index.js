@@ -1,4 +1,5 @@
-var http = require('http');
+var http = require('http')
+  , url = require('url');
 
 // googlebot, yahoo, and bingbot are in this list even though
 // we support _escaped_fragment_ to ensure it works for people
@@ -77,7 +78,7 @@ prerender.shouldShowPrerenderedPage = function(req) {
   if(!userAgent) return false;
 
   //if it contains _escaped_fragment_, show prerendered page
-  if(req.url.indexOf('_escaped_fragment_') >= 0) return true;
+  if(url.parse(req.url, true).query.hasOwnProperty('_escaped_fragment_')) return true;
 
   //if it is not a bot...dont prerender
   if(crawlerUserAgents.every(function(crawlerUserAgent){ return userAgent.toLowerCase().indexOf(crawlerUserAgent.toLowerCase()) === -1;})) return false;
