@@ -1,4 +1,4 @@
-Prerender Node [![Build Status](https://travis-ci.org/collectiveip/prerender-node.png)](https://travis-ci.org/collectiveip/prerender-node)
+Prerender Node [![Build Status](https://travis-ci.org/collectiveip/prerender-node.png)](https://travis-ci.org/collectiveip/prerender-node) [![NPM version](https://badge.fury.io/js/prerender-node.png)](http://badge.fury.io/js/prerender-node)
 =========================== 
 
 Are you using backbone, angular, emberjs, etc, but you're unsure about the SEO implications?

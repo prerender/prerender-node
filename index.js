@@ -57,7 +57,7 @@ var prerender = module.exports = function(req, res, next) {
 
   prerender.getPrerenderedPageResponse(req, function(prerenderedResponse){
 
-    if(prerenderedResponse && prerenderedResponse.statusCode === 200) return res.send(prerenderedResponse.body);
+    if(prerenderedResponse) return res.send(prerenderedResponse.statusCode, prerenderedResponse.body);
 
     next();
   });

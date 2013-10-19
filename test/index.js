@@ -6,12 +6,12 @@ var assert = require('assert')
 
 describe('Prerender', function(){
 
-  it('should return a prerendered response', function(){
+  it('should return a prerendered response with the returned status code', function(){
     var req = { url: '/', headers: { 'user-agent': bot } },
       res = { send: sinon.stub() },
       next = sinon.stub();
 
-    sinon.stub(prerender, 'getPrerenderedPageResponse').callsArgWith(1, {statusCode: 200, body: '<html></html>'});
+    sinon.stub(prerender, 'getPrerenderedPageResponse').callsArgWith(1, {statusCode: 201, body: '<html></html>'});
 
     prerender(req, res, next);
 
@@ -19,7 +19,8 @@ describe('Prerender', function(){
 
     assert.equal(next.callCount, 0);
     assert.equal(res.send.callCount, 1);
-    assert.equal(res.send.getCall(0).args[0], '<html></html>');
+    assert.equal(res.send.getCall(0).args[1], '<html></html>');
+    assert.equal(res.send.getCall(0).args[0], 201);
   });
 
   it('should return a prerendered response if user is a bot by checking for _escaped_fragment_', function(){
@@ -35,7 +36,7 @@ describe('Prerender', function(){
 
     assert.equal(next.callCount, 0);
     assert.equal(res.send.callCount, 1);
-    assert.equal(res.send.getCall(0).args[0], '<html></html>');
+    assert.equal(res.send.getCall(0).args[1], '<html></html>');
   });
 
   it('should call next() if the url is a bad url with _escaped_fragment_', function(){
@@ -97,7 +98,7 @@ describe('Prerender', function(){
     delete prerender.whitelist;
     assert.equal(next.callCount, 0);
     assert.equal(res.send.callCount, 1);
-    assert.equal(res.send.getCall(0).args[0], '<html></html>');
+    assert.equal(res.send.getCall(0).args[1], '<html></html>');
   });
 
   it('should call next() if the url is part of the regex specific blacklist', function(){
@@ -126,7 +127,7 @@ describe('Prerender', function(){
     delete prerender.blacklist;
     assert.equal(next.callCount, 0);
     assert.equal(res.send.callCount, 1);
-    assert.equal(res.send.getCall(0).args[0], '<html></html>');
+    assert.equal(res.send.getCall(0).args[1], '<html></html>');
   });
 
   it('should call next() if the referer is part of the regex specific blacklist', function(){
@@ -155,7 +156,7 @@ describe('Prerender', function(){
     delete prerender.blacklist;
     assert.equal(next.callCount, 0);
     assert.equal(res.send.callCount, 1);
-    assert.equal(res.send.getCall(0).args[0], '<html></html>');
+    assert.equal(res.send.getCall(0).args[1], '<html></html>');
   });
 
   describe('#whitelisted', function(){
