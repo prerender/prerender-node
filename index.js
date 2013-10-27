@@ -16,6 +16,7 @@ var crawlerUserAgents = [
 var extensionsToIgnore = [
   '.js',
   '.css',
+  '.xml',
   '.less',
   '.png',
   '.jpg',
