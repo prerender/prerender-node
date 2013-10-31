@@ -106,7 +106,15 @@ prerender.shouldShowPrerenderedPage = function(req) {
 };
 
 prerender.getPrerenderedPageResponse = function(req, callback) {
-  http.get(prerender.buildApiUrl(req), function(res) {
+  var options = url.parse(prerender.buildApiUrl(req));
+  if(process.env.PRERENDER_TOKEN) {
+    options.headers = {
+      'X-Prerender-Token': process.env.PRERENDER_TOKEN,
+      'User-Agent': req.headers['user-agent']
+    };
+  }
+
+  http.get(options, function(res) {
 
     var pageData = "";
     res.on('data', function (chunk) {
