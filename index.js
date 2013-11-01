@@ -77,6 +77,7 @@ prerender.blacklisted = function(blacklist) {
 prerender.shouldShowPrerenderedPage = function(req) {  
   var userAgent = req.headers['user-agent'];
   if(!userAgent) return false;
+  if(req.method != 'GET') return false;
 
   //if it contains _escaped_fragment_, show prerendered page
   if(url.parse(req.url, true).query.hasOwnProperty('_escaped_fragment_')) return true;
