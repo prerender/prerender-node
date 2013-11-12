@@ -137,7 +137,14 @@ prerender.getPrerenderedPageResponse = function(req, callback) {
 prerender.buildApiUrl = function(req) {
   var prerenderUrl = prerender.getPrerenderServiceUrl();
   var forwardSlash = prerenderUrl.indexOf('/', prerenderUrl.length - 1) !== -1 ? '' : '/';
-  var fullUrl = req.protocol + "://" + req.get('host') + req.url;
+
+  // Check CF-Visitor header in order to Work behind CloudFlare with Flexible SSL (https://support.cloudflare.com/hc/en-us/articles/200170536)
+  var protocol = req.protocol;
+  if (req.get('CF-Visitor')) {
+    var match = req.get('CF-Visitor').match(/"scheme":"(http|https)"/);
+    if (match) protocol = match[1];
+  }
+  var fullUrl = protocol + "://" + req.get('host') + req.url;
   return prerenderUrl + forwardSlash + fullUrl
 };
 
