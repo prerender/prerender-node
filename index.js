@@ -1,18 +1,6 @@
 var http = require('http')
   , url = require('url');
 
-// googlebot, yahoo, and bingbot are in this list even though
-// we support _escaped_fragment_ to ensure it works for people
-// who might not use the _escaped_fragment_ protocol
-var crawlerUserAgents = [
-  'googlebot',
-  'yahoo',
-  'bingbot',
-  'baiduspider',
-  'facebookexternalhit',
-  'twitterbot'
-];
-
 var extensionsToIgnore = [
   '.js',
   '.css',
@@ -67,6 +55,18 @@ var prerender = module.exports = function(req, res, next) {
   });
 };
 
+// googlebot, yahoo, and bingbot are in this list even though
+// we support _escaped_fragment_ to ensure it works for people
+// who might not use the _escaped_fragment_ protocol
+prerender.crawlerUserAgents = [
+  'googlebot',
+  'yahoo',
+  'bingbot',
+  'baiduspider',
+  'facebookexternalhit',
+  'twitterbot'
+];
+
 prerender.whitelisted = function(whitelist) {
   prerender.whitelist = typeof whitelist === 'string' ? [whitelist] : whitelist;
   return this;
@@ -86,7 +86,7 @@ prerender.shouldShowPrerenderedPage = function(req) {
   if(url.parse(req.url, true).query.hasOwnProperty('_escaped_fragment_')) return true;
 
   //if it is not a bot...dont prerender
-  if(crawlerUserAgents.every(function(crawlerUserAgent){ return userAgent.toLowerCase().indexOf(crawlerUserAgent.toLowerCase()) === -1;})) return false;
+  if(this.crawlerUserAgents.every(function(crawlerUserAgent){ return userAgent.toLowerCase().indexOf(crawlerUserAgent.toLowerCase()) === -1;})) return false;
 
   //if it is a bot and is requesting a resource...dont prerender
   if(extensionsToIgnore.some(function(extension){return req.url.indexOf(extension) !== -1;})) return false;
