@@ -1,7 +1,34 @@
 var http = require('http')
   , url = require('url');
 
-var extensionsToIgnore = [
+var prerender = module.exports = function(req, res, next) {
+
+  if(!prerender.shouldShowPrerenderedPage(req)) return next();
+
+  prerender.getPrerenderedPageResponse(req, function(prerenderedResponse){
+
+    if(prerenderedResponse) {
+      res.set(prerenderedResponse.headers);
+      return res.send(prerenderedResponse.statusCode, prerenderedResponse.body);
+    }
+
+    next();
+  });
+};
+
+// googlebot, yahoo, and bingbot are in this list even though
+// we support _escaped_fragment_ to ensure it works for people
+// who might not use the _escaped_fragment_ protocol
+prerender.crawlerUserAgents = [
+  'googlebot',
+  'yahoo',
+  'bingbot',
+  'baiduspider',
+  'facebookexternalhit',
+  'twitterbot'
+];
+
+prerender.extensionsToIgnore = [
   '.js',
   '.css',
   '.xml',
@@ -40,33 +67,6 @@ var extensionsToIgnore = [
   '.torrent'
 ];
 
-var prerender = module.exports = function(req, res, next) {
-
-  if(!prerender.shouldShowPrerenderedPage(req)) return next();
-
-  prerender.getPrerenderedPageResponse(req, function(prerenderedResponse){
-
-    if(prerenderedResponse) {
-      res.set(prerenderedResponse.headers);
-      return res.send(prerenderedResponse.statusCode, prerenderedResponse.body);
-    }
-
-    next();
-  });
-};
-
-// googlebot, yahoo, and bingbot are in this list even though
-// we support _escaped_fragment_ to ensure it works for people
-// who might not use the _escaped_fragment_ protocol
-prerender.crawlerUserAgents = [
-  'googlebot',
-  'yahoo',
-  'bingbot',
-  'baiduspider',
-  'facebookexternalhit',
-  'twitterbot'
-];
-
 prerender.whitelisted = function(whitelist) {
   prerender.whitelist = typeof whitelist === 'string' ? [whitelist] : whitelist;
   return this;
@@ -89,7 +89,7 @@ prerender.shouldShowPrerenderedPage = function(req) {
   if(this.crawlerUserAgents.every(function(crawlerUserAgent){ return userAgent.toLowerCase().indexOf(crawlerUserAgent.toLowerCase()) === -1;})) return false;
 
   //if it is a bot and is requesting a resource...dont prerender
-  if(extensionsToIgnore.some(function(extension){return req.url.indexOf(extension) !== -1;})) return false;
+  if(this.extensionsToIgnore.some(function(extension){return req.url.indexOf(extension) !== -1;})) return false;
 
   //if it is a bot and not requesting a resource and is not whitelisted...dont prerender
   if(Array.isArray(this.whitelist) && this.whitelist.every(function(whitelisted){return (new RegExp(whitelisted)).test(req.url) === false;})) return false;
