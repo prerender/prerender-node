@@ -26,6 +26,27 @@ app.use(require('prerender-node'));
 2. Make a `GET` request to the [prerender service](https://github.com/collectiveip/prerender)(phantomjs server) for the page's prerendered HTML
 3. Return that HTML to the crawler
 
+## Caching
+
+This express middleware is ready to be used with [redis](http://redis.io/) or [memcached](http://memcached.org/) to return prerendered pages in milliseconds.
+
+When setting up the middleware, you can add a `beforeRender` function and `afterRender` function for caching.
+
+Here's an example testing a local redis cache:
+
+	$ npm install redis
+
+```js
+var redis = require("redis"),
+	client = redis.createClient();
+
+prerender.set('beforeRender', function(req, done) {
+	client.get(req.url, done);
+}).set('afterRender', function(req, prerender_res) {
+	client.set(req.url, prerender_res.body)
+});
+```
+
 ## Customization
 
 ### Whitelist
@@ -48,7 +69,26 @@ app.use(require('prerender-node').blacklisted('^/search'));
 app.use(require('prerender-node').blacklisted(['/search', '/users/.*/profile']));
 ```
 
-### Using your own prerender service
+### beforeRender
+
+This method is intended to be used for caching, but could be used to save analytics or anything else you need to do for each crawler request. If you return a string from beforeRender, the middleware will serve that to the crawler instead of making a request to the prerender service.
+```js
+app.use(require('prerender-node').set('beforeRender', function(req, done) {
+	// do whatever you need to do
+	done();
+});
+```
+
+### afterRender
+
+This method is intended to be used for caching, but could be used to save analytics or anything else you need to do for each crawler request. This method is a noop and is called after the prerender service returns HTML.
+```js
+app.use(require('prerender-node').set('afterRender', function(req, prerender_res) {
+	// do whatever you need to do
+});
+```
+
+## Using your own prerender service
 
 If you've deployed the prerender service on your own, set the `PRERENDER_SERVICE_URL` environment variable so that this package points there instead. Otherwise, it will default to the service already deployed at `http://prerender.herokuapp.com`
 

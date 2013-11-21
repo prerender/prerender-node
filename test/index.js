@@ -171,6 +171,22 @@ describe('Prerender', function(){
     assert.equal(res.send.getCall(0).args[1], '<html></html>');
   });
 
+  it('should return a prerendered response if a string is returned from beforeRender', function(){
+    var req = { method: 'GET', url: '/', headers: { 'user-agent': bot } },
+      res = { send: sinon.stub(), set: sinon.stub() },
+      next = sinon.stub();
+
+    prerender.set('beforeRender', function(req, done) {
+      done(null, '<html>cached</html>');
+    });
+
+    prerender(req, res, next);
+
+    assert.equal(next.callCount, 0);
+    assert.equal(res.send.callCount, 1);
+    assert.equal(res.send.getCall(0).args[1], '<html>cached</html>');
+  });
+
   describe('#whitelisted', function(){
     it('should return the prerendered middleware function', function(){
       assert.equal(prerender.whitelisted(), prerender);

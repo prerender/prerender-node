@@ -5,14 +5,22 @@ var prerender = module.exports = function(req, res, next) {
 
   if(!prerender.shouldShowPrerenderedPage(req)) return next();
 
-  prerender.getPrerenderedPageResponse(req, function(prerenderedResponse){
+  prerender.beforeRenderFn(req, function(err, cachedRender) {
 
-    if(prerenderedResponse) {
-      res.set(prerenderedResponse.headers);
-      return res.send(prerenderedResponse.statusCode, prerenderedResponse.body);
+    if (!err && cachedRender && typeof cachedRender == 'string') {
+      return res.send(200, cachedRender);
     }
 
-    next();
+    prerender.getPrerenderedPageResponse(req, function(prerenderedResponse){
+
+      if(prerenderedResponse) {
+        prerender.afterRenderFn(req, prerenderedResponse);
+        res.set(prerenderedResponse.headers);
+        return res.send(prerenderedResponse.statusCode, prerenderedResponse.body);
+      }
+
+      next();
+    });
   });
 };
 
@@ -27,6 +35,7 @@ prerender.crawlerUserAgents = [
   'facebookexternalhit',
   'twitterbot'
 ];
+
 
 prerender.extensionsToIgnore = [
   '.js',
@@ -67,15 +76,18 @@ prerender.extensionsToIgnore = [
   '.torrent'
 ];
 
+
 prerender.whitelisted = function(whitelist) {
   prerender.whitelist = typeof whitelist === 'string' ? [whitelist] : whitelist;
   return this;
 };
 
+
 prerender.blacklisted = function(blacklist) {
   prerender.blacklist = typeof blacklist === 'string' ? [blacklist] : blacklist;
   return this;
 };
+
 
 prerender.shouldShowPrerenderedPage = function(req) {  
   var userAgent = req.headers['user-agent'];
@@ -86,10 +98,10 @@ prerender.shouldShowPrerenderedPage = function(req) {
   if(url.parse(req.url, true).query.hasOwnProperty('_escaped_fragment_')) return true;
 
   //if it is not a bot...dont prerender
-  if(this.crawlerUserAgents.every(function(crawlerUserAgent){ return userAgent.toLowerCase().indexOf(crawlerUserAgent.toLowerCase()) === -1;})) return false;
+  if(prerender.crawlerUserAgents.every(function(crawlerUserAgent){ return userAgent.toLowerCase().indexOf(crawlerUserAgent.toLowerCase()) === -1;})) return false;
 
   //if it is a bot and is requesting a resource...dont prerender
-  if(this.extensionsToIgnore.some(function(extension){return req.url.indexOf(extension) !== -1;})) return false;
+  if(prerender.extensionsToIgnore.some(function(extension){return req.url.indexOf(extension) !== -1;})) return false;
 
   //if it is a bot and not requesting a resource and is not whitelisted...dont prerender
   if(Array.isArray(this.whitelist) && this.whitelist.every(function(whitelisted){return (new RegExp(whitelisted)).test(req.url) === false;})) return false;
@@ -108,6 +120,7 @@ prerender.shouldShowPrerenderedPage = function(req) {
 
   return true;
 };
+
 
 prerender.getPrerenderedPageResponse = function(req, callback) {
   var options = url.parse(prerender.buildApiUrl(req));
@@ -134,6 +147,7 @@ prerender.getPrerenderedPageResponse = function(req, callback) {
   });
 };
 
+
 prerender.buildApiUrl = function(req) {
   var prerenderUrl = prerender.getPrerenderServiceUrl();
   var forwardSlash = prerenderUrl.indexOf('/', prerenderUrl.length - 1) !== -1 ? '' : '/';
@@ -147,11 +161,26 @@ prerender.buildApiUrl = function(req) {
   return prerenderUrl + forwardSlash + fullUrl
 };
 
+
 prerender.getPrerenderServiceUrl = function() {
   return this.prerenderServiceUrl || process.env.PRERENDER_SERVICE_URL || 'http://prerender.herokuapp.com/';
 };
 
+prerender.beforeRenderFn = function(req, done) {
+  if (!this.beforeRender) return done();
+
+  return this.beforeRender(req, done);
+};
+
+
+prerender.afterRenderFn = function(req, prerender_res) {
+  if (!this.afterRender) return;
+
+  this.afterRender(req, prerender_res);
+};
+
+
 prerender.set = function(name, value) {
   this[name] = value;
   return this;
-}
+};
