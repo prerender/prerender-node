@@ -49,6 +49,8 @@ prerender.extensionsToIgnore = [
   '.pdf',
   '.doc',
   '.txt',
+  '.ico',
+  '.rss',
   '.zip',
   '.mp3',
   '.rar',
