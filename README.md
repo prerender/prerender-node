@@ -17,6 +17,12 @@ And when you set up your express app, add:
 app.use(require('prerender-node'));
 ```
 
+or if you have an account on [prerender.io](http://prerender.io) and want to use your token:
+
+```js
+app.use(require('prerender-node').set('prerenderToken', 'YOUR_TOKEN'));
+```
+
 ## How it works
 1. Check to make sure we should show a prerendered page
 	1. Check if the request is from a crawler (`_escaped_fragment_` or agent string)

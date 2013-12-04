@@ -126,9 +126,9 @@ prerender.shouldShowPrerenderedPage = function(req) {
 
 prerender.getPrerenderedPageResponse = function(req, callback) {
   var options = url.parse(prerender.buildApiUrl(req));
-  if(process.env.PRERENDER_TOKEN) {
+  if(this.prerenderToken || process.env.PRERENDER_TOKEN) {
     options.headers = {
-      'X-Prerender-Token': process.env.PRERENDER_TOKEN,
+      'X-Prerender-Token': this.prerenderToken || process.env.PRERENDER_TOKEN,
       'User-Agent': req.headers['user-agent']
     };
   }
