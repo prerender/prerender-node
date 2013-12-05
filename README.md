@@ -1,11 +1,14 @@
 Prerender Node [![Build Status](https://travis-ci.org/collectiveip/prerender-node.png)](https://travis-ci.org/collectiveip/prerender-node) [![NPM version](https://badge.fury.io/js/prerender-node.png)](http://badge.fury.io/js/prerender-node)
 =========================== 
 
-Are you using backbone, angular, emberjs, etc, but you're unsure about the SEO implications?
+Google, Facebook, Twitter, Yahoo, and Bing are constantly trying to view your website... but they don't execute javascript. That's why we built Prerender. Prerender is perfect for AngularJS SEO, BackboneJS SEO, EmberJS SEO, and any other javascript framework.
 
-Use this express middleware that prerenders a javascript-rendered page and returns the HTML to the search engine crawler for SEO.
+This middleware intercepts requests to your Node.js website from crawlers, and then makes a call to the (external) Prerender Service to get the static HTML instead of the javascript for that page.
 
-`Note:` If you are using a `#` in your urls, make sure to change it to `#!`. [View Google's ajax crawling protocol](https://developers.google.com/webmasters/ajax-crawling/docs/getting-started)
+Prerender adheres to google's `_escaped_fragment_` proposal, which we recommend you use. It's easy:
+- Just add &lt;meta name="fragment" content="!"> to the &lt;head> of all of your pages
+- If you use hash urls (#), change them to the hash-bang (#!)
+- That's it! Perfect SEO on javascript pages.
 
 via npm:
 
@@ -24,36 +27,15 @@ app.use(require('prerender-node').set('prerenderToken', 'YOUR_TOKEN'));
 ```
 
 ## How it works
-1. Check to make sure we should show a prerendered page
-	1. Check if the request is from a crawler (`_escaped_fragment_` or agent string)
-	2. Check to make sure we aren't requesting a resource (js, css, etc...)
-	3. (optional) Check to make sure the url is in the whitelist
-	4. (optional) Check to make sure the url isn't in the blacklist
-2. Make a `GET` request to the [prerender service](https://github.com/collectiveip/prerender)(phantomjs server) for the page's prerendered HTML
+1. The middleware checks to make sure we should show a prerendered page
+	1. The middleware checks if the request is from a crawler (`_escaped_fragment_` or agent string)
+	2. The middleware checks to make sure we aren't requesting a resource (js, css, etc...)
+	3. (optional) The middleware checks to make sure the url is in the whitelist
+	4. (optional) The middleware checks to make sure the url isn't in the blacklist
+2. The middleware makes a `GET` request to the [prerender service](https://github.com/collectiveip/prerender)(phantomjs server) for the page's prerendered HTML
 3. Return that HTML to the crawler
 
-## Caching
-
-This express middleware is ready to be used with [redis](http://redis.io/) or [memcached](http://memcached.org/) to return prerendered pages in milliseconds.
-
-When setting up the middleware, you can add a `beforeRender` function and `afterRender` function for caching.
-
-Here's an example testing a local redis cache:
-
-	$ npm install redis
-
-```js
-var redis = require("redis"),
-	client = redis.createClient();
-
-prerender.set('beforeRender', function(req, done) {
-	client.get(req.url, done);
-}).set('afterRender', function(req, prerender_res) {
-	client.set(req.url, prerender_res.body)
-});
-```
-
-## Customization
+# Customization
 
 ### Whitelist
 
@@ -94,9 +76,30 @@ app.use(require('prerender-node').set('afterRender', function(req, prerender_res
 });
 ```
 
+## Caching
+
+This express middleware is ready to be used with [redis](http://redis.io/) or [memcached](http://memcached.org/) to return prerendered pages in milliseconds.
+
+When setting up the middleware, you can add a `beforeRender` function and `afterRender` function for caching.
+
+Here's an example testing a local redis cache:
+
+	$ npm install redis
+
+```js
+var redis = require("redis"),
+	client = redis.createClient();
+
+prerender.set('beforeRender', function(req, done) {
+	client.get(req.url, done);
+}).set('afterRender', function(req, prerender_res) {
+	client.set(req.url, prerender_res.body)
+});
+```
+
 ## Using your own prerender service
 
-If you've deployed the prerender service on your own, set the `PRERENDER_SERVICE_URL` environment variable so that this package points there instead. Otherwise, it will default to the service already deployed at `http://prerender.herokuapp.com`
+We host a Prerender server at [prerender.io](http://prerender.io) so that you can work on more important things, but if you've deployed the prerender service on your own... set the `PRERENDER_SERVICE_URL` environment variable so that this middleware points there instead. Otherwise, it will default to the service already deployed by [prerender.io](http://prerender.io).
 
 	$ export PRERENDER_SERVICE_URL=<new url>
 
@@ -107,16 +110,12 @@ Or on heroku:
 As an alternative, you can pass `prerender_service_url` in the options object during initialization of the middleware
 
 ```js
-app.use(require('prerender-node').set('prerenderServiceUrl', '<new url>'));
+app.use(require('prerender-node').set('prerenderServiceUrl', '&lt;new url>'));
 ```
 
 ## Contributing
 
-1. Fork it
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request
+We love any contributions! Feel free to create issues, pull requests, or middleware for other languages/frameworks!
 
 ## License
 
