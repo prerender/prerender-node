@@ -26,6 +26,8 @@ or if you have an account on [prerender.io](http://prerender.io) and want to use
 app.use(require('prerender-node').set('prerenderToken', 'YOUR_TOKEN'));
 ```
 
+`Note` If you're testing locally, you'll need to run the [prerender server](https://github.com/collectiveip/prerender) locally so that it has access to your server.
+
 ## How it works
 1. The middleware checks to make sure we should show a prerendered page
 	1. The middleware checks if the request is from a crawler (`_escaped_fragment_` or agent string)
