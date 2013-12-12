@@ -210,7 +210,7 @@ describe('Prerender', function(){
       };
 
       delete process.env.PRERENDER_SERVICE_URL;
-      assert.equal(prerender.buildApiUrl(req), 'http://prerender.herokuapp.com/https://google.com/search?q=javascript');
+      assert.equal(prerender.buildApiUrl(req), 'http://service.prerender.io/https://google.com/search?q=javascript');
     });
 
     it('should build the correct api url with an environment variable url', function(){
@@ -253,7 +253,7 @@ describe('Prerender', function(){
       };
 
       delete process.env.PRERENDER_SERVICE_URL;
-      assert.equal(prerender.buildApiUrl(req), 'http://prerender.herokuapp.com/https://google.com/search?q=javascript');
+      assert.equal(prerender.buildApiUrl(req), 'http://service.prerender.io/https://google.com/search?q=javascript');
     });
   });
 });
