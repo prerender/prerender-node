@@ -85,7 +85,7 @@ describe('Prerender', function(){
   });
 
   it('should call next() if the url is not part of the regex specific whitelist', function(){
-    var req = { method: 'GET', url: '/saved/search/blah', headers: { 'user-agent': bot } },
+    var req = { method: 'GET', url: '/saved/search/blah?_escaped_fragment_=', headers: { 'user-agent': bot } },
       res = { send: sinon.stub(), set: sinon.stub() },
       next = sinon.stub();
 
@@ -97,7 +97,7 @@ describe('Prerender', function(){
   });
 
   it('should return a prerendered response if the url is part of the regex specific whitelist', function(){
-    var req = { method: 'GET', url: '/search/things?query=blah', headers: { 'user-agent': bot } },
+    var req = { method: 'GET', url: '/search/things?query=blah&_escaped_fragment_=', headers: { 'user-agent': bot } },
       res = { send: sinon.stub(), set: sinon.stub() },
       next = sinon.stub();
 

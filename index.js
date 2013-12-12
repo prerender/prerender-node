@@ -92,15 +92,17 @@ prerender.blacklisted = function(blacklist) {
 
 
 prerender.shouldShowPrerenderedPage = function(req) {  
-  var userAgent = req.headers['user-agent'];
+  var userAgent = req.headers['user-agent']
+    , isRequestingPrerenderedPage = false;
+
   if(!userAgent) return false;
   if(req.method != 'GET') return false;
 
   //if it contains _escaped_fragment_, show prerendered page
-  if(url.parse(req.url, true).query.hasOwnProperty('_escaped_fragment_')) return true;
+  if(url.parse(req.url, true).query.hasOwnProperty('_escaped_fragment_')) isRequestingPrerenderedPage = true;
 
-  //if it is not a bot...dont prerender
-  if(prerender.crawlerUserAgents.every(function(crawlerUserAgent){ return userAgent.toLowerCase().indexOf(crawlerUserAgent.toLowerCase()) === -1;})) return false;
+  //if it is a bot...show prerendered page
+  if(prerender.crawlerUserAgents.some(function(crawlerUserAgent){ return userAgent.toLowerCase().indexOf(crawlerUserAgent.toLowerCase()) !== -1;})) isRequestingPrerenderedPage = true;
 
   //if it is a bot and is requesting a resource...dont prerender
   if(prerender.extensionsToIgnore.some(function(extension){return req.url.indexOf(extension) !== -1;})) return false;
@@ -120,7 +122,7 @@ prerender.shouldShowPrerenderedPage = function(req) {
     return blacklistedUrl || blacklistedReferer;
   })) return false;
 
-  return true;
+  return isRequestingPrerenderedPage;
 };
 
 
