@@ -34,6 +34,7 @@ prerender.crawlerUserAgents = [
   'baiduspider',
   'facebookexternalhit',
   'twitterbot',
+  'rogerbot',
   'linkedinbot',
   'embedly'
 ];
