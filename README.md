@@ -1,4 +1,4 @@
-Prerender Node [![Build Status](https://travis-ci.org/collectiveip/prerender-node.png)](https://travis-ci.org/collectiveip/prerender-node) [![NPM version](https://badge.fury.io/js/prerender-node.png)](http://badge.fury.io/js/prerender-node)
+Prerender Node [![Build Status](https://travis-ci.org/prerender/prerender-node.png)](https://travis-ci.org/prerender/prerender-node) [![NPM version](https://badge.fury.io/js/prerender-node.png)](http://badge.fury.io/js/prerender-node)
 =========================== 
 
 Google, Facebook, Twitter, Yahoo, and Bing are constantly trying to view your website... but they don't execute javascript. That's why we built Prerender. Prerender is perfect for AngularJS SEO, BackboneJS SEO, EmberJS SEO, and any other javascript framework.
@@ -26,7 +26,7 @@ or if you have an account on [prerender.io](http://prerender.io) and want to use
 app.use(require('prerender-node').set('prerenderToken', 'YOUR_TOKEN'));
 ```
 
-`Note` If you're testing locally, you'll need to run the [prerender server](https://github.com/collectiveip/prerender) locally so that it has access to your server.
+`Note` If you're testing locally, you'll need to run the [prerender server](https://github.com/prerender/prerender) locally so that it has access to your server.
 
 ## Testing
 
@@ -46,7 +46,7 @@ If your URLs use push-state:
 	2. The middleware checks to make sure we aren't requesting a resource (js, css, etc...)
 	3. (optional) The middleware checks to make sure the url is in the whitelist
 	4. (optional) The middleware checks to make sure the url isn't in the blacklist
-2. The middleware makes a `GET` request to the [prerender service](https://github.com/collectiveip/prerender)(phantomjs server) for the page's prerendered HTML
+2. The middleware makes a `GET` request to the [prerender service](https://github.com/prerender/prerender)(phantomjs server) for the page's prerendered HTML
 3. Return that HTML to the crawler
 
 # Customization
@@ -135,7 +135,7 @@ We love any contributions! Feel free to create issues, pull requests, or middlew
 
 The MIT License (MIT)
 
-Copyright (c) 2013 Todd Hooper &lt;todd@collectiveip.com&gt;
+Copyright (c) 2013 Todd Hooper &lt;todd@prerender.io&gt;
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
