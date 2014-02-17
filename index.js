@@ -1,5 +1,16 @@
-var http = require('http')
-  , url = require('url');
+// prerender.io port for Parse.com cloud hosting
+
+/*
+ // We're going to use the Parse.Cloud.httpRequest method instead of http module
+ var http = require('http')
+ */
+var url = require('url');
+
+
+// Parse doesn't expose this process object, so create a dummy obj to avoid null refs
+var process = {
+  env: {}
+};
 
 var prerender = module.exports = function(req, res, next) {
 
@@ -94,7 +105,7 @@ prerender.blacklisted = function(blacklist) {
 };
 
 
-prerender.shouldShowPrerenderedPage = function(req) {  
+prerender.shouldShowPrerenderedPage = function(req) {
   var userAgent = req.headers['user-agent']
     , isRequestingPrerenderedPage = false;
 
@@ -130,7 +141,8 @@ prerender.shouldShowPrerenderedPage = function(req) {
 
 
 prerender.getPrerenderedPageResponse = function(req, callback) {
-  var options = url.parse(prerender.buildApiUrl(req));
+  var options = {};
+  options.url = url.parse(prerender.buildApiUrl(req));
   if(this.prerenderToken || process.env.PRERENDER_TOKEN) {
     options.headers = {
       'X-Prerender-Token': this.prerenderToken || process.env.PRERENDER_TOKEN,
@@ -138,19 +150,19 @@ prerender.getPrerenderedPageResponse = function(req, callback) {
     };
   }
 
-  http.get(options, function(res) {
-
-    var pageData = "";
-    res.on('data', function (chunk) {
-      pageData += chunk;
-    });
-
-    res.on('end', function(){
-      res.body = pageData;
+  // Use Parse's Cloud Code httpRequest method
+  Parse.Cloud.httpRequest({
+    url: options.url.href,
+    headers: options.headers,
+    success: function(res) {
+      res.body = res.text;
+      res.statusCode = res.status;
       callback(res);
-    });
-  }).on('error', function(e) {
-    callback(null);
+    },
+    error: function(res) {
+      console.error('Request failed with code ' + res.status);
+      callback(null);
+    }
   });
 };
 
