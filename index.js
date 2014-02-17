@@ -1,16 +1,12 @@
-// prerender.io port for Parse.com cloud hosting
 
-/*
- // We're going to use the Parse.Cloud.httpRequest method instead of http module
- var http = require('http')
- */
-var url = require('url');
+
+var http = require('http'),
+  url = require('url');
 
 
 // Parse doesn't expose this process object, so create a dummy obj to avoid null refs
-var process = {
-  env: {}
-};
+var process = process || {};
+process.env = process.env || {};
 
 var prerender = module.exports = function(req, res, next) {
 
@@ -34,6 +30,8 @@ var prerender = module.exports = function(req, res, next) {
     });
   });
 };
+
+prerender.useParseCloud = typeof Parse !== 'undefined';
 
 // googlebot, yahoo, and bingbot are not in this list because
 // we support _escaped_fragment_ and want to ensure people aren't
@@ -141,8 +139,7 @@ prerender.shouldShowPrerenderedPage = function(req) {
 
 
 prerender.getPrerenderedPageResponse = function(req, callback) {
-  var options = {};
-  options.url = url.parse(prerender.buildApiUrl(req));
+  var options = url.parse(prerender.buildApiUrl(req));
   if(this.prerenderToken || process.env.PRERENDER_TOKEN) {
     options.headers = {
       'X-Prerender-Token': this.prerenderToken || process.env.PRERENDER_TOKEN,
@@ -150,20 +147,40 @@ prerender.getPrerenderedPageResponse = function(req, callback) {
     };
   }
 
-  // Use Parse's Cloud Code httpRequest method
-  Parse.Cloud.httpRequest({
-    url: options.url.href,
-    headers: options.headers,
-    success: function(res) {
-      res.body = res.text;
-      res.statusCode = res.status;
-      callback(res);
-    },
-    error: function(res) {
-      console.error('Request failed with code ' + res.status);
-      callback(null);
-    }
-  });
+  if(prerender.useParseCloud) {
+    // Use Parse's Cloud Code httpRequest method
+    Parse.Cloud.httpRequest({
+      url: options.href,
+      headers: options.headers,
+      success: function(res) {
+        res.body = res.text;
+        res.statusCode = res.status;
+        callback(res);
+      },
+      error: function(res) {
+        console.error('Request failed with code ' + res.status);
+        console.error(res);
+        callback(null);
+      }
+    });
+  } else {
+    // Not on Parse, use http api
+    http.get(options, function(res) {
+
+      var pageData = "";
+      res.on('data', function (chunk) {
+        pageData += chunk;
+      });
+
+      res.on('end', function(){
+        res.body = pageData;
+        callback(res);
+      });
+    }).on('error', function(e) {
+        callback(null);
+      });
+  }
+
 };
 
 
