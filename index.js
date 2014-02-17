@@ -5,8 +5,8 @@ var http = require('http'),
 
 
 // Parse doesn't expose this process object, so create a dummy obj to avoid null refs
-var process = process || {};
-process.env = process.env || {};
+var proc = process || {};
+proc.env = proc.env || {};
 
 var prerender = module.exports = function(req, res, next) {
 
@@ -140,9 +140,9 @@ prerender.shouldShowPrerenderedPage = function(req) {
 
 prerender.getPrerenderedPageResponse = function(req, callback) {
   var options = url.parse(prerender.buildApiUrl(req));
-  if(this.prerenderToken || process.env.PRERENDER_TOKEN) {
+  if(this.prerenderToken || proc.env.PRERENDER_TOKEN) {
     options.headers = {
-      'X-Prerender-Token': this.prerenderToken || process.env.PRERENDER_TOKEN,
+      'X-Prerender-Token': this.prerenderToken || proc.env.PRERENDER_TOKEN,
       'User-Agent': req.headers['user-agent']
     };
   }
@@ -199,7 +199,7 @@ prerender.buildApiUrl = function(req) {
 
 
 prerender.getPrerenderServiceUrl = function() {
-  return this.prerenderServiceUrl || process.env.PRERENDER_SERVICE_URL || 'http://service.prerender.io/';
+  return this.prerenderServiceUrl || proc.env.PRERENDER_SERVICE_URL || 'http://service.prerender.io/';
 };
 
 prerender.beforeRenderFn = function(req, done) {
