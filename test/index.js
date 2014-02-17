@@ -255,5 +255,20 @@ describe('Prerender', function(){
       delete process.env.PRERENDER_SERVICE_URL;
       assert.equal(prerender.buildApiUrl(req), 'http://service.prerender.io/https://google.com/search?q=javascript');
     });
+
+    // Check X-Forwarded-Proto because Heroku SSL Support terminates at the load balancer
+    it('should build the correct api url for the Heroku SSL Addon support', function() {
+      var req = {
+        protocol: 'http',
+        url: '/search?q=javascript',
+        get: function(v){
+          if(v === 'host') return 'google.com';
+          if(v === 'X-Forwarded-Proto') return 'https';
+        }
+      };
+
+      delete process.env.PRERENDER_SERVICE_URL;
+      assert.equal(prerender.buildApiUrl(req), 'http://service.prerender.io/https://google.com/search?q=javascript');
+    });
   });
 });

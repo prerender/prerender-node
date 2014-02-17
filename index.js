@@ -164,6 +164,9 @@ prerender.buildApiUrl = function(req) {
     var match = req.get('CF-Visitor').match(/"scheme":"(http|https)"/);
     if (match) protocol = match[1];
   }
+  if (req.get('X-Forwarded-Proto')) {
+    protocol = req.get('X-Forwarded-Proto');
+  }
   var fullUrl = protocol + "://" + req.get('host') + req.url;
   return prerenderUrl + forwardSlash + fullUrl
 };
