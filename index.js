@@ -4,10 +4,6 @@ var http = require('http'),
   url = require('url');
 
 
-// Parse doesn't expose this process object, so create a dummy obj to avoid null refs
-var proc = process || {};
-proc.env = proc.env || {};
-
 var prerender = module.exports = function(req, res, next) {
 
   if(!prerender.shouldShowPrerenderedPage(req)) return next();
@@ -31,7 +27,22 @@ var prerender = module.exports = function(req, res, next) {
   });
 };
 
-prerender.useParseCloud = typeof Parse !== 'undefined';
+// Helper method to get the prerenderServiceUrl from the env variable.
+prerender.getEnvServiceUrl = function() {
+  if(typeof process !== 'undefined' && typeof process.env !== 'undefined') {
+    return process.env.PRERENDER_SERVICE_URL;
+  }
+  return undefined;
+};
+
+// Can't set prerenderServiceUrl below since it needs to be changed later
+// on in a unit test, after this init code. Created method above to handle
+// scenario.
+if(typeof process !== 'undefined' && typeof process.env !== 'undefined') {
+  prerender.prerenderToken = process.env.PRERENDER_TOKEN;
+}
+
+
 
 // googlebot, yahoo, and bingbot are not in this list because
 // we support _escaped_fragment_ and want to ensure people aren't
@@ -137,49 +148,40 @@ prerender.shouldShowPrerenderedPage = function(req) {
   return isRequestingPrerenderedPage;
 };
 
+// Default node http adaptor
+prerender.adaptor = function(options, callback) {
+  http.get(options, function(res) {
+    var pageData = "";
+    res.on('data', function (chunk) {
+      pageData += chunk;
+    });
+
+    res.on('end', function(){
+      res.body = pageData;
+      callback(res);
+    });
+  }).on('error', function(e) {
+      callback(null);
+    });
+};
+
+prerender.setAdaptor = function(adaptor) {
+  if(adaptor) {
+    this.adaptor = adaptor;
+  }
+  return this;
+};
 
 prerender.getPrerenderedPageResponse = function(req, callback) {
   var options = url.parse(prerender.buildApiUrl(req));
-  if(this.prerenderToken || proc.env.PRERENDER_TOKEN) {
+  if(this.prerenderToken) {
     options.headers = {
-      'X-Prerender-Token': this.prerenderToken || proc.env.PRERENDER_TOKEN,
+      'X-Prerender-Token': this.prerenderToken,
       'User-Agent': req.headers['user-agent']
     };
   }
 
-  if(prerender.useParseCloud) {
-    // Use Parse's Cloud Code httpRequest method
-    Parse.Cloud.httpRequest({
-      url: options.href,
-      headers: options.headers,
-      success: function(res) {
-        res.body = res.text;
-        res.statusCode = res.status;
-        callback(res);
-      },
-      error: function(res) {
-        console.error('Request failed with code ' + res.status);
-        console.error(res);
-        callback(null);
-      }
-    });
-  } else {
-    // Not on Parse, use http api
-    http.get(options, function(res) {
-
-      var pageData = "";
-      res.on('data', function (chunk) {
-        pageData += chunk;
-      });
-
-      res.on('end', function(){
-        res.body = pageData;
-        callback(res);
-      });
-    }).on('error', function(e) {
-        callback(null);
-      });
-  }
+  this.adaptor(options, callback);
 
 };
 
@@ -199,7 +201,7 @@ prerender.buildApiUrl = function(req) {
 
 
 prerender.getPrerenderServiceUrl = function() {
-  return this.prerenderServiceUrl || proc.env.PRERENDER_SERVICE_URL || 'http://service.prerender.io/';
+  return this.prerenderServiceUrl || this.getEnvServiceUrl() || 'http://service.prerender.io/';
 };
 
 prerender.beforeRenderFn = function(req, done) {
