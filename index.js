@@ -36,7 +36,9 @@ prerender.crawlerUserAgents = [
   'twitterbot',
   'rogerbot',
   'linkedinbot',
-  'embedly'
+  'embedly',
+  'bufferbot',
+  'quora link preview'
 ];
 
 
