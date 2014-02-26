@@ -21,5 +21,8 @@
   },
   "scripts": {
     "test": "mocha"
+  },
+  "dependencies": {
+    "request": "~2.34.0"
   }
 }

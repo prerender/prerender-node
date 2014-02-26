@@ -1,4 +1,4 @@
-var http = require('http')
+var request = require('request')
   , url = require('url');
 
 var prerender = module.exports = function(req, res, next) {
@@ -140,20 +140,28 @@ prerender.getPrerenderedPageResponse = function(req, callback) {
     };
   }
 
-  http.get(options, function(res) {
+	request(options, function (error, response, body) {
+		if (error) {
+			callback(null);
+		} else {
+			callback(response);
+		}
+	});
 
-    var pageData = "";
-    res.on('data', function (chunk) {
-      pageData += chunk;
-    });
-
-    res.on('end', function(){
-      res.body = pageData;
-      callback(res);
-    });
-  }).on('error', function(e) {
-    callback(null);
-  });
+//  http.get(options, function(res) {
+//
+//    var pageData = "";
+//    res.on('data', function (chunk) {
+//      pageData += chunk;
+//    });
+//
+//    res.on('end', function(){
+//      res.body = pageData;
+//      callback(res);
+//    });
+//  }).on('error', function(e) {
+//    callback(null);
+//  });
 };
 
 
