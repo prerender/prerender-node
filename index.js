@@ -1,4 +1,4 @@
-var http = require('http')
+var request = require('request')
   , url = require('url');
 
 var prerender = module.exports = function(req, res, next) {
@@ -132,7 +132,9 @@ prerender.shouldShowPrerenderedPage = function(req) {
 
 
 prerender.getPrerenderedPageResponse = function(req, callback) {
-  var options = url.parse(prerender.buildApiUrl(req));
+  var options = {
+	  uri: url.parse(prerender.buildApiUrl(req))
+  };
   if(this.prerenderToken || process.env.PRERENDER_TOKEN) {
     options.headers = {
       'X-Prerender-Token': this.prerenderToken || process.env.PRERENDER_TOKEN,
@@ -140,20 +142,13 @@ prerender.getPrerenderedPageResponse = function(req, callback) {
     };
   }
 
-  http.get(options, function(res) {
-
-    var pageData = "";
-    res.on('data', function (chunk) {
-      pageData += chunk;
-    });
-
-    res.on('end', function(){
-      res.body = pageData;
-      callback(res);
-    });
-  }).on('error', function(e) {
-    callback(null);
-  });
+	request(options, function (error, response, body) {
+		if (error) {
+			callback(null);
+		} else {
+			callback(response);
+		}
+	});
 };
 
 
