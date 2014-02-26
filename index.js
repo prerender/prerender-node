@@ -147,21 +147,6 @@ prerender.getPrerenderedPageResponse = function(req, callback) {
 			callback(response);
 		}
 	});
-
-//  http.get(options, function(res) {
-//
-//    var pageData = "";
-//    res.on('data', function (chunk) {
-//      pageData += chunk;
-//    });
-//
-//    res.on('end', function(){
-//      res.body = pageData;
-//      callback(res);
-//    });
-//  }).on('error', function(e) {
-//    callback(null);
-//  });
 };
 
 
