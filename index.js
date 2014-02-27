@@ -1,5 +1,8 @@
-var http = require('http')
-  , url = require('url');
+
+
+var http = require('http'),
+  url = require('url');
+
 
 var prerender = module.exports = function(req, res, next) {
 
@@ -23,6 +26,23 @@ var prerender = module.exports = function(req, res, next) {
     });
   });
 };
+
+// Helper method to get the prerenderServiceUrl from the env variable.
+prerender.getEnvServiceUrl = function() {
+  if(typeof process !== 'undefined' && typeof process.env !== 'undefined') {
+    return process.env.PRERENDER_SERVICE_URL;
+  }
+  return undefined;
+};
+
+// Can't set prerenderServiceUrl below since it needs to be changed later
+// on in a unit test, after this init code. Created method above to handle
+// scenario.
+if(typeof process !== 'undefined' && typeof process.env !== 'undefined') {
+  prerender.prerenderToken = process.env.PRERENDER_TOKEN;
+}
+
+
 
 // googlebot, yahoo, and bingbot are not in this list because
 // we support _escaped_fragment_ and want to ensure people aren't
@@ -96,7 +116,7 @@ prerender.blacklisted = function(blacklist) {
 };
 
 
-prerender.shouldShowPrerenderedPage = function(req) {  
+prerender.shouldShowPrerenderedPage = function(req) {
   var userAgent = req.headers['user-agent']
     , isRequestingPrerenderedPage = false;
 
@@ -130,18 +150,9 @@ prerender.shouldShowPrerenderedPage = function(req) {
   return isRequestingPrerenderedPage;
 };
 
-
-prerender.getPrerenderedPageResponse = function(req, callback) {
-  var options = url.parse(prerender.buildApiUrl(req));
-  if(this.prerenderToken || process.env.PRERENDER_TOKEN) {
-    options.headers = {
-      'X-Prerender-Token': this.prerenderToken || process.env.PRERENDER_TOKEN,
-      'User-Agent': req.headers['user-agent']
-    };
-  }
-
+// Default node http adaptor
+prerender.adaptor = function(options, callback) {
   http.get(options, function(res) {
-
     var pageData = "";
     res.on('data', function (chunk) {
       pageData += chunk;
@@ -152,8 +163,28 @@ prerender.getPrerenderedPageResponse = function(req, callback) {
       callback(res);
     });
   }).on('error', function(e) {
-    callback(null);
-  });
+      callback(null);
+    });
+};
+
+prerender.setAdaptor = function(adaptor) {
+  if(adaptor) {
+    this.adaptor = adaptor;
+  }
+  return this;
+};
+
+prerender.getPrerenderedPageResponse = function(req, callback) {
+  var options = url.parse(prerender.buildApiUrl(req));
+  if(this.prerenderToken) {
+    options.headers = {
+      'X-Prerender-Token': this.prerenderToken,
+      'User-Agent': req.headers['user-agent']
+    };
+  }
+
+  this.adaptor(options, callback);
+
 };
 
 
@@ -175,7 +206,7 @@ prerender.buildApiUrl = function(req) {
 
 
 prerender.getPrerenderServiceUrl = function() {
-  return this.prerenderServiceUrl || process.env.PRERENDER_SERVICE_URL || 'http://service.prerender.io/';
+  return this.prerenderServiceUrl || this.getEnvServiceUrl() || 'http://service.prerender.io/';
 };
 
 prerender.beforeRenderFn = function(req, done) {
