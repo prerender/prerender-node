@@ -140,6 +140,12 @@ prerender.getPrerenderedPageResponse = function(req, callback) {
       'X-Prerender-Token': this.prerenderToken || process.env.PRERENDER_TOKEN,
       'User-Agent': req.headers['user-agent']
     };
+  } else {
+    options.headers = {};
+  }
+  var acceptEncoding = req.headers['accept-encoding'];
+  if (acceptEncoding) {
+    options.headers['accept-encoding'] = acceptEncoding;
   }
 
 	request(options, function (error, response, body) {
