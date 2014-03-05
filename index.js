@@ -11,12 +11,11 @@ var prerender = module.exports = function(req, res, next) {
       return res.send(200, cachedRender);
     }
 
-    prerender.getPrerenderedPageResponse(req, function(prerenderedResponse){
+    prerender.getPrerenderedPageResponse(req, res, function(prerenderedResponse){
 
       if(prerenderedResponse) {
         prerender.afterRenderFn(req, prerenderedResponse);
-        res.set(prerenderedResponse.headers);
-        return res.send(prerenderedResponse.statusCode, prerenderedResponse.body);
+        return res.send(prerenderedResponse.statusCode);
       }
 
       next();
@@ -131,24 +130,45 @@ prerender.shouldShowPrerenderedPage = function(req) {
 };
 
 
-prerender.getPrerenderedPageResponse = function(req, callback) {
+prerender.getPrerenderedPageResponse = function(req, res, callback) {
   var options = {
-	  uri: url.parse(prerender.buildApiUrl(req))
+    uri: url.parse(prerender.buildApiUrl(req))
   };
   if(this.prerenderToken || process.env.PRERENDER_TOKEN) {
     options.headers = {
       'X-Prerender-Token': this.prerenderToken || process.env.PRERENDER_TOKEN,
       'User-Agent': req.headers['user-agent']
     };
+  } else {
+    options.headers = {};
+  }
+  var acceptEncoding = req.headers['accept-encoding'];
+  if (acceptEncoding) {
+    options.headers['accept-encoding'] = acceptEncoding;
   }
 
-	request(options, function (error, response, body) {
-		if (error) {
-			callback(null);
-		} else {
-			callback(response);
-		}
-	});
+  var renderRequest = request(options);
+
+  renderRequest.on('response', function (renderResponse) {
+    if (renderResponse.statusCode !== 200) {
+      callback(null);
+    } else {
+
+      res.set(renderResponse.headers);
+
+      renderResponse.on('data', function(chunk) {
+        res.write(chunk);
+      });
+
+      renderResponse.on('end', function(chunk) {
+        callback(renderResponse);
+      });
+    }
+  });
+
+  renderRequest.on('error', function () {
+    callback(null);
+  });
 };
 
 
