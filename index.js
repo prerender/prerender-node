@@ -11,12 +11,11 @@ var prerender = module.exports = function(req, res, next) {
       return res.send(200, cachedRender);
     }
 
-    prerender.getPrerenderedPageResponse(req, function(prerenderedResponse){
+    prerender.getPrerenderedPageResponse(req, res, function(prerenderedResponse){
 
       if(prerenderedResponse) {
         prerender.afterRenderFn(req, prerenderedResponse);
-        res.set(prerenderedResponse.headers);
-        return res.send(prerenderedResponse.statusCode, prerenderedResponse.body);
+        return res.send(prerenderedResponse.statusCode);
       }
 
       next();
@@ -131,9 +130,9 @@ prerender.shouldShowPrerenderedPage = function(req) {
 };
 
 
-prerender.getPrerenderedPageResponse = function(req, callback) {
+prerender.getPrerenderedPageResponse = function(req, res, callback) {
   var options = {
-	  uri: url.parse(prerender.buildApiUrl(req))
+    uri: url.parse(prerender.buildApiUrl(req))
   };
   if(this.prerenderToken || process.env.PRERENDER_TOKEN) {
     options.headers = {
@@ -155,6 +154,30 @@ prerender.getPrerenderedPageResponse = function(req, callback) {
 			callback(response);
 		}
 	});
+
+  var renderRequest = request(options);
+
+  renderRequest.on('response', function (res) {
+    if (res.statusCode !== 200) {
+      callback(null);
+    } else {
+
+      res.set(res.headers);
+
+      res.on('data', function(chunk) {
+        res.write(chunk);
+      });
+
+      res.on('end', function(chunk) {
+        var buffer = Buffer.concat(chunks);
+        callback(res);
+      });
+    }
+  });
+
+  renderRequest.on('error', function () {
+    callback(null);callback(null);
+  })
 };
 
 
