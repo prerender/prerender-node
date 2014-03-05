@@ -147,37 +147,28 @@ prerender.getPrerenderedPageResponse = function(req, res, callback) {
     options.headers['accept-encoding'] = acceptEncoding;
   }
 
-	request(options, function (error, response, body) {
-		if (error) {
-			callback(null);
-		} else {
-			callback(response);
-		}
-	});
-
   var renderRequest = request(options);
 
-  renderRequest.on('response', function (res) {
-    if (res.statusCode !== 200) {
+  renderRequest.on('response', function (renderResponse) {
+    if (renderResponse.statusCode !== 200) {
       callback(null);
     } else {
 
-      res.set(res.headers);
+      res.set(renderResponse.headers);
 
-      res.on('data', function(chunk) {
+      renderResponse.on('data', function(chunk) {
         res.write(chunk);
       });
 
-      res.on('end', function(chunk) {
-        var buffer = Buffer.concat(chunks);
-        callback(res);
+      renderResponse.on('end', function(chunk) {
+        callback(renderResponse);
       });
     }
   });
 
   renderRequest.on('error', function () {
-    callback(null);callback(null);
-  })
+    callback(null);
+  });
 };
 
 
