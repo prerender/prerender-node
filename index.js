@@ -1,5 +1,6 @@
 var request = require('request')
-  , url = require('url');
+  , url = require('url')
+  , zlib = require('zlib');
 
 var prerender = module.exports = function(req, res, next) {
 
@@ -140,17 +141,48 @@ prerender.getPrerenderedPageResponse = function(req, callback) {
   if(this.prerenderToken || process.env.PRERENDER_TOKEN) {
     options.headers = {
       'X-Prerender-Token': this.prerenderToken || process.env.PRERENDER_TOKEN,
-      'User-Agent': req.headers['user-agent']
+      'User-Agent': req.headers['user-agent'],
+      'Accept-Encoding': 'gzip'
     };
   }
 
-	request(options, function (error, response, body) {
-		if (error) {
-			callback(null);
-		} else {
-			callback(response);
-		}
-	});
+	request(options).on('response', function(response) {
+    if(response.headers['content-encoding'] && response.headers['content-encoding'] === 'gzip') {
+      prerender.gunzipResponse(response, callback);
+    } else {
+      prerender.plainResponse(response, callback);
+    }
+  }).on('error', function() {
+    callback(null);
+  });
+};
+
+prerender.gunzipResponse = function(response, callback) {
+  var gunzip = zlib.createGunzip()
+    , content = '';
+
+  gunzip.on('data', function(chunk) {
+    content += chunk;
+  });
+  gunzip.on('end', function() {
+    response.body = content;
+    delete response.headers['content-encoding'];
+    callback(response);
+  });
+
+  response.pipe(gunzip);
+};
+
+prerender.plainResponse = function(response, callback) {
+  var content = '';
+
+  response.on('data', function(chunk) {
+    content += chunk;
+  });
+  response.on('end', function() {
+    response.body = content;
+    callback(response);
+  });
 };
 
 
