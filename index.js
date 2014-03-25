@@ -39,7 +39,8 @@ prerender.crawlerUserAgents = [
   'embedly',
   'bufferbot',
   'quora link preview',
-  'showyoubot'
+  'showyoubot',
+  'outbrain'
 ];
 
 
@@ -97,7 +98,7 @@ prerender.blacklisted = function(blacklist) {
 };
 
 
-prerender.shouldShowPrerenderedPage = function(req) {  
+prerender.shouldShowPrerenderedPage = function(req) {
   var userAgent = req.headers['user-agent']
     , isRequestingPrerenderedPage = false;
 
