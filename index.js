@@ -167,6 +167,7 @@ prerender.gunzipResponse = function(response, callback) {
   gunzip.on('end', function() {
     response.body = content;
     delete response.headers['content-encoding'];
+    delete response.headers['content-length'];
     callback(response);
   });
 
