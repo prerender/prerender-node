@@ -6,6 +6,8 @@ var assert = require('assert')
 
 describe('Prerender', function(){
 
+  describe('#prerender', function(){
+
   it('should return a prerendered response with the returned status code and headers', function(){
     var req = { method: 'GET', url: '/', headers: { 'user-agent': bot } },
       res = { send: sinon.stub(), set: sinon.stub() },
@@ -185,6 +187,7 @@ describe('Prerender', function(){
     assert.equal(next.callCount, 0);
     assert.equal(res.send.callCount, 1);
     assert.equal(res.send.getCall(0).args[1], '<html>cached</html>');
+  });
   });
 
   describe('#whitelisted', function(){
