@@ -33,6 +33,7 @@ describe('Prerender', function(){
     var res, next;
 
     beforeEach(function () {
+      prerender.prerenderToken = 'MY_TOKEN';
       res = { send: sinon.stub(), set: sinon.stub() };
       next = sinon.stub();
       sinon.stub(prerender, 'buildApiUrl').returns('http://google.com');
@@ -49,13 +50,16 @@ describe('Prerender', function(){
 
       prerender(req, res, next);
 
-      request.get.restore();
-
+      assert.equal(request.get.getCall(0).args[0].uri.href, 'http://google.com/');
+      assert.equal(request.get.getCall(0).args[0].headers['X-Prerender-Token'], 'MY_TOKEN');
+      assert.equal(request.get.getCall(0).args[0].headers['Accept-Encoding'], 'gzip');
       assert.equal(next.callCount, 0);
       assert.equal(res.send.callCount, 1);
       assert.deepEqual(res.set.getCall(0).args[0], { 'Location': 'http://google.com'});
       assert.equal(res.send.getCall(0).args[1], '<html></html>');
       assert.equal(res.send.getCall(0).args[0], 301);
+
+      request.get.restore();
     });
 
     it('should return a prerendered response if user is a bot by checking for _escaped_fragment_', function(){
