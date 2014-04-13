@@ -46,7 +46,7 @@ describe('Prerender', function(){
       next = sinon.stub();
 
     prerender(req, res, next);
-    
+
     assert.equal(next.callCount, 1);
     assert.equal(res.send.callCount, 0);
   });
@@ -57,7 +57,7 @@ describe('Prerender', function(){
       next = sinon.stub();
 
     prerender(req, res, next);
-    
+
     assert.equal(next.callCount, 1);
     assert.equal(res.send.callCount, 0);
   });
@@ -68,7 +68,7 @@ describe('Prerender', function(){
       next = sinon.stub();
 
     prerender(req, res, next);
-    
+
     assert.equal(next.callCount, 1);
     assert.equal(res.send.callCount, 0);
   });
@@ -79,7 +79,7 @@ describe('Prerender', function(){
       next = sinon.stub();
 
     prerender(req, res, next);
-    
+
     assert.equal(next.callCount, 1);
     assert.equal(res.send.callCount, 0);
   });
@@ -90,7 +90,7 @@ describe('Prerender', function(){
       next = sinon.stub();
 
     prerender.whitelisted(['^/search', '/help'])(req, res, next);
-    
+
     delete prerender.whitelist;
     assert.equal(next.callCount, 1);
     assert.equal(res.send.callCount, 0);
@@ -119,7 +119,7 @@ describe('Prerender', function(){
       next = sinon.stub();
 
     prerender.blacklisted(['^/search', '/help'])(req, res, next);
-    
+
     delete prerender.blacklist;
     assert.equal(next.callCount, 1);
     assert.equal(res.send.callCount, 0);
@@ -148,7 +148,7 @@ describe('Prerender', function(){
       next = sinon.stub();
 
     prerender.blacklisted(['^/search', '/help'])(req, res, next);
-    
+
     delete prerender.blacklist;
     assert.equal(next.callCount, 1);
     assert.equal(res.send.callCount, 0);
