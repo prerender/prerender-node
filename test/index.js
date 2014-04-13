@@ -8,10 +8,15 @@ describe('Prerender', function(){
 
   describe('#prerender', function(){
 
+    var res, next;
+
+    beforeEach(function () {
+      res = { send: sinon.stub(), set: sinon.stub() };
+      next = sinon.stub();
+    });
+
     it('should return a prerendered response with the returned status code and headers', function(){
-      var req = { method: 'GET', url: '/', headers: { 'user-agent': bot } },
-        res = { send: sinon.stub(), set: sinon.stub() },
-        next = sinon.stub();
+      var req = { method: 'GET', url: '/', headers: { 'user-agent': bot } };
 
       sinon.stub(prerender, 'getPrerenderedPageResponse').callsArgWith(1, {statusCode: 301, body: '<html></html>', headers: { 'Location': 'http://google.com'}});
 
@@ -27,9 +32,7 @@ describe('Prerender', function(){
     });
 
     it('should return a prerendered response if user is a bot by checking for _escaped_fragment_', function(){
-      var req = { method: 'GET', url: '/path?_escaped_fragment_=', headers: { 'user-agent': user } },
-        res = { send: sinon.stub(), set: sinon.stub() },
-        next = sinon.stub();
+      var req = { method: 'GET', url: '/path?_escaped_fragment_=', headers: { 'user-agent': user } };
 
       sinon.stub(prerender, 'getPrerenderedPageResponse').callsArgWith(1, {statusCode: 200, body: '<html></html>'});
 
@@ -43,9 +46,7 @@ describe('Prerender', function(){
     });
 
     it('should call next() if the url is a bad url with _escaped_fragment_', function(){
-      var req = { method: 'GET', url: '/path?query=params?_escaped_fragment_=', headers: { 'user-agent': user } },
-        res = { send: sinon.stub(), set: sinon.stub() },
-        next = sinon.stub();
+      var req = { method: 'GET', url: '/path?query=params?_escaped_fragment_=', headers: { 'user-agent': user } };
 
       prerender(req, res, next);
 
@@ -54,9 +55,7 @@ describe('Prerender', function(){
     });
 
     it('should call next() if the request is not a GET', function(){
-      var req = { method: 'POST', url: '/path', headers: { 'user-agent': user } },
-        res = { send: sinon.stub(), set: sinon.stub() },
-        next = sinon.stub();
+      var req = { method: 'POST', url: '/path', headers: { 'user-agent': user } };
 
       prerender(req, res, next);
 
@@ -65,9 +64,7 @@ describe('Prerender', function(){
     });
 
     it('should call next() if user is not a bot by checking agent string', function(){
-      var req = { method: 'GET', url: '/', headers: { 'user-agent': user } },
-        res = { send: sinon.stub(), set: sinon.stub() },
-        next = sinon.stub();
+      var req = { method: 'GET', url: '/', headers: { 'user-agent': user } };
 
       prerender(req, res, next);
 
@@ -76,9 +73,7 @@ describe('Prerender', function(){
     });
 
     it('should call next() if user is a bot, but the bot is requesting a resource file', function(){
-      var req = { method: 'GET', url: '/main.js?anyQueryParam=true', headers: { 'user-agent': bot } },
-        res = { send: sinon.stub(), set: sinon.stub() },
-        next = sinon.stub();
+      var req = { method: 'GET', url: '/main.js?anyQueryParam=true', headers: { 'user-agent': bot } };
 
       prerender(req, res, next);
 
@@ -87,9 +82,7 @@ describe('Prerender', function(){
     });
 
     it('should call next() if the url is not part of the regex specific whitelist', function(){
-      var req = { method: 'GET', url: '/saved/search/blah?_escaped_fragment_=', headers: { 'user-agent': bot } },
-        res = { send: sinon.stub(), set: sinon.stub() },
-        next = sinon.stub();
+      var req = { method: 'GET', url: '/saved/search/blah?_escaped_fragment_=', headers: { 'user-agent': bot } };
 
       prerender.whitelisted(['^/search', '/help'])(req, res, next);
 
@@ -99,9 +92,7 @@ describe('Prerender', function(){
     });
 
     it('should return a prerendered response if the url is part of the regex specific whitelist', function(){
-      var req = { method: 'GET', url: '/search/things?query=blah&_escaped_fragment_=', headers: { 'user-agent': bot } },
-        res = { send: sinon.stub(), set: sinon.stub() },
-        next = sinon.stub();
+      var req = { method: 'GET', url: '/search/things?query=blah&_escaped_fragment_=', headers: { 'user-agent': bot } };
 
       sinon.stub(prerender, 'getPrerenderedPageResponse').callsArgWith(1, {statusCode: 200, body: '<html></html>'});
 
@@ -116,9 +107,7 @@ describe('Prerender', function(){
     });
 
     it('should call next() if the url is part of the regex specific blacklist', function(){
-      var req = { method: 'GET', url: '/search/things?query=blah', headers: { 'user-agent': bot } },
-        res = { send: sinon.stub(), set: sinon.stub() },
-        next = sinon.stub();
+      var req = { method: 'GET', url: '/search/things?query=blah', headers: { 'user-agent': bot } };
 
       prerender.blacklisted(['^/search', '/help'])(req, res, next);
 
@@ -128,9 +117,7 @@ describe('Prerender', function(){
     });
 
     it('should return a prerendered response if the url is not part of the regex specific blacklist', function(){
-      var req = { method: 'GET', url: '/profile/search/blah', headers: { 'user-agent': bot } },
-        res = { send: sinon.stub(), set: sinon.stub() },
-        next = sinon.stub();
+      var req = { method: 'GET', url: '/profile/search/blah', headers: { 'user-agent': bot } };
 
       sinon.stub(prerender, 'getPrerenderedPageResponse').callsArgWith(1, {statusCode: 200, body: '<html></html>'});
 
@@ -145,9 +132,7 @@ describe('Prerender', function(){
     });
 
     it('should call next() if the referer is part of the regex specific blacklist', function(){
-      var req = { method: 'GET', url: '/api/results', headers: { referer: '/search', 'user-agent': bot } },
-        res = { send: sinon.stub(), set: sinon.stub() },
-        next = sinon.stub();
+      var req = { method: 'GET', url: '/api/results', headers: { referer: '/search', 'user-agent': bot } };
 
       prerender.blacklisted(['^/search', '/help'])(req, res, next);
 
@@ -157,9 +142,7 @@ describe('Prerender', function(){
     });
 
     it('should return a prerendered response if the referer is not part of the regex specific blacklist', function(){
-      var req = { method: 'GET', url: '/api/results', headers: { referer: '/profile/search', 'user-agent': bot } },
-        res = { send: sinon.stub(), set: sinon.stub() },
-        next = sinon.stub();
+      var req = { method: 'GET', url: '/api/results', headers: { referer: '/profile/search', 'user-agent': bot } };
 
       sinon.stub(prerender, 'getPrerenderedPageResponse').callsArgWith(1, {statusCode: 200, body: '<html></html>'});
 
@@ -174,9 +157,7 @@ describe('Prerender', function(){
     });
 
     it('should return a prerendered response if a string is returned from beforeRender', function(){
-      var req = { method: 'GET', url: '/', headers: { 'user-agent': bot } },
-        res = { send: sinon.stub(), set: sinon.stub() },
-        next = sinon.stub();
+      var req = { method: 'GET', url: '/', headers: { 'user-agent': bot } };
 
       prerender.set('beforeRender', function(req, done) {
         done(null, '<html>cached</html>');
