@@ -1,8 +1,30 @@
 var assert = require('assert')
   , sinon = require('sinon')
   , prerender = require('../index')
+  , request    = require('request')
   , bot = 'Baiduspider+(+http://www.baidu.com/search/spider.htm)'
   , user = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.76 Safari/537.36';
+
+function mockRequest(statusCode, body, headers) {
+  return {
+    on: function (name, f) {
+      if (name === 'response') {
+        f({
+            statusCode: statusCode,
+            headers: headers || {},
+            on: function (name, f) {
+              if (name === 'data') {
+                f(body);
+              } else if (name === 'end') {
+                f();
+              }
+            }
+          });
+      }
+      return this;
+    }
+  };
+}
 
 describe('Prerender', function(){
 
@@ -13,16 +35,21 @@ describe('Prerender', function(){
     beforeEach(function () {
       res = { send: sinon.stub(), set: sinon.stub() };
       next = sinon.stub();
+      sinon.stub(prerender, 'buildApiUrl').returns('http://google.com');
+    });
+
+    afterEach(function () {
+      prerender.buildApiUrl.restore();
     });
 
     it('should return a prerendered response with the returned status code and headers', function(){
       var req = { method: 'GET', url: '/', headers: { 'user-agent': bot } };
 
-      sinon.stub(prerender, 'getPrerenderedPageResponse').callsArgWith(1, {statusCode: 301, body: '<html></html>', headers: { 'Location': 'http://google.com'}});
+      sinon.stub(request, 'get').returns(mockRequest(301, '<html></html>', { 'Location': 'http://google.com'}));
 
       prerender(req, res, next);
 
-      prerender.getPrerenderedPageResponse.restore();
+      request.get.restore();
 
       assert.equal(next.callCount, 0);
       assert.equal(res.send.callCount, 1);
@@ -34,11 +61,11 @@ describe('Prerender', function(){
     it('should return a prerendered response if user is a bot by checking for _escaped_fragment_', function(){
       var req = { method: 'GET', url: '/path?_escaped_fragment_=', headers: { 'user-agent': user } };
 
-      sinon.stub(prerender, 'getPrerenderedPageResponse').callsArgWith(1, {statusCode: 200, body: '<html></html>'});
+      sinon.stub(request, 'get').returns(mockRequest(200, '<html></html>'));
 
       prerender(req, res, next);
 
-      prerender.getPrerenderedPageResponse.restore();
+      request.get.restore();
 
       assert.equal(next.callCount, 0);
       assert.equal(res.send.callCount, 1);
@@ -94,11 +121,11 @@ describe('Prerender', function(){
     it('should return a prerendered response if the url is part of the regex specific whitelist', function(){
       var req = { method: 'GET', url: '/search/things?query=blah&_escaped_fragment_=', headers: { 'user-agent': bot } };
 
-      sinon.stub(prerender, 'getPrerenderedPageResponse').callsArgWith(1, {statusCode: 200, body: '<html></html>'});
+      sinon.stub(request, 'get').returns(mockRequest(200, '<html></html>'));
 
       prerender.whitelisted(['^/search.*query', '/help'])(req, res, next);
 
-      prerender.getPrerenderedPageResponse.restore();
+      request.get.restore();
 
       delete prerender.whitelist;
       assert.equal(next.callCount, 0);
@@ -119,11 +146,11 @@ describe('Prerender', function(){
     it('should return a prerendered response if the url is not part of the regex specific blacklist', function(){
       var req = { method: 'GET', url: '/profile/search/blah', headers: { 'user-agent': bot } };
 
-      sinon.stub(prerender, 'getPrerenderedPageResponse').callsArgWith(1, {statusCode: 200, body: '<html></html>'});
+      sinon.stub(request, 'get').returns(mockRequest(200, '<html></html>'));
 
       prerender.blacklisted(['^/search', '/help'])(req, res, next);
 
-      prerender.getPrerenderedPageResponse.restore();
+      request.get.restore();
 
       delete prerender.blacklist;
       assert.equal(next.callCount, 0);
@@ -144,11 +171,11 @@ describe('Prerender', function(){
     it('should return a prerendered response if the referer is not part of the regex specific blacklist', function(){
       var req = { method: 'GET', url: '/api/results', headers: { referer: '/profile/search', 'user-agent': bot } };
 
-      sinon.stub(prerender, 'getPrerenderedPageResponse').callsArgWith(1, {statusCode: 200, body: '<html></html>'});
+      sinon.stub(request, 'get').returns(mockRequest(200, '<html></html>'));
 
       prerender.blacklisted(['^/search', '/help'])(req, res, next);
 
-      prerender.getPrerenderedPageResponse.restore();
+      request.get.restore();
 
       delete prerender.blacklist;
       assert.equal(next.callCount, 0);
