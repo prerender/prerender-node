@@ -2,6 +2,7 @@ var assert = require('assert')
   , sinon = require('sinon')
   , prerender = require('../index')
   , request    = require('request')
+  , zlib = require('zlib')
   , bot = 'Baiduspider+(+http://www.baidu.com/search/spider.htm)'
   , user = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.76 Safari/537.36';
 
@@ -18,6 +19,12 @@ function mockRequest(statusCode, body, headers) {
               } else if (name === 'end') {
                 f();
               }
+            },
+            pipe: function (stream) {
+              zlib.gzip(new Buffer(body, 'utf-8'), function (err, zipped) {
+                stream.write(zipped);
+                stream.end();
+              });
             }
           });
       }
@@ -74,6 +81,27 @@ describe('Prerender', function(){
       assert.equal(next.callCount, 0);
       assert.equal(res.send.callCount, 1);
       assert.equal(res.send.getCall(0).args[1], '<html></html>');
+    });
+
+    it('should return a prerendered gzipped response', function(done){
+
+      var req = { method: 'GET', url: '/path?_escaped_fragment_=', headers: { 'user-agent': user } };
+
+      sinon.stub(request, 'get').returns(mockRequest(200, '<html></html>', {'content-encoding': 'gzip'}, function () {
+
+        done();
+      }));
+
+      // we're dealing with asynchonous gzip so we can only assert on res.send. If it's not called, the default mocha timeout of 2s will fail the test
+      res.send = function (resultCode, content) {
+        assert.equal(next.callCount, 0);
+        assert.equal(content, '<html></html>');
+        done();
+      };
+      prerender(req, res, next);
+
+      request.get.restore();
+
     });
 
     it('should call next() if the url is a bad url with _escaped_fragment_', function(){
