@@ -87,10 +87,7 @@ describe('Prerender', function(){
 
       var req = { method: 'GET', url: '/path?_escaped_fragment_=', headers: { 'user-agent': user } };
 
-      sinon.stub(request, 'get').returns(mockRequest(200, '<html></html>', {'content-encoding': 'gzip'}, function () {
-
-        done();
-      }));
+      sinon.stub(request, 'get').returns(mockRequest(200, '<html></html>', {'content-encoding': 'gzip'}));
 
       // we're dealing with asynchonous gzip so we can only assert on res.send. If it's not called, the default mocha timeout of 2s will fail the test
       res.send = function (resultCode, content) {
