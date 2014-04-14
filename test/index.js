@@ -1,8 +1,37 @@
 var assert = require('assert')
   , sinon = require('sinon')
   , prerender = require('../index')
+  , request    = require('request')
+  , zlib = require('zlib')
   , bot = 'Baiduspider+(+http://www.baidu.com/search/spider.htm)'
   , user = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.76 Safari/537.36';
+
+function mockRequest(statusCode, body, headers) {
+  return {
+    on: function (name, f) {
+      if (name === 'response') {
+        f({
+            statusCode: statusCode,
+            headers: headers || {},
+            on: function (name, f) {
+              if (name === 'data') {
+                f(body);
+              } else if (name === 'end') {
+                f();
+              }
+            },
+            pipe: function (stream) {
+              zlib.gzip(new Buffer(body, 'utf-8'), function (err, zipped) {
+                stream.write(zipped);
+                stream.end();
+              });
+            }
+          });
+      }
+      return this;
+    }
+  };
+}
 
 describe('Prerender', function(){
 
@@ -11,38 +40,65 @@ describe('Prerender', function(){
     var res, next;
 
     beforeEach(function () {
+      prerender.prerenderToken = 'MY_TOKEN';
       res = { send: sinon.stub(), set: sinon.stub() };
       next = sinon.stub();
+      sinon.stub(prerender, 'buildApiUrl').returns('http://google.com');
+    });
+
+    afterEach(function () {
+      prerender.buildApiUrl.restore();
     });
 
     it('should return a prerendered response with the returned status code and headers', function(){
       var req = { method: 'GET', url: '/', headers: { 'user-agent': bot } };
 
-      sinon.stub(prerender, 'getPrerenderedPageResponse').callsArgWith(1, {statusCode: 301, body: '<html></html>', headers: { 'Location': 'http://google.com'}});
+      sinon.stub(request, 'get').returns(mockRequest(301, '<html></html>', { 'Location': 'http://google.com'}));
 
       prerender(req, res, next);
 
-      prerender.getPrerenderedPageResponse.restore();
-
+      assert.equal(request.get.getCall(0).args[0].uri.href, 'http://google.com/');
+      assert.equal(request.get.getCall(0).args[0].headers['X-Prerender-Token'], 'MY_TOKEN');
+      assert.equal(request.get.getCall(0).args[0].headers['Accept-Encoding'], 'gzip');
       assert.equal(next.callCount, 0);
       assert.equal(res.send.callCount, 1);
       assert.deepEqual(res.set.getCall(0).args[0], { 'Location': 'http://google.com'});
       assert.equal(res.send.getCall(0).args[1], '<html></html>');
       assert.equal(res.send.getCall(0).args[0], 301);
+
+      request.get.restore();
     });
 
     it('should return a prerendered response if user is a bot by checking for _escaped_fragment_', function(){
       var req = { method: 'GET', url: '/path?_escaped_fragment_=', headers: { 'user-agent': user } };
 
-      sinon.stub(prerender, 'getPrerenderedPageResponse').callsArgWith(1, {statusCode: 200, body: '<html></html>'});
+      sinon.stub(request, 'get').returns(mockRequest(200, '<html></html>'));
 
       prerender(req, res, next);
 
-      prerender.getPrerenderedPageResponse.restore();
+      request.get.restore();
 
       assert.equal(next.callCount, 0);
       assert.equal(res.send.callCount, 1);
       assert.equal(res.send.getCall(0).args[1], '<html></html>');
+    });
+
+    it('should return a prerendered gzipped response', function(done){
+
+      var req = { method: 'GET', url: '/path?_escaped_fragment_=', headers: { 'user-agent': user } };
+
+      sinon.stub(request, 'get').returns(mockRequest(200, '<html></html>', {'content-encoding': 'gzip'}));
+
+      // we're dealing with asynchonous gzip so we can only assert on res.send. If it's not called, the default mocha timeout of 2s will fail the test
+      res.send = function (resultCode, content) {
+        assert.equal(next.callCount, 0);
+        assert.equal(content, '<html></html>');
+        done();
+      };
+      prerender(req, res, next);
+
+      request.get.restore();
+
     });
 
     it('should call next() if the url is a bad url with _escaped_fragment_', function(){
@@ -94,11 +150,11 @@ describe('Prerender', function(){
     it('should return a prerendered response if the url is part of the regex specific whitelist', function(){
       var req = { method: 'GET', url: '/search/things?query=blah&_escaped_fragment_=', headers: { 'user-agent': bot } };
 
-      sinon.stub(prerender, 'getPrerenderedPageResponse').callsArgWith(1, {statusCode: 200, body: '<html></html>'});
+      sinon.stub(request, 'get').returns(mockRequest(200, '<html></html>'));
 
       prerender.whitelisted(['^/search.*query', '/help'])(req, res, next);
 
-      prerender.getPrerenderedPageResponse.restore();
+      request.get.restore();
 
       delete prerender.whitelist;
       assert.equal(next.callCount, 0);
@@ -119,11 +175,11 @@ describe('Prerender', function(){
     it('should return a prerendered response if the url is not part of the regex specific blacklist', function(){
       var req = { method: 'GET', url: '/profile/search/blah', headers: { 'user-agent': bot } };
 
-      sinon.stub(prerender, 'getPrerenderedPageResponse').callsArgWith(1, {statusCode: 200, body: '<html></html>'});
+      sinon.stub(request, 'get').returns(mockRequest(200, '<html></html>'));
 
       prerender.blacklisted(['^/search', '/help'])(req, res, next);
 
-      prerender.getPrerenderedPageResponse.restore();
+      request.get.restore();
 
       delete prerender.blacklist;
       assert.equal(next.callCount, 0);
@@ -144,11 +200,11 @@ describe('Prerender', function(){
     it('should return a prerendered response if the referer is not part of the regex specific blacklist', function(){
       var req = { method: 'GET', url: '/api/results', headers: { referer: '/profile/search', 'user-agent': bot } };
 
-      sinon.stub(prerender, 'getPrerenderedPageResponse').callsArgWith(1, {statusCode: 200, body: '<html></html>'});
+      sinon.stub(request, 'get').returns(mockRequest(200, '<html></html>'));
 
       prerender.blacklisted(['^/search', '/help'])(req, res, next);
 
-      prerender.getPrerenderedPageResponse.restore();
+      request.get.restore();
 
       delete prerender.blacklist;
       assert.equal(next.callCount, 0);
