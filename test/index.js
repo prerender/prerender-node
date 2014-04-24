@@ -21,10 +21,8 @@ function mockRequest(statusCode, body, headers) {
               }
             },
             pipe: function (stream) {
-              zlib.gzip(new Buffer(body, 'utf-8'), function (err, zipped) {
-                stream.write(zipped);
+                stream.write(body);
                 stream.end();
-              });
             }
           });
       }
@@ -86,18 +84,20 @@ describe('Prerender', function(){
     it('should return a prerendered gzipped response', function(done){
 
       var req = { method: 'GET', url: '/path?_escaped_fragment_=', headers: { 'user-agent': user } };
-
-      sinon.stub(request, 'get').returns(mockRequest(200, '<html></html>', {'content-encoding': 'gzip'}));
-
       // we're dealing with asynchonous gzip so we can only assert on res.send. If it's not called, the default mocha timeout of 2s will fail the test
       res.send = function (resultCode, content) {
         assert.equal(next.callCount, 0);
         assert.equal(content, '<html></html>');
         done();
       };
-      prerender(req, res, next);
 
-      request.get.restore();
+      zlib.gzip(new Buffer('<html></html>', 'utf-8'), function (err, zipped) {
+        sinon.stub(request, 'get').returns(mockRequest(200, zipped, {'content-encoding': 'gzip'}));
+
+        prerender(req, res, next);
+
+        request.get.restore();
+      });
 
     });
 
