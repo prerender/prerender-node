@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/prerender/prerender-node.png?label=ready&title=Ready)](https://waffle.io/prerender/prerender-node)
 Prerender Node [![Build Status](https://travis-ci.org/prerender/prerender-node.png)](https://travis-ci.org/prerender/prerender-node) [![NPM version](https://badge.fury.io/js/prerender-node.png)](http://badge.fury.io/js/prerender-node)
 =========================== 
 
