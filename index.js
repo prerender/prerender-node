@@ -38,7 +38,6 @@ prerender.crawlerUserAgents = [
   'rogerbot',
   'linkedinbot',
   'embedly',
-  'bufferbot',
   'quora link preview',
   'showyoubot',
   'outbrain'
@@ -101,6 +100,7 @@ prerender.blacklisted = function(blacklist) {
 
 prerender.shouldShowPrerenderedPage = function(req) {
   var userAgent = req.headers['user-agent']
+    , bufferAgent = req.headers['x-bufferbot']
     , isRequestingPrerenderedPage = false;
 
   if(!userAgent) return false;
@@ -111,6 +111,9 @@ prerender.shouldShowPrerenderedPage = function(req) {
 
   //if it is a bot...show prerendered page
   if(prerender.crawlerUserAgents.some(function(crawlerUserAgent){ return userAgent.toLowerCase().indexOf(crawlerUserAgent.toLowerCase()) !== -1;})) isRequestingPrerenderedPage = true;
+
+  //if it is BufferBot...show prerendered page
+  if(bufferAgent) isRequestingPrerenderedPage = true;
 
   //if it is a bot and is requesting a resource...dont prerender
   if(prerender.extensionsToIgnore.some(function(extension){return req.url.indexOf(extension) !== -1;})) return false;
