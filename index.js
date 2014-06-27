@@ -40,7 +40,8 @@ prerender.crawlerUserAgents = [
   'embedly',
   'quora link preview',
   'showyoubot',
-  'outbrain'
+  'outbrain',
+  'pinterest'
 ];
 
 
