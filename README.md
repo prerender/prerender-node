@@ -90,6 +90,13 @@ app.use(require('prerender-node').set('afterRender', function(req, prerender_res
 });
 ```
 
+### protocol
+
+Option to hard-set the protocol. Useful for sites that are available on both http and https.
+```js
+app.use(require('prerender-node').set('protocol', 'https');
+```
+
 ## Caching
 
 This express middleware is ready to be used with [redis](http://redis.io/) or [memcached](http://memcached.org/) to return prerendered pages in milliseconds.
