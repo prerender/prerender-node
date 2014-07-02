@@ -140,7 +140,8 @@ prerender.shouldShowPrerenderedPage = function(req) {
 
 prerender.getPrerenderedPageResponse = function(req, callback) {
   var options = {
-	  uri: url.parse(prerender.buildApiUrl(req))
+    uri: url.parse(prerender.buildApiUrl(req)),
+    followRedirect: false
   };
   if(this.prerenderToken || process.env.PRERENDER_TOKEN) {
     options.headers = {
