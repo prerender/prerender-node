@@ -12,18 +12,26 @@ var prerender = module.exports = function(req, res, next) {
       return res.send(200, cachedRender);
     }
 
-    prerender.getPrerenderedPageResponse(req, function(prerenderedResponse){
-
-      if(prerenderedResponse) {
-        prerender.afterRenderFn(req, prerenderedResponse);
-        res.set(prerenderedResponse.headers);
-        return res.send(prerenderedResponse.statusCode, prerenderedResponse.body);
-      }
-
-      next();
+    prerender.getPrerenderedPageResponse(req, function(prerenderedResponse) {
+        prerender.handleResponse(prerenderedResponse, req, res, next, 1);
     });
   });
 };
+
+prerender.handleResponse = function(prerenderedResponse, req, res, next, retries) {
+  var shouldRetry = this.retryFn(prerenderedResponse);
+  if (shouldRetry && this.retryLimit && retries < this.retryLimit) {
+    prerender.getPrerenderedPageResponse(req, function(prerenderedResponse) {
+        prerender.handleResponse(prerenderedResponse, req, res, next, ++retries);
+    });
+  } else if (prerenderedResponse) {
+    prerender.afterRenderFn(req, prerenderedResponse);
+    res.set(prerenderedResponse.headers);
+    return res.send(prerenderedResponse.statusCode, prerenderedResponse.body);
+  } else {
+    next();
+  }
+}
 
 // googlebot, yahoo, and bingbot are not in this list because
 // we support _escaped_fragment_ and want to ensure people aren't
@@ -223,6 +231,11 @@ prerender.beforeRenderFn = function(req, done) {
   return this.beforeRender(req, done);
 };
 
+prerender.retryFn = function(prerender_res) {
+  if (!this.retry) return false;
+
+  return this.retry(prerender_res);
+};
 
 prerender.afterRenderFn = function(req, prerender_res) {
   if (!this.afterRender) return;
