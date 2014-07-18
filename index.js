@@ -19,7 +19,7 @@ var prerender = module.exports = function(req, res, next) {
 };
 
 prerender.handleResponse = function(prerenderedResponse, req, res, next, retries) {
-  var shouldRetry = this.retryFn(prerenderedResponse);
+  var shouldRetry = this.retryFn(req, prerenderedResponse);
   if (shouldRetry && this.retryLimit && retries < this.retryLimit) {
     prerender.getPrerenderedPageResponse(req, function(prerenderedResponse) {
         prerender.handleResponse(prerenderedResponse, req, res, next, ++retries);
@@ -231,10 +231,10 @@ prerender.beforeRenderFn = function(req, done) {
   return this.beforeRender(req, done);
 };
 
-prerender.retryFn = function(prerender_res) {
+prerender.retryFn = function(req, prerender_res) {
   if (!this.retry) return false;
 
-  return this.retry(prerender_res);
+  return this.retry(req, prerender_res);
 };
 
 prerender.afterRenderFn = function(req, prerender_res) {
