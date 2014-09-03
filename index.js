@@ -16,8 +16,14 @@ var prerender = module.exports = function(req, res, next) {
 
       if(prerenderedResponse) {
         prerender.afterRenderFn(req, prerenderedResponse);
-        res.set(prerenderedResponse.headers);
-        return res.send(prerenderedResponse.statusCode, prerenderedResponse.body);
+        for (var key in prerenderedResponse.headers) {
+          res.setHeader(key, prerenderedResponse.headers[key]);
+        }
+        // return res.send(prerenderedResponse.statusCode, prerenderedResponse.body);
+        res.statusCode = prerenderedResponse.statusCode;
+        res.end(prerenderedResponse.body);
+
+        return res;
       }
 
       next();
@@ -197,18 +203,19 @@ prerender.buildApiUrl = function(req) {
   var prerenderUrl = prerender.getPrerenderServiceUrl();
   var forwardSlash = prerenderUrl.indexOf('/', prerenderUrl.length - 1) !== -1 ? '' : '/';
 
-  var protocol = req.protocol;
-  if (req.get('CF-Visitor')) {
-    var match = req.get('CF-Visitor').match(/"scheme":"(http|https)"/);
+  // Careful: https://github.com/joyent/node/issues/6735
+  var protocol = req.connection.encrypted ? 'https' : 'http';
+  if (req.headers['cf-visitor']) {
+    var match = req.headers['cf-visitor'].match(/"scheme":"(http|https)"/);
     if (match) protocol = match[1];
   }
-  if (req.get('X-Forwarded-Proto')) {
-    protocol = req.get('X-Forwarded-Proto').split(',')[0];
+  if (req.headers['x-forwarded-proto']) {
+    protocol = req.headers['x-forwarded-proto'].split(',')[0];
   }
   if (this.protocol) {
     protocol = this.protocol;
   }
-  var fullUrl = protocol + "://" + req.get('host') + req.url;
+  var fullUrl = protocol + "://" + req.headers.host + req.url;
   return prerenderUrl + forwardSlash + fullUrl;
 };
 
