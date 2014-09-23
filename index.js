@@ -107,7 +107,7 @@ prerender.shouldShowPrerenderedPage = function(req) {
     , isRequestingPrerenderedPage = false;
 
   if(!userAgent) return false;
-  if(req.method != 'GET') return false;
+  if(req.method != 'GET' && req.method != 'HEAD') return false;
 
   //if it contains _escaped_fragment_, show prerendered page
   if(url.parse(req.url, true).query.hasOwnProperty('_escaped_fragment_')) isRequestingPrerenderedPage = true;
