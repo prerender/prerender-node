@@ -3,13 +3,13 @@ var request = require('request')
   , zlib = require('zlib');
 
 var prerender = module.exports = function(req, res, next) {
-
   if(!prerender.shouldShowPrerenderedPage(req)) return next();
 
   prerender.beforeRenderFn(req, function(err, cachedRender) {
 
     if (!err && cachedRender && typeof cachedRender == 'string') {
-      return res.send(200, cachedRender);
+      res.status(200);
+      return res.send(cachedRender);
     }
 
     prerender.getPrerenderedPageResponse(req, function(prerenderedResponse){
@@ -17,7 +17,8 @@ var prerender = module.exports = function(req, res, next) {
       if(prerenderedResponse) {
         prerender.afterRenderFn(req, prerenderedResponse);
         res.set(prerenderedResponse.headers);
-        return res.send(prerenderedResponse.statusCode, prerenderedResponse.body);
+        res.status(prerenderedResponse.statusCode)
+        return res.send(prerenderedResponse.body);
       }
 
       next();

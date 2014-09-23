@@ -35,23 +35,25 @@ describe('Prerender', function(){
 
   describe('#prerender', function(){
 
-    var res, next;
+    var sandbox, res, next;
 
     beforeEach(function () {
+      sandbox = sinon.sandbox.create();
+
       prerender.prerenderToken = 'MY_TOKEN';
-      res = { send: sinon.stub(), set: sinon.stub() };
-      next = sinon.stub();
-      sinon.stub(prerender, 'buildApiUrl').returns('http://google.com');
+      res = { send: sandbox.stub(), set: sandbox.stub(), status: sandbox.stub() };
+      next = sandbox.stub();
+      sandbox.stub(prerender, 'buildApiUrl').returns('http://google.com');
     });
 
     afterEach(function () {
-      prerender.buildApiUrl.restore();
+      sandbox.restore();
     });
 
     it('should return a prerendered response with the returned status code and headers', function(){
       var req = { method: 'GET', url: '/', headers: { 'user-agent': bot } };
 
-      sinon.stub(request, 'get').returns(mockRequest(301, '<html></html>', { 'Location': 'http://google.com'}));
+      sandbox.stub(request, 'get').returns(mockRequest(301, '<html></html>', { 'Location': 'http://google.com'}));
 
       prerender(req, res, next);
 
@@ -59,44 +61,44 @@ describe('Prerender', function(){
       assert.equal(request.get.getCall(0).args[0].headers['X-Prerender-Token'], 'MY_TOKEN');
       assert.equal(request.get.getCall(0).args[0].headers['Accept-Encoding'], 'gzip');
       assert.equal(next.callCount, 0);
+      assert.equal(res.status.callCount, 1);
       assert.equal(res.send.callCount, 1);
       assert.deepEqual(res.set.getCall(0).args[0], { 'Location': 'http://google.com'});
-      assert.equal(res.send.getCall(0).args[1], '<html></html>');
-      assert.equal(res.send.getCall(0).args[0], 301);
-
-      request.get.restore();
+      assert.equal(res.send.getCall(0).args[0], '<html></html>');
+      assert.equal(res.status.getCall(0).args[0], 301);
     });
+
 
     it('should return a prerendered response if user is a bot by checking for _escaped_fragment_', function(){
       var req = { method: 'GET', url: '/path?_escaped_fragment_=', headers: { 'user-agent': user } };
 
-      sinon.stub(request, 'get').returns(mockRequest(200, '<html></html>'));
+      sandbox.stub(request, 'get').returns(mockRequest(200, '<html></html>'));
 
       prerender(req, res, next);
 
-      request.get.restore();
-
       assert.equal(next.callCount, 0);
+      assert.equal(res.status.callCount, 1);
+      assert.equal(res.status.getCall(0).args[0], 200);
       assert.equal(res.send.callCount, 1);
-      assert.equal(res.send.getCall(0).args[1], '<html></html>');
+      assert.equal(res.send.getCall(0).args[0], '<html></html>');
     });
 
     it('should return a prerendered gzipped response', function(done){
 
       var req = { method: 'GET', url: '/path?_escaped_fragment_=', headers: { 'user-agent': user } };
       // we're dealing with asynchonous gzip so we can only assert on res.send. If it's not called, the default mocha timeout of 2s will fail the test
-      res.send = function (resultCode, content) {
+      res.send = function (content) {
+        assert.equal(res.status.callCount, 1);
+        assert.equal(res.status.getCall(0).args[0], 200);
         assert.equal(next.callCount, 0);
         assert.equal(content, '<html></html>');
         done();
       };
 
       zlib.gzip(new Buffer('<html></html>', 'utf-8'), function (err, zipped) {
-        sinon.stub(request, 'get').returns(mockRequest(200, zipped, {'content-encoding': 'gzip'}));
+        sandbox.stub(request, 'get').returns(mockRequest(200, zipped, {'content-encoding': 'gzip'}));
 
         prerender(req, res, next);
-
-        request.get.restore();
       });
 
     });
@@ -107,6 +109,7 @@ describe('Prerender', function(){
       prerender(req, res, next);
 
       assert.equal(next.callCount, 1);
+      assert.equal(res.status.callCount, 0);
       assert.equal(res.send.callCount, 0);
     });
 
@@ -116,6 +119,7 @@ describe('Prerender', function(){
       prerender(req, res, next);
 
       assert.equal(next.callCount, 1);
+      assert.equal(res.status.callCount, 0);
       assert.equal(res.send.callCount, 0);
     });
 
@@ -125,6 +129,7 @@ describe('Prerender', function(){
       prerender(req, res, next);
 
       assert.equal(next.callCount, 1);
+      assert.equal(res.status.callCount, 0);
       assert.equal(res.send.callCount, 0);
     });
 
@@ -134,6 +139,7 @@ describe('Prerender', function(){
       prerender(req, res, next);
 
       assert.equal(next.callCount, 1);
+      assert.equal(res.status.callCount, 0);
       assert.equal(res.send.callCount, 0);
     });
 
@@ -144,22 +150,23 @@ describe('Prerender', function(){
 
       delete prerender.whitelist;
       assert.equal(next.callCount, 1);
+      assert.equal(res.status.callCount, 0);
       assert.equal(res.send.callCount, 0);
     });
 
     it('should return a prerendered response if the url is part of the regex specific whitelist', function(){
       var req = { method: 'GET', url: '/search/things?query=blah&_escaped_fragment_=', headers: { 'user-agent': bot } };
 
-      sinon.stub(request, 'get').returns(mockRequest(200, '<html></html>'));
+      sandbox.stub(request, 'get').returns(mockRequest(200, '<html></html>'));
 
       prerender.whitelisted(['^/search.*query', '/help'])(req, res, next);
 
-      request.get.restore();
-
       delete prerender.whitelist;
       assert.equal(next.callCount, 0);
+      assert.equal(res.status.callCount, 1);
+      assert.equal(res.status.getCall(0).args[0], 200);
       assert.equal(res.send.callCount, 1);
-      assert.equal(res.send.getCall(0).args[1], '<html></html>');
+      assert.equal(res.send.getCall(0).args[0], '<html></html>');
     });
 
     it('should call next() if the url is part of the regex specific blacklist', function(){
@@ -169,22 +176,23 @@ describe('Prerender', function(){
 
       delete prerender.blacklist;
       assert.equal(next.callCount, 1);
+      assert.equal(res.status.callCount, 0);
       assert.equal(res.send.callCount, 0);
     });
 
     it('should return a prerendered response if the url is not part of the regex specific blacklist', function(){
       var req = { method: 'GET', url: '/profile/search/blah', headers: { 'user-agent': bot } };
 
-      sinon.stub(request, 'get').returns(mockRequest(200, '<html></html>'));
+      sandbox.stub(request, 'get').returns(mockRequest(200, '<html></html>'));
 
       prerender.blacklisted(['^/search', '/help'])(req, res, next);
 
-      request.get.restore();
-
       delete prerender.blacklist;
       assert.equal(next.callCount, 0);
+      assert.equal(res.status.callCount, 1);
+      assert.equal(res.status.getCall(0).args[0], 200);
       assert.equal(res.send.callCount, 1);
-      assert.equal(res.send.getCall(0).args[1], '<html></html>');
+      assert.equal(res.send.getCall(0).args[0], '<html></html>');
     });
 
     it('should call next() if the referer is part of the regex specific blacklist', function(){
@@ -194,22 +202,23 @@ describe('Prerender', function(){
 
       delete prerender.blacklist;
       assert.equal(next.callCount, 1);
+      assert.equal(res.status.callCount, 0);
       assert.equal(res.send.callCount, 0);
     });
 
     it('should return a prerendered response if the referer is not part of the regex specific blacklist', function(){
       var req = { method: 'GET', url: '/api/results', headers: { referer: '/profile/search', 'user-agent': bot } };
 
-      sinon.stub(request, 'get').returns(mockRequest(200, '<html></html>'));
+      sandbox.stub(request, 'get').returns(mockRequest(200, '<html></html>'));
 
       prerender.blacklisted(['^/search', '/help'])(req, res, next);
 
-      request.get.restore();
-
       delete prerender.blacklist;
       assert.equal(next.callCount, 0);
+      assert.equal(res.status.callCount, 1);
+      assert.equal(res.status.getCall(0).args[0], 200);
       assert.equal(res.send.callCount, 1);
-      assert.equal(res.send.getCall(0).args[1], '<html></html>');
+      assert.equal(res.send.getCall(0).args[0], '<html></html>');
     });
 
     it('should return a prerendered response if a string is returned from beforeRender', function(){
@@ -222,8 +231,10 @@ describe('Prerender', function(){
       prerender(req, res, next);
 
       assert.equal(next.callCount, 0);
+      assert.equal(res.status.callCount, 1);
+      assert.equal(res.status.getCall(0).args[0], 200);
       assert.equal(res.send.callCount, 1);
-      assert.equal(res.send.getCall(0).args[1], '<html>cached</html>');
+      assert.equal(res.send.getCall(0).args[0], '<html>cached</html>');
     });
   });
 
