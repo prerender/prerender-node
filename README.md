@@ -131,7 +131,7 @@ Or on heroku:
 As an alternative, you can pass `prerender_service_url` in the options object during initialization of the middleware
 
 ```js
-app.use(require('prerender-node').set('prerenderServiceUrl', '&lt;new url>'));
+app.use(require('prerender-node').set('prerenderServiceUrl', '<new url>'));
 ```
 
 ## Contributing
