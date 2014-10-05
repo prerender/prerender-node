@@ -236,6 +236,20 @@ describe('Prerender', function(){
       assert.equal(res.send.callCount, 1);
       assert.equal(res.send.getCall(0).args[0], '<html>cached</html>');
     });
+
+    describe('updatePrerenderPage', function () {
+      it('should a post url with the path', function(){
+        var req = { method: 'GET', url: '/search/things?query=blah&_escaped_fragment_=', headers: { 'user-agent': bot } };
+
+        sandbox.stub(request, 'post').returns(mockRequest(200, '<html></html>'));
+
+        prerender.updatePrerenderPage(req, '/search/things?query=blah');
+
+        assert.equal(request.post.getCall(0).args[0].uri.href, 'http://google.com/');
+        assert.equal(request.post.getCall(0).args[0].headers['X-Prerender-Token'], 'MY_TOKEN');
+        assert.equal(request.post.getCall(0).args[0].headers['Accept-Encoding'], 'gzip');
+      });
+    })
   });
 
   describe('#whitelisted', function(){
