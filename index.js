@@ -43,7 +43,8 @@ prerender.crawlerUserAgents = [
   'showyoubot',
   'outbrain',
   'pinterest',
-  'developers.google.com/+/web/snippet'
+  'developers.google.com/+/web/snippet',
+  'slackbot'
 ];
 
 
