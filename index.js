@@ -140,12 +140,7 @@ prerender.shouldShowPrerenderedPage = function(req) {
   return isRequestingPrerenderedPage;
 };
 
-
-prerender.getPrerenderedPageResponse = function(req, callback) {
-  var options = {
-    uri: url.parse(prerender.buildApiUrl(req)),
-    followRedirect: false
-  };
+prerender.addHeaders = function(req, options) {
   if(this.prerenderToken || process.env.PRERENDER_TOKEN) {
     options.headers = {
       'X-Prerender-Token': this.prerenderToken || process.env.PRERENDER_TOKEN,
@@ -153,8 +148,30 @@ prerender.getPrerenderedPageResponse = function(req, callback) {
       'Accept-Encoding': 'gzip'
     };
   }
+};
 
-	request.get(options).on('response', function(response) {
+prerender.updatePrerenderPage = function(req, path, callback) {
+  var options = {
+    uri: url.parse(prerender.buildApiUrl(req, path)),
+    followRedirect: false
+  };
+
+  this.addHeaders(req, options);
+
+  var r = request.post(options);
+  if (callback) {
+    r.on('response', callback).on('error', callback);
+  }
+};
+
+prerender.getPrerenderedPageResponse = function(req, callback) {
+  var options = {
+    uri: url.parse(prerender.buildApiUrl(req)),
+    followRedirect: false
+  };
+  this.addHeaders(req, options);
+
+  request.get(options).on('response', function(response) {
     if(response.headers['content-encoding'] && response.headers['content-encoding'] === 'gzip') {
       prerender.gunzipResponse(response, callback);
     } else {
@@ -195,7 +212,7 @@ prerender.plainResponse = function(response, callback) {
 };
 
 
-prerender.buildApiUrl = function(req) {
+prerender.buildApiUrl = function(req, path) {
   var prerenderUrl = prerender.getPrerenderServiceUrl();
   var forwardSlash = prerenderUrl.indexOf('/', prerenderUrl.length - 1) !== -1 ? '' : '/';
 
@@ -210,7 +227,7 @@ prerender.buildApiUrl = function(req) {
   if (this.protocol) {
     protocol = this.protocol;
   }
-  var fullUrl = protocol + "://" + (this.host || req.get('host')) + req.url;
+  var fullUrl = protocol + "://" + (this.host || req.get('host')) + (path || req.url);
   return prerenderUrl + forwardSlash + fullUrl;
 };
 
