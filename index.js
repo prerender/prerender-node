@@ -8,17 +8,18 @@ var prerender = module.exports = function(req, res, next) {
   prerender.beforeRenderFn(req, function(err, cachedRender) {
 
     if (!err && cachedRender && typeof cachedRender == 'string') {
-      res.status(200);
-      return res.send(cachedRender);
+      res.writeHead(200, {
+        "Content-Type": "text/html"
+      });
+      return res.end(cachedRender);
     }
 
     prerender.getPrerenderedPageResponse(req, function(prerenderedResponse){
 
       if(prerenderedResponse) {
         prerender.afterRenderFn(req, prerenderedResponse);
-        res.set(prerenderedResponse.headers);
-        res.status(prerenderedResponse.statusCode)
-        return res.send(prerenderedResponse.body);
+        res.writeHead(prerenderedResponse.statusCode, prerenderedResponse.headers);
+        return res.end(prerenderedResponse.body);
       }
 
       next();

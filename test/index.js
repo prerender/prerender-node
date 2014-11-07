@@ -41,7 +41,7 @@ describe('Prerender', function(){
       sandbox = sinon.sandbox.create();
 
       prerender.prerenderToken = 'MY_TOKEN';
-      res = { send: sandbox.stub(), set: sandbox.stub(), status: sandbox.stub() };
+      res = { writeHead: sandbox.stub(), end: sandbox.stub() };
       next = sandbox.stub();
       sandbox.stub(prerender, 'buildApiUrl').returns('http://google.com');
     });
@@ -61,11 +61,11 @@ describe('Prerender', function(){
       assert.equal(request.get.getCall(0).args[0].headers['X-Prerender-Token'], 'MY_TOKEN');
       assert.equal(request.get.getCall(0).args[0].headers['Accept-Encoding'], 'gzip');
       assert.equal(next.callCount, 0);
-      assert.equal(res.status.callCount, 1);
-      assert.equal(res.send.callCount, 1);
-      assert.deepEqual(res.set.getCall(0).args[0], { 'Location': 'http://google.com'});
-      assert.equal(res.send.getCall(0).args[0], '<html></html>');
-      assert.equal(res.status.getCall(0).args[0], 301);
+      assert.equal(res.writeHead.callCount, 1);
+      assert.equal(res.end.callCount, 1);
+      assert.deepEqual(res.writeHead.getCall(0).args[1], { 'Location': 'http://google.com'});
+      assert.equal(res.end.getCall(0).args[0], '<html></html>');
+      assert.equal(res.writeHead.getCall(0).args[0], 301);
     });
 
 
@@ -77,19 +77,19 @@ describe('Prerender', function(){
       prerender(req, res, next);
 
       assert.equal(next.callCount, 0);
-      assert.equal(res.status.callCount, 1);
-      assert.equal(res.status.getCall(0).args[0], 200);
-      assert.equal(res.send.callCount, 1);
-      assert.equal(res.send.getCall(0).args[0], '<html></html>');
+      assert.equal(res.writeHead.callCount, 1);
+      assert.equal(res.writeHead.getCall(0).args[0], 200);
+      assert.equal(res.end.callCount, 1);
+      assert.equal(res.end.getCall(0).args[0], '<html></html>');
     });
 
     it('should return a prerendered gzipped response', function(done){
 
       var req = { method: 'GET', url: '/path?_escaped_fragment_=', headers: { 'user-agent': user } };
-      // we're dealing with asynchonous gzip so we can only assert on res.send. If it's not called, the default mocha timeout of 2s will fail the test
-      res.send = function (content) {
-        assert.equal(res.status.callCount, 1);
-        assert.equal(res.status.getCall(0).args[0], 200);
+      // we're dealing with asynchonous gzip so we can only assert on res.end. If it's not called, the default mocha timeout of 2s will fail the test
+      res.end = function (content) {
+        assert.equal(res.writeHead.callCount, 1);
+        assert.equal(res.writeHead.getCall(0).args[0], 200);
         assert.equal(next.callCount, 0);
         assert.equal(content, '<html></html>');
         done();
@@ -109,8 +109,8 @@ describe('Prerender', function(){
       prerender(req, res, next);
 
       assert.equal(next.callCount, 1);
-      assert.equal(res.status.callCount, 0);
-      assert.equal(res.send.callCount, 0);
+      assert.equal(res.writeHead.callCount, 0);
+      assert.equal(res.end.callCount, 0);
     });
 
     it('should call next() if the request is not a GET', function(){
@@ -119,8 +119,8 @@ describe('Prerender', function(){
       prerender(req, res, next);
 
       assert.equal(next.callCount, 1);
-      assert.equal(res.status.callCount, 0);
-      assert.equal(res.send.callCount, 0);
+      assert.equal(res.writeHead.callCount, 0);
+      assert.equal(res.end.callCount, 0);
     });
 
     it('should call next() if user is not a bot by checking agent string', function(){
@@ -129,8 +129,8 @@ describe('Prerender', function(){
       prerender(req, res, next);
 
       assert.equal(next.callCount, 1);
-      assert.equal(res.status.callCount, 0);
-      assert.equal(res.send.callCount, 0);
+      assert.equal(res.writeHead.callCount, 0);
+      assert.equal(res.end.callCount, 0);
     });
 
     it('should call next() if user is a bot, but the bot is requesting a resource file', function(){
@@ -139,8 +139,8 @@ describe('Prerender', function(){
       prerender(req, res, next);
 
       assert.equal(next.callCount, 1);
-      assert.equal(res.status.callCount, 0);
-      assert.equal(res.send.callCount, 0);
+      assert.equal(res.writeHead.callCount, 0);
+      assert.equal(res.end.callCount, 0);
     });
 
     it('should call next() if the url is not part of the regex specific whitelist', function(){
@@ -150,8 +150,8 @@ describe('Prerender', function(){
 
       delete prerender.whitelist;
       assert.equal(next.callCount, 1);
-      assert.equal(res.status.callCount, 0);
-      assert.equal(res.send.callCount, 0);
+      assert.equal(res.writeHead.callCount, 0);
+      assert.equal(res.end.callCount, 0);
     });
 
     it('should return a prerendered response if the url is part of the regex specific whitelist', function(){
@@ -163,10 +163,10 @@ describe('Prerender', function(){
 
       delete prerender.whitelist;
       assert.equal(next.callCount, 0);
-      assert.equal(res.status.callCount, 1);
-      assert.equal(res.status.getCall(0).args[0], 200);
-      assert.equal(res.send.callCount, 1);
-      assert.equal(res.send.getCall(0).args[0], '<html></html>');
+      assert.equal(res.writeHead.callCount, 1);
+      assert.equal(res.writeHead.getCall(0).args[0], 200);
+      assert.equal(res.end.callCount, 1);
+      assert.equal(res.end.getCall(0).args[0], '<html></html>');
     });
 
     it('should call next() if the url is part of the regex specific blacklist', function(){
@@ -176,8 +176,8 @@ describe('Prerender', function(){
 
       delete prerender.blacklist;
       assert.equal(next.callCount, 1);
-      assert.equal(res.status.callCount, 0);
-      assert.equal(res.send.callCount, 0);
+      assert.equal(res.writeHead.callCount, 0);
+      assert.equal(res.end.callCount, 0);
     });
 
     it('should return a prerendered response if the url is not part of the regex specific blacklist', function(){
@@ -189,10 +189,10 @@ describe('Prerender', function(){
 
       delete prerender.blacklist;
       assert.equal(next.callCount, 0);
-      assert.equal(res.status.callCount, 1);
-      assert.equal(res.status.getCall(0).args[0], 200);
-      assert.equal(res.send.callCount, 1);
-      assert.equal(res.send.getCall(0).args[0], '<html></html>');
+      assert.equal(res.writeHead.callCount, 1);
+      assert.equal(res.writeHead.getCall(0).args[0], 200);
+      assert.equal(res.end.callCount, 1);
+      assert.equal(res.end.getCall(0).args[0], '<html></html>');
     });
 
     it('should call next() if the referer is part of the regex specific blacklist', function(){
@@ -202,8 +202,8 @@ describe('Prerender', function(){
 
       delete prerender.blacklist;
       assert.equal(next.callCount, 1);
-      assert.equal(res.status.callCount, 0);
-      assert.equal(res.send.callCount, 0);
+      assert.equal(res.writeHead.callCount, 0);
+      assert.equal(res.end.callCount, 0);
     });
 
     it('should return a prerendered response if the referer is not part of the regex specific blacklist', function(){
@@ -215,10 +215,10 @@ describe('Prerender', function(){
 
       delete prerender.blacklist;
       assert.equal(next.callCount, 0);
-      assert.equal(res.status.callCount, 1);
-      assert.equal(res.status.getCall(0).args[0], 200);
-      assert.equal(res.send.callCount, 1);
-      assert.equal(res.send.getCall(0).args[0], '<html></html>');
+      assert.equal(res.writeHead.callCount, 1);
+      assert.equal(res.writeHead.getCall(0).args[0], 200);
+      assert.equal(res.end.callCount, 1);
+      assert.equal(res.end.getCall(0).args[0], '<html></html>');
     });
 
     it('should return a prerendered response if a string is returned from beforeRender', function(){
@@ -231,10 +231,10 @@ describe('Prerender', function(){
       prerender(req, res, next);
 
       assert.equal(next.callCount, 0);
-      assert.equal(res.status.callCount, 1);
-      assert.equal(res.status.getCall(0).args[0], 200);
-      assert.equal(res.send.callCount, 1);
-      assert.equal(res.send.getCall(0).args[0], '<html>cached</html>');
+      assert.equal(res.writeHead.callCount, 1);
+      assert.equal(res.writeHead.getCall(0).args[0], 200);
+      assert.equal(res.end.callCount, 1);
+      assert.equal(res.end.getCall(0).args[0], '<html>cached</html>');
     });
   });
 
