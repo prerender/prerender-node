@@ -73,7 +73,7 @@ app.use(require('prerender-node').blacklisted(['/search', '/users/.*/profile']))
 
 ### beforeRender
 
-This method is intended to be used for caching, but could be used to save analytics or anything else you need to do for each crawler request. If you return a string from beforeRender, the middleware will serve that to the crawler instead of making a request to the prerender service.
+This method is intended to be used for caching, but could be used to save analytics or anything else you need to do for each crawler request. If you return a string from beforeRender, the middleware will serve that to the crawler (with status `200`) instead of making a request to the prerender service. If you return an object the middleware will look for a `status` and `body` property (defaulting to `200` and `""` respectively) and serve those instead.
 ```js
 app.use(require('prerender-node').set('beforeRender', function(req, done) {
 	// do whatever you need to do
@@ -117,6 +117,27 @@ prerender.set('beforeRender', function(req, done) {
 	client.set(req.url, prerender_res.body)
 });
 ```
+
+or
+
+```js
+var redis = require("redis"),
+client = redis.createClient(),
+cacheableStatusCodes = {200: true, 302: true, 404: true};
+
+prerender.set('beforeRender', function(req, done) {
+  client.hmget(req.url, 'body', 'status', function (err, fields) {
+    if (err) return done(err);
+    done(err, {body: fields[0], status: fields[1]});
+  });
+}).set('afterRender', function(req, prerender_res) {
+  // Don't cache responses that might be temporary like 500 or 504.
+  if (cacheableStatusCodes[prerender_res.statusCode]) {
+    client.hmset(req.url, 'body', prerender_res.body, 'status', prerender_res.statusCode);
+  }
+});
+```
+
 
 ## Using your own prerender service
 

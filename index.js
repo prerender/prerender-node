@@ -12,8 +12,8 @@ var prerender = module.exports = function(req, res, next) {
         res.status(200);
         return res.send(cachedRender);
       } else if (typeof cachedRender == 'object') {
-        res.status(cachedRender.status);
-        return res.send(cachedRender.body);
+        res.status(cachedRender.status || 200);
+        return res.send(cachedRender.body || '');
       }
     }
 
