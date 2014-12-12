@@ -111,7 +111,8 @@ prerender.shouldShowPrerenderedPage = function(req) {
   if(req.method != 'GET' && req.method != 'HEAD') return false;
 
   //if it contains _escaped_fragment_, show prerendered page
-  if(url.parse(req.url, true).query.hasOwnProperty('_escaped_fragment_')) isRequestingPrerenderedPage = true;
+  var parsedQuery = url.parse(req.url, true).query;
+  if(parsedQuery && parsedQuery.hasOwnProperty('_escaped_fragment_')) isRequestingPrerenderedPage = true;
 
   //if it is a bot...show prerendered page
   if(prerender.crawlerUserAgents.some(function(crawlerUserAgent){ return userAgent.toLowerCase().indexOf(crawlerUserAgent.toLowerCase()) !== -1;})) isRequestingPrerenderedPage = true;
