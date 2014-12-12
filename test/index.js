@@ -236,6 +236,22 @@ describe('Prerender', function(){
       assert.equal(res.send.callCount, 1);
       assert.equal(res.send.getCall(0).args[0], '<html>cached</html>');
     });
+
+    it('should return a prerendered response if an object is returned from beforeRender', function(){
+      var req = { method: 'GET', url: '/', headers: { 'user-agent': bot } };
+
+      prerender.set('beforeRender', function(req, done) {
+        done(null, {status: 400, body: '<html>Bad Request</html>'});
+      });
+
+      prerender(req, res, next);
+
+      assert.equal(next.callCount, 0);
+      assert.equal(res.status.callCount, 1);
+      assert.equal(res.status.getCall(0).args[0], 400);
+      assert.equal(res.send.callCount, 1);
+      assert.equal(res.send.getCall(0).args[0], '<html>Bad Request</html>');
+    });
   });
 
   describe('#whitelisted', function(){

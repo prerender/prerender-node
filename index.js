@@ -7,9 +7,14 @@ var prerender = module.exports = function(req, res, next) {
 
   prerender.beforeRenderFn(req, function(err, cachedRender) {
 
-    if (!err && cachedRender && typeof cachedRender == 'string') {
-      res.status(200);
-      return res.send(cachedRender);
+    if (!err && cachedRender) {
+      if (typeof cachedRender == 'string') {
+        res.status(200);
+        return res.send(cachedRender);
+      } else if (typeof cachedRender == 'object') {
+        res.status(cachedRender.status || 200);
+        return res.send(cachedRender.body || '');
+      }
     }
 
     prerender.getPrerenderedPageResponse(req, function(prerenderedResponse){
