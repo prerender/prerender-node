@@ -112,7 +112,7 @@ prerender.blacklisted = function(blacklist) {
 prerender.isRobot = function(userAgent){
   if(!this.robot) return false;
 
-  var robotReg = new RegExp(this.robot);
+  var robotReg = new RegExp(this.robot, 'i');
   if (robotReg.test(userAgent)) return true;
   return false;
 };
