@@ -50,7 +50,8 @@ prerender.crawlerUserAgents = [
   'pinterest',
   'developers.google.com/+/web/snippet',
   'slackbot',
-  'vkShare'
+  'vkShare',
+  'W3C_Validator'
 ];
 
 
