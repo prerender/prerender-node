@@ -128,7 +128,7 @@ cacheableStatusCodes = {200: true, 302: true, 404: true};
 prerender.set('beforeRender', function(req, done) {
   client.hmget(req.url, 'body', 'status', function (err, fields) {
     if (err) return done(err);
-    done(err, {body: fields[0], status: fields[1]});
+    done(err, fields[0]});
   });
 }).set('afterRender', function(req, prerender_res) {
   // Don't cache responses that might be temporary like 500 or 504.
