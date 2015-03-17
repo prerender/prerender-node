@@ -51,7 +51,8 @@ prerender.crawlerUserAgents = [
   'developers.google.com/+/web/snippet',
   'slackbot',
   'vkShare',
-  'W3C_Validator'
+  'W3C_Validator',
+  'Slackbot-LinkExpanding'
 ];
 
 
