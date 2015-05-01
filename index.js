@@ -149,9 +149,9 @@ prerender.addHeaders = function(req, options) {
   }
 };
 
-prerender.updatePrerenderPage = function(req, path, callback) {
+prerender.updatePrerenderPage = function(req, path, host, callback) {
   var options = {
-    uri: url.parse(prerender.buildApiUrl(req, path)),
+    uri: url.parse(prerender.buildApiUrl(req, path, host)),
     followRedirect: false
   };
 
@@ -211,7 +211,7 @@ prerender.plainResponse = function(response, callback) {
 };
 
 
-prerender.buildApiUrl = function(req, path) {
+prerender.buildApiUrl = function(req, path, host) {
   var prerenderUrl = prerender.getPrerenderServiceUrl();
   var forwardSlash = prerenderUrl.indexOf('/', prerenderUrl.length - 1) !== -1 ? '' : '/';
 
@@ -226,7 +226,7 @@ prerender.buildApiUrl = function(req, path) {
   if (this.protocol) {
     protocol = this.protocol;
   }
-  var fullUrl = protocol + "://" + (this.host || req.get('host')) + (path || req.url);
+  var fullUrl = protocol + "://" + (host || req.get('host')) + (path || req.url);
   return prerenderUrl + forwardSlash + fullUrl;
 };
 
