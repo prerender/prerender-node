@@ -150,6 +150,7 @@ prerender.addHeaders = function(req, options) {
 };
 
 prerender.updatePrerenderPage = function(req, path, host, callback) {
+  console.log('Update updatePrerenderPage, path=' + path + ', host=' + host);
   var options = {
     uri: url.parse(prerender.buildApiUrl(req, path, host)),
     followRedirect: false
