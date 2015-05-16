@@ -78,7 +78,7 @@ This method is intended to be used for caching, but could be used to save analyt
 app.use(require('prerender-node').set('beforeRender', function(req, done) {
 	// do whatever you need to do
 	done();
-});
+}));
 ```
 
 ### afterRender
@@ -87,14 +87,14 @@ This method is intended to be used for caching, but could be used to save analyt
 ```js
 app.use(require('prerender-node').set('afterRender', function(req, prerender_res) {
 	// do whatever you need to do
-});
+}));
 ```
 
 ### protocol
 
 Option to hard-set the protocol. Useful for sites that are available on both http and https.
 ```js
-app.use(require('prerender-node').set('protocol', 'https');
+app.use(require('prerender-node').set('protocol', 'https'));
 ```
 
 ## Caching
