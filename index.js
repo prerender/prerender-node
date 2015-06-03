@@ -17,16 +17,17 @@ var prerender = module.exports = function(req, res, next) {
       }
     }
 
-    prerender.getPrerenderedPageResponse(req, function(prerenderedResponse){
+    prerender.getPrerenderedPageResponse(req, function(err, prerenderedResponse){
 
-      if(prerenderedResponse) {
-        prerender.afterRenderFn(req, prerenderedResponse);
-        res.set(prerenderedResponse.headers);
-        res.status(prerenderedResponse.statusCode)
-        return res.send(prerenderedResponse.body);
+      if (err || !prerenderedResponse) {
+        prerender.afterRenderFn(req, err || prerenderedResponse);
+        return next();
       }
 
-      next();
+      prerender.afterRenderFn(req, prerenderedResponse);
+      res.set(prerenderedResponse.headers);
+      res.status(prerenderedResponse.statusCode);
+      return res.send(prerenderedResponse.body);
     });
   });
 };
@@ -135,15 +136,15 @@ prerender.shouldShowPrerenderedPage = function(req) {
 
   //if it is a bot and not requesting a resource and is not blacklisted(url or referer)...dont prerender
   if(Array.isArray(this.blacklist) && this.blacklist.some(function(blacklisted){
-    var blacklistedUrl = false
-      , blacklistedReferer = false
-      , regex = new RegExp(blacklisted);
+      var blacklistedUrl = false
+        , blacklistedReferer = false
+        , regex = new RegExp(blacklisted);
 
-    blacklistedUrl = regex.test(req.url) === true;
-    if(req.headers['referer']) blacklistedReferer = regex.test(req.headers['referer']) === true;
+      blacklistedUrl = regex.test(req.url) === true;
+      if(req.headers['referer']) blacklistedReferer = regex.test(req.headers['referer']) === true;
 
-    return blacklistedUrl || blacklistedReferer;
-  })) return false;
+      return blacklistedUrl || blacklistedReferer;
+    })) return false;
 
   return isRequestingPrerenderedPage;
 };
@@ -168,8 +169,8 @@ prerender.getPrerenderedPageResponse = function(req, callback) {
     } else {
       prerender.plainResponse(response, callback);
     }
-  }).on('error', function() {
-    callback(null);
+  }).on('error', function(err) {
+    callback(err);
   });
 };
 
@@ -184,7 +185,10 @@ prerender.gunzipResponse = function(response, callback) {
     response.body = content;
     delete response.headers['content-encoding'];
     delete response.headers['content-length'];
-    callback(response);
+    callback(null, response);
+  });
+  gunzip.on('error', function(err) {
+    callback(err);
   });
 
   response.pipe(gunzip);
@@ -198,8 +202,11 @@ prerender.plainResponse = function(response, callback) {
   });
   response.on('end', function() {
     response.body = content;
-    callback(response);
+    callback(null, response);
   });
+  response.on('error', function(err) {
+    callback(err);
+  })
 };
 
 
@@ -228,14 +235,14 @@ prerender.getPrerenderServiceUrl = function() {
 };
 
 prerender.beforeRenderFn = function(req, done) {
-  if (!this.beforeRender) return done();
+  if (typeof this.beforeRender !== 'function') return done();
 
   return this.beforeRender(req, done);
 };
 
 
 prerender.afterRenderFn = function(req, prerender_res) {
-  if (!this.afterRender) return;
+  if (typeof this.afterRender !== 'function') return;
 
   this.afterRender(req, prerender_res);
 };
