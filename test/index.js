@@ -353,4 +353,19 @@ describe('Prerender', function(){
       assert.equal(prerender.buildApiUrl(req), 'http://service.prerender.io/https://google.com/search?q=javascript');
     });
   });
+
+  describe('#shouldShowPrerenderedPage', function() {
+    it('returns true if bot is redditbot', function() {
+      var req = {
+        headers: {
+          'user-agent': 'Mozilla/5.0 (compatible; redditbot/1.0; +http://www.reddit.com/feedback)'
+        },
+        method: 'GET',
+        url: '/'
+      };
+
+      assert(prerender.shouldShowPrerenderedPage(req));
+
+    });
+  });
 });
