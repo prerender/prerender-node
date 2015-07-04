@@ -20,7 +20,7 @@
     "sinon": "~1.7.3"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "./node_modules/.bin/mocha"
   },
   "dependencies": {
     "request": "~2.40.0"
