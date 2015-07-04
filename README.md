@@ -1,14 +1,14 @@
 Prerender Node [![Stories in Ready](https://badge.waffle.io/prerender/prerender-node.png?label=ready&title=Ready)](https://waffle.io/prerender/prerender-node) [![Build Status](https://travis-ci.org/prerender/prerender-node.png)](https://travis-ci.org/prerender/prerender-node) [![NPM version](https://badge.fury.io/js/prerender-node.png)](http://badge.fury.io/js/prerender-node)
-=========================== 
+===========================
 
-Google, Facebook, Twitter, Yahoo, and Bing are constantly trying to view your website... but they don't execute javascript. That's why we built Prerender. Prerender is perfect for AngularJS SEO, BackboneJS SEO, EmberJS SEO, and any other javascript framework.
+Google, Facebook, Twitter, Yahoo, and Bing are constantly trying to view your website... but they don't execute JavaScript. That's why we built Prerender. Prerender is perfect for AngularJS SEO, BackboneJS SEO, EmberJS SEO, and any other JavaScript framework.
 
-This middleware intercepts requests to your Node.js website from crawlers, and then makes a call to the (external) Prerender Service to get the static HTML instead of the javascript for that page.
+This middleware intercepts requests to your Node.js website from crawlers, and then makes a call to the (external) Prerender Service to get the static HTML instead of the JavaScript for that page.
 
 Prerender adheres to google's `_escaped_fragment_` proposal, which we recommend you use. It's easy:
 - Just add &lt;meta name="fragment" content="!"> to the &lt;head> of all of your pages
 - If you use hash urls (#), change them to the hash-bang (#!)
-- That's it! Perfect SEO on javascript pages.
+- That's it! Perfect SEO on JavaScript pages.
 
 via npm:
 
@@ -46,14 +46,14 @@ If your URLs use push-state:
 	2. The middleware checks to make sure we aren't requesting a resource (js, css, etc...)
 	3. (optional) The middleware checks to make sure the url is in the whitelist
 	4. (optional) The middleware checks to make sure the url isn't in the blacklist
-2. The middleware makes a `GET` request to the [prerender service](https://github.com/prerender/prerender)(phantomjs server) for the page's prerendered HTML
+2. The middleware makes a `GET` request to the [prerender service](https://github.com/prerender/prerender) (phantomjs server) for the page's prerendered HTML
 3. Return that HTML to the crawler
 
 # Customization
 
 ### Whitelist
 
-Whitelist a single url path or multiple url paths. Compares using regex, so be specific when possible. If a whitelist is supplied, only url's containing a whitelist path will be prerendered.
+Whitelist a single url path or multiple url paths. Compares using regex, so be specific when possible. If a whitelist is supplied, only urls containing a whitelist path will be prerendered.
 ```js
 app.use(require('prerender-node').whitelisted('^/search'));
 ```
@@ -147,7 +147,7 @@ We host a Prerender server at [prerender.io](http://prerender.io) so that you ca
 
 Or on heroku:
 
-	$ heroku config:add PRERENDER_SERVICE_URL=<new url>
+	$ heroku config:set PRERENDER_SERVICE_URL=<new url>
 
 As an alternative, you can pass `prerender_service_url` in the options object during initialization of the middleware
 
