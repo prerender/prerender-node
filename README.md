@@ -51,6 +51,16 @@ If your URLs use push-state:
 
 # Customization
 
+### Popular search engines' spiders user-agent list
+
+Many search engines do not follow google's _escaped_fragment_ proposal, we can use user-agent to detect these spiders.
+```js
+var prerender = require('prerender-node');
+prerender.set('robot', 'Baiduspider|Googlebot|BingBot|Slurp!|MSNBot|YoudaoBot|JikeSpider|Sosospider|360Spider|Sogou web spider|Sogou inst spider');
+app.use(prerender);
+ 
+```
+
 ### Whitelist
 
 Whitelist a single url path or multiple url paths. Compares using regex, so be specific when possible. If a whitelist is supplied, only urls containing a whitelist path will be prerendered.

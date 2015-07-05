@@ -112,6 +112,14 @@ prerender.blacklisted = function(blacklist) {
 };
 
 
+prerender.isRobot = function(userAgent){
+  if(!this.robot) return false;
+
+  var robotReg = new RegExp(this.robot, 'i');
+  if (robotReg.test(userAgent)) return true;
+  return false;
+};
+
 prerender.shouldShowPrerenderedPage = function(req) {
   var userAgent = req.headers['user-agent']
     , bufferAgent = req.headers['x-bufferbot']
@@ -122,7 +130,7 @@ prerender.shouldShowPrerenderedPage = function(req) {
 
   //if it contains _escaped_fragment_, show prerendered page
   var parsedQuery = url.parse(req.url, true).query;
-  if(parsedQuery && parsedQuery.hasOwnProperty('_escaped_fragment_')) isRequestingPrerenderedPage = true;
+  if(prerender.isRobot(userAgent) || (parsedQuery && parsedQuery.hasOwnProperty('_escaped_fragment_'))) isRequestingPrerenderedPage = true;
 
   //if it is a bot...show prerendered page
   if(prerender.crawlerUserAgents.some(function(crawlerUserAgent){ return userAgent.toLowerCase().indexOf(crawlerUserAgent.toLowerCase()) !== -1;})) isRequestingPrerenderedPage = true;
