@@ -94,7 +94,9 @@ prerender.extensionsToIgnore = [
   '.iso',
   '.flv',
   '.m4v',
-  '.torrent'
+  '.torrent',
+  '.woff',
+  '.ttf'
 ];
 
 
