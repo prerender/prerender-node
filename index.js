@@ -9,11 +9,15 @@ var prerender = module.exports = function(req, res, next) {
 
     if (!err && cachedRender) {
       if (typeof cachedRender == 'string') {
-        res.status(200);
-        return res.send(cachedRender);
+        res.writeHead(200, {
+          "Content-Type": "text/html"
+        });
+        return res.end(cachedRender);
       } else if (typeof cachedRender == 'object') {
-        res.status(cachedRender.status || 200);
-        return res.send(cachedRender.body || '');
+        res.writeHead(cachedRender.status || 200, {
+          "Content-Type": "text/html"
+        });
+        return res.end(cachedRender.body || '');
       }
     }
 
@@ -21,9 +25,8 @@ var prerender = module.exports = function(req, res, next) {
 
       if(prerenderedResponse) {
         prerender.afterRenderFn(req, prerenderedResponse);
-        res.set(prerenderedResponse.headers);
-        res.status(prerenderedResponse.statusCode)
-        return res.send(prerenderedResponse.body);
+        res.writeHead(prerenderedResponse.statusCode, prerenderedResponse.headers);
+        return res.end(prerenderedResponse.body);
       }
 
       next();
@@ -210,21 +213,20 @@ prerender.buildApiUrl = function(req) {
   var prerenderUrl = prerender.getPrerenderServiceUrl();
   var forwardSlash = prerenderUrl.indexOf('/', prerenderUrl.length - 1) !== -1 ? '' : '/';
 
-  var protocol = req.protocol;
-  if (req.get('CF-Visitor')) {
-    var match = req.get('CF-Visitor').match(/"scheme":"(http|https)"/);
+  var protocol = "http";
+  if (req.headers['cf-visitor']) {
+    var match = req.headers['cf-visitor'].match(/"scheme":"(http|https)"/);
     if (match) protocol = match[1];
   }
-  if (req.get('X-Forwarded-Proto')) {
-    protocol = req.get('X-Forwarded-Proto').split(',')[0];
+  if (req.headers['x-forwarded-proto']) {
+    protocol = req.headers['x-forwarded-proto'].split(',')[0];
   }
   if (this.protocol) {
     protocol = this.protocol;
   }
-  var fullUrl = protocol + "://" + (this.host || req.get('host')) + req.url;
+  var fullUrl = protocol + "://" + (this.host || req.headers['host']) + req.url;
   return prerenderUrl + forwardSlash + fullUrl;
 };
-
 
 prerender.getPrerenderServiceUrl = function() {
   return this.prerenderServiceUrl || process.env.PRERENDER_SERVICE_URL || 'http://service.prerender.io/';
