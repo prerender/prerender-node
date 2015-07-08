@@ -17,7 +17,9 @@
   ],
   "devDependencies": {
     "mocha": "~1.13.0",
-    "sinon": "~1.7.3"
+    "nock": "^2.7.0",
+    "sinon": "~1.7.3",
+    "supertest": "^1.0.1"
   },
   "scripts": {
     "test": "./node_modules/.bin/mocha"
