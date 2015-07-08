@@ -28,6 +28,8 @@ app.use(require('prerender-node').set('prerenderToken', 'YOUR_TOKEN'));
 
 `Note` If you're testing locally, you'll need to run the [prerender server](https://github.com/prerender/prerender) locally so that it has access to your server.
 
+This middleware is tested with Express3 and Express4, but has no explicit dependency on either.
+
 ## Testing
 
 If your URLs use a hash-bang:
