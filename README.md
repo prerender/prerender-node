@@ -115,7 +115,7 @@ var redis = require("redis"),
 
 prerender.set('beforeRender', function(req, done) {
 	client.get(req.url, done);
-}).set('afterRender', function(req, prerender_res) {
+}).set('afterRender', function(err, req, prerender_res) {
 	client.set(req.url, prerender_res.body)
 });
 ```
@@ -132,7 +132,7 @@ prerender.set('beforeRender', function(req, done) {
     if (err) return done(err);
     done(err, {body: fields[0], status: fields[1]});
   });
-}).set('afterRender', function(req, prerender_res) {
+}).set('afterRender', function(err, req, prerender_res) {
   // Don't cache responses that might be temporary like 500 or 504.
   if (cacheableStatusCodes[prerender_res.statusCode]) {
     client.hmset(req.url, 'body', prerender_res.body, 'status', prerender_res.statusCode);
