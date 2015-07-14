@@ -87,7 +87,7 @@ app.use(require('prerender-node').set('beforeRender', function(req, done) {
 
 This method is intended to be used for caching, but could be used to save analytics or anything else you need to do for each crawler request. This method is a noop and is called after the prerender service returns HTML.
 ```js
-app.use(require('prerender-node').set('afterRender', function(req, prerender_res) {
+app.use(require('prerender-node').set('afterRender', function(err, req, prerender_res) {
 	// do whatever you need to do
 }));
 ```
