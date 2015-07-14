@@ -21,15 +21,15 @@ var prerender = module.exports = function(req, res, next) {
       }
     }
 
-    prerender.getPrerenderedPageResponse(req, function(prerenderedResponse){
+    prerender.getPrerenderedPageResponse(req, function(err, prerenderedResponse){
+      prerender.afterRenderFn(err, req, prerenderedResponse);
 
-      if(prerenderedResponse) {
-        prerender.afterRenderFn(req, prerenderedResponse);
+      if(prerenderedResponse){
         res.writeHead(prerenderedResponse.statusCode, prerenderedResponse.headers);
         return res.end(prerenderedResponse.body);
+      } else {
+        next(err);
       }
-
-      next();
     });
   });
 };
@@ -174,8 +174,8 @@ prerender.getPrerenderedPageResponse = function(req, callback) {
     } else {
       prerender.plainResponse(response, callback);
     }
-  }).on('error', function() {
-    callback(null);
+  }).on('error', function(err) {
+    callback(err);
   });
 };
 
@@ -190,7 +190,10 @@ prerender.gunzipResponse = function(response, callback) {
     response.body = content;
     delete response.headers['content-encoding'];
     delete response.headers['content-length'];
-    callback(response);
+    callback(null, response);
+  });
+  gunzip.on('error', function(err){
+    callback(err);
   });
 
   response.pipe(gunzip);
@@ -204,7 +207,7 @@ prerender.plainResponse = function(response, callback) {
   });
   response.on('end', function() {
     response.body = content;
-    callback(response);
+    callback(null, response);
   });
 };
 

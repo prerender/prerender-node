@@ -277,6 +277,7 @@ describe ('Prerender', function(){
       assert.equal(res.writeHead.getCall(0).args[0], 200);
       assert.equal(res.end.callCount, 1);
       assert.equal(res.end.getCall(0).args[0], '<html>cached</html>');
+      prerender.set('beforeRender', null);
     });
 
     it('should return a prerendered response if an object is returned from beforeRender', function(){
@@ -293,6 +294,22 @@ describe ('Prerender', function(){
       assert.equal(res.writeHead.getCall(0).args[0], 400);
       assert.equal(res.end.callCount, 1);
       assert.equal(res.end.getCall(0).args[0], '<html>Bad Request</html>');
+      prerender.set('beforeRender', null);
+    });
+
+    it('calls next with error if the prerender service is unavailable', function(done){
+      var req = { method: 'GET', url: '/fail', headers: { 'user-agent': bot, host: 'google.com' } };
+
+      nock('http://service.prerender.io')
+      .get('/http://google.com/fail')
+      .replyWithError('uh oh');
+
+      prerender(req, res, function(err){
+        assert.equal(err.message, 'uh oh');
+        assert.equal(res.writeHead.callCount, 0);
+        assert.equal(res.end.callCount, 0);
+        done();
+      });
     });
   });
 

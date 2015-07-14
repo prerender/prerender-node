@@ -12,7 +12,6 @@
     "express": "~4.13.0",
     "jade": "~1.11.0",
     "morgan": "~1.6.1",
-    "prerender-node": "^1.2.1",
     "serve-favicon": "~2.3.0"
   }
 }
