@@ -216,7 +216,7 @@ prerender.buildApiUrl = function(req) {
   var prerenderUrl = prerender.getPrerenderServiceUrl();
   var forwardSlash = prerenderUrl.indexOf('/', prerenderUrl.length - 1) !== -1 ? '' : '/';
 
-  var protocol = "http";
+  var protocol = req.connection.encrypted ? "https" : "http";
   if (req.headers['cf-visitor']) {
     var match = req.headers['cf-visitor'].match(/"scheme":"(http|https)"/);
     if (match) protocol = match[1];

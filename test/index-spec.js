@@ -27,7 +27,7 @@ describe ('Prerender', function(){
     });
 
     it('should return a prerendered response with the returned status code and headers', function(done){
-      var req = { method: 'GET', url: '/', headers: { 'user-agent': bot, host: 'google.com' } };
+      var req = { method: 'GET', url: '/', headers: { 'user-agent': bot, host: 'google.com' }, connection: { encrypted: false } };
 
       nock('http://service.prerender.io', {
         reqheaders: {
@@ -55,7 +55,7 @@ describe ('Prerender', function(){
 
 
     it('should return a prerendered response if user is a bot by checking for _escaped_fragment_', function(done){
-      var req = { method: 'GET', url: '/path?_escaped_fragment_=', headers: { 'user-agent': user, host: 'google.com' } };
+      var req = { method: 'GET', url: '/path?_escaped_fragment_=', headers: { 'user-agent': user, host: 'google.com' }, connection: { encrypted: false } };
 
       nock('http://service.prerender.io', {
         reqheaders: {
@@ -81,7 +81,7 @@ describe ('Prerender', function(){
     });
 
     it('should return a prerendered gzipped response', function(done){
-      var req = { method: 'GET', url: '/path?_escaped_fragment_=', headers: { 'user-agent': user, host: 'google.com' } };
+      var req = { method: 'GET', url: '/path?_escaped_fragment_=', headers: { 'user-agent': user, host: 'google.com' }, connection: { encrypted: false } };
 
       res.end = function (content) {
         assert.equal(res.writeHead.callCount, 1);
@@ -148,7 +148,7 @@ describe ('Prerender', function(){
     });
 
     it('should call next() if the url is not part of the regex specific whitelist', function(){
-      var req = { method: 'GET', url: '/saved/search/blah?_escaped_fragment_=', headers: { 'user-agent': bot } };
+      var req = { method: 'GET', url: '/saved/search/blah?_escaped_fragment_=', headers: { 'user-agent': bot }, connection: { encrypted: false } };
 
       prerender.whitelisted(['^/search', '/help'])(req, res, next);
 
@@ -159,7 +159,7 @@ describe ('Prerender', function(){
     });
 
     it('should return a prerendered response if the url is part of the regex specific whitelist', function(done){
-      var req = { method: 'GET', url: '/search/things?query=blah&_escaped_fragment_=', headers: { 'user-agent': bot, host: 'google.com' } };
+      var req = { method: 'GET', url: '/search/things?query=blah&_escaped_fragment_=', headers: { 'user-agent': bot, host: 'google.com' }, connection: { encrypted: false } };
 
       nock('http://service.prerender.io', {
         reqheaders: {
@@ -189,7 +189,7 @@ describe ('Prerender', function(){
     });
 
     it('should call next() if the url is part of the regex specific blacklist', function(){
-      var req = { method: 'GET', url: '/search/things?query=blah', headers: { 'user-agent': bot } };
+      var req = { method: 'GET', url: '/search/things?query=blah', headers: { 'user-agent': bot }, connection: { encrypted: false } };
 
       prerender.blacklisted(['^/search', '/help'])(req, res, next);
 
@@ -200,7 +200,7 @@ describe ('Prerender', function(){
     });
 
     it('should return a prerendered response if the url is not part of the regex specific blacklist', function(done){
-      var req = { method: 'GET', url: '/profile/search/blah', headers: { 'user-agent': bot, host: 'google.com' } };
+      var req = { method: 'GET', url: '/profile/search/blah', headers: { 'user-agent': bot, host: 'google.com' }, connection: { encrypted: false } };
 
 
       nock('http://service.prerender.io', {
@@ -227,7 +227,7 @@ describe ('Prerender', function(){
     });
 
     it('should call next() if the referer is part of the regex specific blacklist', function(){
-      var req = { method: 'GET', url: '/api/results', headers: { referer: '/search', 'user-agent': bot } };
+      var req = { method: 'GET', url: '/api/results', headers: { referer: '/search', 'user-agent': bot }, connection: { encrypted: false } };
 
       prerender.blacklisted(['^/search', '/help'])(req, res, next);
 
@@ -238,7 +238,7 @@ describe ('Prerender', function(){
     });
 
     it('should return a prerendered response if the referer is not part of the regex specific blacklist', function(done){
-      var req = { method: 'GET', url: '/api/results', headers: { referer: '/profile/search', 'user-agent': bot, host: 'google.com' } };
+      var req = { method: 'GET', url: '/api/results', headers: { referer: '/profile/search', 'user-agent': bot, host: 'google.com' }, connection: { encrypted: false } };
 
       nock('http://service.prerender.io', {
         reqheaders: {
@@ -264,7 +264,7 @@ describe ('Prerender', function(){
     });
 
     it('should return a prerendered response if a string is returned from beforeRender', function(){
-      var req = { method: 'GET', url: '/', headers: { 'user-agent': bot } };
+      var req = { method: 'GET', url: '/', headers: { 'user-agent': bot }, connection: { encrypted: false } };
 
       prerender.set('beforeRender', function(req, done) {
         done(null, '<html>cached</html>');
@@ -281,7 +281,7 @@ describe ('Prerender', function(){
     });
 
     it('should return a prerendered response if an object is returned from beforeRender', function(){
-      var req = { method: 'GET', url: '/', headers: { 'user-agent': bot } };
+      var req = { method: 'GET', url: '/', headers: { 'user-agent': bot }, connection: { encrypted: false } };
 
       prerender.set('beforeRender', function(req, done) {
         done(null, {status: 400, body: '<html>Bad Request</html>'});
@@ -298,7 +298,7 @@ describe ('Prerender', function(){
     });
 
     it('calls next with error if the prerender service is unavailable', function(done){
-      var req = { method: 'GET', url: '/fail', headers: { 'user-agent': bot, host: 'google.com' } };
+      var req = { method: 'GET', url: '/fail', headers: { 'user-agent': bot, host: 'google.com' }, connection: { encrypted: false } };
 
       nock('http://service.prerender.io')
       .get('/http://google.com/fail')
@@ -331,6 +331,9 @@ describe ('Prerender', function(){
         url: '/search?q=javascript',
         headers: {
           'host': 'google.com'
+        },
+        connection: {
+          encrypted: false
         }
       };
 
@@ -343,6 +346,9 @@ describe ('Prerender', function(){
         url: '/search?q=javascript',
         headers: {
           'host': 'google.com'
+        },
+        connection: {
+          encrypted: false
         }
       };
 
@@ -356,6 +362,9 @@ describe ('Prerender', function(){
         url: '/search?q=javascript',
         headers: {
           'host': 'google.com'
+        },
+        connection: {
+          encrypted: false
         }
       };
 
@@ -371,6 +380,9 @@ describe ('Prerender', function(){
         headers: {
           'host': 'google.com',
           'cf-visitor': '"scheme":"https"'
+        },
+        connection: {
+          encrypted: false
         }
       };
 
@@ -385,6 +397,9 @@ describe ('Prerender', function(){
         headers: {
           'host': 'google.com',
           'x-forwarded-proto': 'https'
+        },
+        connection: {
+          encrypted: false
         }
       };
 
@@ -399,6 +414,25 @@ describe ('Prerender', function(){
         headers: {
           'host': 'google.com',
           'x-forwarded-proto': 'https,http'
+        },
+        connection: {
+          encrypted: false
+        }
+      };
+
+      delete process.env.PRERENDER_SERVICE_URL;
+      assert.equal(prerender.buildApiUrl(req), 'http://service.prerender.io/https://google.com/search?q=javascript');
+    });
+
+
+    it('should build the correct api url for https URLs', function() {
+      var req = {
+        url: '/search?q=javascript',
+        headers: {
+          'host': 'google.com'
+        },
+        connection: {
+          encrypted: true
         }
       };
 
