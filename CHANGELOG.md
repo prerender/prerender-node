@@ -15,3 +15,11 @@ Bugfixes:
   - Send HTTPS URLs through correctly.
 
     Fixed an issue where `http` was always added to the URLs sent to Prerender even if the URL was https.
+
+## 2.0.2 (2015-07-24)
+
+Bugfixes:
+
+  - Make sure we pass through the error, request, and Prerender response to afterRender
+
+    Fixed an issue where the original request and Prerender response wasn't getting passed to afterRender after recent change to pass err through. Now works correctly: `afterRender(err, req, prerenderResponse)`
