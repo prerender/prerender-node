@@ -7,6 +7,7 @@
   },
   "dependencies": {
     "express": "3.21.0",
-    "jade": "*"
+    "jade": "*",
+    "method-override": "^2.3.4"
   }
 }
