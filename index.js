@@ -242,10 +242,10 @@ prerender.beforeRenderFn = function(req, done) {
 };
 
 
-prerender.afterRenderFn = function(req, prerender_res) {
+prerender.afterRenderFn = function(err, req, prerender_res) {
   if (!this.afterRender) return;
 
-  this.afterRender(req, prerender_res);
+  this.afterRender(err, req, prerender_res);
 };
 
 

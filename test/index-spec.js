@@ -272,12 +272,12 @@ describe ('Prerender', function(){
 
       prerender(req, res, next);
 
+      prerender.set('beforeRender', null);
       assert.equal(next.callCount, 0);
       assert.equal(res.writeHead.callCount, 1);
       assert.equal(res.writeHead.getCall(0).args[0], 200);
       assert.equal(res.end.callCount, 1);
       assert.equal(res.end.getCall(0).args[0], '<html>cached</html>');
-      prerender.set('beforeRender', null);
     });
 
     it('should return a prerendered response if an object is returned from beforeRender', function(){
@@ -289,12 +289,68 @@ describe ('Prerender', function(){
 
       prerender(req, res, next);
 
+      prerender.set('beforeRender', null);
       assert.equal(next.callCount, 0);
       assert.equal(res.writeHead.callCount, 1);
       assert.equal(res.writeHead.getCall(0).args[0], 400);
       assert.equal(res.end.callCount, 1);
       assert.equal(res.end.getCall(0).args[0], '<html>Bad Request</html>');
-      prerender.set('beforeRender', null);
+    });
+
+    it('calls afterRender with error if the prerender service is unavailable', function(done){
+      var req = { method: 'GET', url: '/fail', headers: { 'user-agent': bot, host: 'google.com' }, connection: { encrypted: false } };
+
+      nock('http://service.prerender.io')
+      .get('/http://google.com/fail')
+      .replyWithError('uh oh');
+
+      var afterRenderStub = sandbox.stub();
+
+      prerender.set('afterRender', afterRenderStub);
+
+      prerender(req, res, function(err){
+        prerender.set('afterRender', null);
+        assert.equal(afterRenderStub.callCount, 1);
+        assert.equal(afterRenderStub.getCall(0).args[0], err);
+        done();
+      });
+    });
+
+    it('calls afterRender with request and prerender response', function(done){
+      var req = { method: 'GET', url: '/path?_escaped_fragment_=', headers: { 'user-agent': user, host: 'google.com' }, connection: { encrypted: false } };
+
+      nock('http://service.prerender.io', {
+        reqheaders: {
+          'x-prerender-token': 'MY_TOKEN',
+          'Accept-Encoding': 'gzip'
+        }
+      })
+      .get('/http://google.com/path')
+      .query({_escaped_fragment_: ''})
+      .reply(200, '<html></html>');
+
+      var afterRenderStub = sandbox.stub();
+      var getPrerenderedPageResponseOriginal = prerender.getPrerenderedPageResponse;
+      var prerenderResponseSpy = null;
+
+      prerender.getPrerenderedPageResponse = function(req, callback) {
+        prerenderResponseSpy = sandbox.spy(callback);
+        getPrerenderedPageResponseOriginal.apply(prerender, [req, prerenderResponseSpy]);
+      };
+
+      prerender.set('afterRender', afterRenderStub);
+
+      res.end = sandbox.spy(function(){
+        prerender.set('afterRender', null);
+        prerender.getPrerenderedPageResponse = getPrerenderedPageResponseOriginal;
+        assert.equal(next.callCount, 0);
+        assert.equal(afterRenderStub.getCall(0).args[0], null);
+        assert.equal(afterRenderStub.getCall(0).args[1], req);
+        assert.equal(afterRenderStub.getCall(0).args[2], prerenderResponseSpy.getCall(0).args[1]);
+        done();
+      });
+
+      prerender(req, res, next);
     });
 
     it('calls next with error if the prerender service is unavailable', function(done){
