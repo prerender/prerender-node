@@ -55,7 +55,9 @@ prerender.crawlerUserAgents = [
   'slackbot',
   'vkShare',
   'W3C_Validator',
-  'redditbot'
+  'redditbot',
+  'flipboard',
+  'flipboardproxy'
 ];
 
 
