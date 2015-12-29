@@ -1,3 +1,9 @@
+## 2.2.0 (2015-12/29)
+
+New features:
+
+  - Check for Whatsapp user agent in order to send prerendered pages when URLs are shared through Whatsapp
+
 ## 2.1.0 (2015-09-17)
 
 New features:
