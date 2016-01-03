@@ -57,7 +57,8 @@ prerender.crawlerUserAgents = [
   'W3C_Validator',
   'redditbot',
   'Applebot',
-  'WhatsApp'
+  'WhatsApp',
+  'flipboard'
 ];
 
 
