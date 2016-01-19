@@ -99,6 +99,13 @@ Option to hard-set the protocol. Useful for sites that are available on both htt
 app.use(require('prerender-node').set('protocol', 'https'));
 ```
 
+### forwardHeaders
+
+Option to forward headers from request to prerender.
+```js
+app.use(require('prerender-node').set('forwardHeaders', true);
+```
+
 ## Caching
 
 This express middleware is ready to be used with [redis](http://redis.io/) or [memcached](http://memcached.org/) to return prerendered pages in milliseconds.
