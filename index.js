@@ -164,7 +164,7 @@ prerender.getPrerenderedPageResponse = function(req, callback) {
     followRedirect: false
   };
   if (this.forwardHeaders === true) {
-    Object.keys(req).forEach(function(h) {
+    Object.keys(req.headers).forEach(function(h) {
       options.headers[h] = req.headers[h];
     });
   }
