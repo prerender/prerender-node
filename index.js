@@ -161,7 +161,8 @@ prerender.shouldShowPrerenderedPage = function(req) {
 prerender.getPrerenderedPageResponse = function(req, callback) {
   var options = {
     uri: url.parse(prerender.buildApiUrl(req)),
-    followRedirect: false
+    followRedirect: false,
+    headers: {}
   };
   if (this.forwardHeaders === true) {
     Object.keys(req.headers).forEach(function(h) {
