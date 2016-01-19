@@ -163,7 +163,7 @@ prerender.getPrerenderedPageResponse = function(req, callback) {
     uri: url.parse(prerender.buildApiUrl(req)),
     followRedirect: false
   };
-  if (this.forwardHeaders) {
+  if (this.forwardHeaders === true) {
     Object.keys(req).forEach(function(h) {
       options.headers[h] = req.headers[h];
     });
