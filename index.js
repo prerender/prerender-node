@@ -161,12 +161,16 @@ prerender.shouldShowPrerenderedPage = function(req) {
 prerender.getPrerenderedPageResponse = function(req, callback) {
   var options = {
     uri: url.parse(prerender.buildApiUrl(req)),
-    followRedirect: false
+    followRedirect: false,
+    headers: {}
   };
-  options.headers = {
-    'User-Agent': req.headers['user-agent'],
-    'Accept-Encoding': 'gzip'
-  };
+  if (this.forwardHeaders === true) {
+    Object.keys(req.headers).forEach(function(h) {
+      options.headers[h] = req.headers[h];
+    });
+  }
+  options.headers['User-Agent'] = req.headers['user-agent'];
+  options.headers['Accept-Encoding'] = 'gzip';
   if(this.prerenderToken || process.env.PRERENDER_TOKEN) {
     options.headers['X-Prerender-Token'] = this.prerenderToken || process.env.PRERENDER_TOKEN;
   }
