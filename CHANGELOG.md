@@ -1,4 +1,11 @@
-## 2.2.0 (2015-12/29)
+## 2.3.0 (2015-02-17)
+
+New features: 
+
+  - Check for flipboard user agent in order to correctly render preview in the app. [[#81](https://github.com/prerender/prerender-node/pull/81)]
+  - Optionally forward request headers to prerender. [[#94](https://github.com/prerender/prerender-node/pull/94)]
+
+## 2.2.0 (2015-12-29)
 
 New features:
 
