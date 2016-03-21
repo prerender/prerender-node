@@ -50,7 +50,7 @@ prerender.crawlerUserAgents = [
   'quora link preview',
   'showyoubot',
   'outbrain',
-  'pinterest',
+  'pinterest/0.',
   'developers.google.com/+/web/snippet',
   'slackbot',
   'vkShare',
@@ -101,7 +101,8 @@ prerender.extensionsToIgnore = [
   '.m4v',
   '.torrent',
   '.woff',
-  '.ttf'
+  '.ttf',
+  '.svg'
 ];
 
 
