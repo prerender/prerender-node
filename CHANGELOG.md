@@ -1,3 +1,10 @@
+## 2.2.1 (2016-3/21)
+
+Bugfixes:
+
+  - Check for more specific pinterest crawler user agent since their iOS app changes the browser user agent to include "pinterest"
+  - Added svg to list of extensions to check
+
 ## 2.2.0 (2015-12/29)
 
 New features:
