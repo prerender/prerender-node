@@ -1,3 +1,9 @@
+## 2.2.2 (2016-5/8)
+
+Bugfixes:
+
+  - fix compatibility with Node.js v6.0.0
+
 ## 2.2.1 (2016-3/21)
 
 Bugfixes:
