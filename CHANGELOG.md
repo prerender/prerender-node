@@ -1,17 +1,24 @@
-## 2.2.2 (2016-5/8)
+## 2.3.0 (2016-6-1)
+
+New features:
+
+  - Check for Tumblr user agent in order to send prerendered pages when URLs are shared through Tumblr
+  - Check for bitlybot user agent in order to send prerendered pages when URLs are shared through Bitly
+
+## 2.2.2 (2016-5-8)
 
 Bugfixes:
 
   - fix compatibility with Node.js v6.0.0
 
-## 2.2.1 (2016-3/21)
+## 2.2.1 (2016-3-21)
 
 Bugfixes:
 
   - Check for more specific pinterest crawler user agent since their iOS app changes the browser user agent to include "pinterest"
   - Added svg to list of extensions to check
 
-## 2.2.0 (2015-12/29)
+## 2.2.0 (2015-12-29)
 
 New features:
 
