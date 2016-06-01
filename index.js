@@ -58,7 +58,8 @@ prerender.crawlerUserAgents = [
   'redditbot',
   'Applebot',
   'WhatsApp',
-  'flipboard'
+  'flipboard',
+  'tumblr'
 ];
 
 
