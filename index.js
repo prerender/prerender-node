@@ -60,7 +60,8 @@ prerender.crawlerUserAgents = [
   'WhatsApp',
   'flipboard',
   'tumblr',
-  'bitlybot'
+  'bitlybot',
+  'SkypeUriPreview'
 ];
 
 
