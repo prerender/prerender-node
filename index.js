@@ -170,6 +170,11 @@ prerender.getPrerenderedPageResponse = function(req, callback) {
   };
   if (this.forwardHeaders === true) {
     Object.keys(req.headers).forEach(function(h) {
+      // This header was used to build the uir, but it will mess up the request if kept.
+      // https://github.com/prerender/prerender-node/issues/115
+      if (h=='host') {
+        return;
+      }
       options.headers[h] = req.headers[h];
     });
   }
