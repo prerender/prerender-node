@@ -170,6 +170,10 @@ prerender.getPrerenderedPageResponse = function(req, callback) {
   };
   if (this.forwardHeaders === true) {
     Object.keys(req.headers).forEach(function(h) {
+      // Forwarding the host header can cause issues with server platforms that require it to match the URL
+      if (h == 'host') {
+        return;
+      }
       options.headers[h] = req.headers[h];
     });
   }
