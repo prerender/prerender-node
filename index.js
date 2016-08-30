@@ -63,7 +63,7 @@ prerender.crawlerUserAgents = [
   'bitlybot',
   'SkypeUriPreview',
   'nuzzel',
-  'discord'
+  'Discordbot'
 ];
 
 
