@@ -1,3 +1,15 @@
+## 2.4.0 (2016-8-30)
+
+New features:
+
+  - Check for Skype user agent in order to send prerendered pages when URLs are shared through Skype chat
+  - Check for nuzzel user agent
+  - Check for discordbot user agent
+
+Changed
+
+ - Don't send the `host` header if `forwardHeaders` is enabled to prevent issues with servers that take the Host header and apply it to the URL
+
 ## 2.3.0 (2016-6-1)
 
 New features:
