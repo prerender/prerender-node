@@ -61,7 +61,9 @@ prerender.crawlerUserAgents = [
   'flipboard',
   'tumblr',
   'bitlybot',
-  'SkypeUriPreview'
+  'SkypeUriPreview',
+  'nuzzel',
+  'Discordbot'
 ];
 
 
