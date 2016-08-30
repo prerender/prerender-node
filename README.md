@@ -103,7 +103,7 @@ app.use(require('prerender-node').set('protocol', 'https'));
 
 Option to forward headers from request to prerender.
 ```js
-app.use(require('prerender-node').set('forwardHeaders', true);
+app.use(require('prerender-node').set('forwardHeaders', true));
 ```
 
 ## Caching
