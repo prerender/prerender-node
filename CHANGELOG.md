@@ -1,3 +1,9 @@
+## 2.5.0 (2016-10-26)
+
+Changed
+
+ - When creating the URL to send to Prerender, check to see if `x-forwarded-host` is set and use that before using the `host` header.
+
 ## 2.4.0 (2016-8-30)
 
 New features:
