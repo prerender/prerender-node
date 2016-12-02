@@ -143,7 +143,7 @@ prerender.shouldShowPrerenderedPage = function(req) {
   if(bufferAgent) isRequestingPrerenderedPage = true;
 
   //if it is a bot and is requesting a resource...dont prerender
-  if(prerender.extensionsToIgnore.some(function(extension){return req.url.indexOf(extension) !== -1;})) return false;
+  if(prerender.extensionsToIgnore.some(function(extension){return req.url.toLowerCase().indexOf(extension) !== -1;})) return false;
 
   //if it is a bot and not requesting a resource and is not whitelisted...dont prerender
   if(Array.isArray(this.whitelist) && this.whitelist.every(function(whitelisted){return (new RegExp(whitelisted)).test(req.url) === false;})) return false;
