@@ -1,3 +1,12 @@
+## 2.6.0 (2016-12-13)
+New features:
+
+  - Check for Google Page Speed user agent in order to send prerendered pages when URLs are tested through their tool
+
+Changed
+
+ - extensionsToIgnore check is now case insensitive
+
 ## 2.5.0 (2016-10-26)
 
 Changed
