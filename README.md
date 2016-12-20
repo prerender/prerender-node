@@ -106,6 +106,15 @@ Option to forward headers from request to prerender.
 app.use(require('prerender-node').set('forwardHeaders', true));
 ```
 
+### prerenderServerRequestOptions 
+
+Option to add options to the request sent to the prerender server. 
+```js
+app.use(require('prerender-node').set('prerenderServerRequestOptions', {}));
+```
+
+
+
 ## Caching
 
 This express middleware is ready to be used with [redis](http://redis.io/) or [memcached](http://memcached.org/) to return prerendered pages in milliseconds.

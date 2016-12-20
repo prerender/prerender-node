@@ -64,7 +64,7 @@ prerender.crawlerUserAgents = [
   'SkypeUriPreview',
   'nuzzel',
   'Discordbot',
-	'Google Page Speed'
+  'Google Page Speed'
 ];
 
 
@@ -165,12 +165,15 @@ prerender.shouldShowPrerenderedPage = function(req) {
 };
 
 
+prerender.prerenderServerRequestOptions = {};
+
 prerender.getPrerenderedPageResponse = function(req, callback) {
   var options = {
     uri: url.parse(prerender.buildApiUrl(req)),
     followRedirect: false,
     headers: {}
   };
+  for (var attrname in this.prerenderServerRequestOptions) { options[attrname] = this.prerenderServerRequestOptions[attrname]; }
   if (this.forwardHeaders === true) {
     Object.keys(req.headers).forEach(function(h) {
       // Forwarding the host header can cause issues with server platforms that require it to match the URL
