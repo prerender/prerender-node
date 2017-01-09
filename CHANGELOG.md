@@ -1,4 +1,4 @@
-## 2.6.1 (2016-12-20)
+## 2.7.0 (2016-12-20)
 New features:
 
   - Adds an option to be able to pass options to the request sent to the prerender.
