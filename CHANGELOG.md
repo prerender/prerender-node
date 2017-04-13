@@ -1,3 +1,12 @@
+## 2.7.1 (2017-04-13)
+New features:
+
+  - Added Qwantify to user agents being checked.
+
+Changed
+
+  - Added `host` parameter documentation to README
+
 ## 2.7.0 (2016-12-20)
 New features:
 
