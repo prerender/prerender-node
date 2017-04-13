@@ -64,7 +64,8 @@ prerender.crawlerUserAgents = [
   'SkypeUriPreview',
   'nuzzel',
   'Discordbot',
-  'Google Page Speed'
+  'Google Page Speed',
+  'Qwantify'
 ];
 
 

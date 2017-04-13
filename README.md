@@ -99,6 +99,15 @@ Option to hard-set the protocol. Useful for sites that are available on both htt
 app.use(require('prerender-node').set('protocol', 'https'));
 ```
 
+### host
+
+Option to hard-set the host. Useful for sites that are behind a load balancer or internal reverse proxy.
+For example, your internal URL looks like `http://internal-host.com/` and you might want it to instead send
+a request to Prerender.io with your real domain in place of `internal-host.com`.
+```js
+app.use(require('prerender-node').set('host', 'example.com'));
+```
+
 ### forwardHeaders
 
 Option to forward headers from request to prerender.
@@ -106,9 +115,9 @@ Option to forward headers from request to prerender.
 app.use(require('prerender-node').set('forwardHeaders', true));
 ```
 
-### prerenderServerRequestOptions 
+### prerenderServerRequestOptions
 
-Option to add options to the request sent to the prerender server. 
+Option to add options to the request sent to the prerender server.
 ```js
 app.use(require('prerender-node').set('prerenderServerRequestOptions', {}));
 ```
