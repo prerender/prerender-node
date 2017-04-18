@@ -37,8 +37,12 @@ var prerender = module.exports = function(req, res, next) {
 // googlebot, yahoo, and bingbot are not in this list because
 // we support _escaped_fragment_ and want to ensure people aren't
 // penalized for cloaking.
+
+// Update: googlebot doesn't seem to be honoring the _escaped_fragment_
+// thing any more, so I am adding it back to the list - @csillag
+
 prerender.crawlerUserAgents = [
-  // 'googlebot',
+  'googlebot',
   // 'yahoo',
   // 'bingbot',
   'baiduspider',
