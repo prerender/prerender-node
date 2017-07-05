@@ -1,3 +1,8 @@
+## 2.7.2 (2017-07-05)
+New features:
+
+  - Added pinterestbot to user agents being checked.
+
 ## 2.7.1 (2017-04-13)
 New features:
 
