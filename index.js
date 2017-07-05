@@ -65,7 +65,8 @@ prerender.crawlerUserAgents = [
   'nuzzel',
   'Discordbot',
   'Google Page Speed',
-  'Qwantify'
+  'Qwantify',
+	'pinterestbot'
 ];
 
 
