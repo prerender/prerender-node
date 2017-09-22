@@ -1,3 +1,8 @@
+## 2.7.4 (2017-09-22)
+Changed:
+
+  - Fixing wrong version of request. :)
+
 ## 2.7.3 (2017-09-22)
 Changed:
 
