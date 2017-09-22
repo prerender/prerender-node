@@ -1,3 +1,8 @@
+## 2.7.3 (2017-09-22)
+Changed:
+
+  - Pinned node request module to 2.81.1 since they bumped a dependency version that required a newer version of node. prerender-node still supports older versions of node so pinned an earlier version of request until we officially dont support older versions of node.
+
 ## 2.7.2 (2017-07-05)
 New features:
 
