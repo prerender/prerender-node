@@ -1,3 +1,8 @@
+## 2.8.0 (2018-02-21)
+Added:
+
+  - Added Bitrix24 and Xing user agents.
+
 ## 2.7.4 (2017-09-22)
 Changed:
 
