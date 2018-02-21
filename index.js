@@ -67,7 +67,8 @@ prerender.crawlerUserAgents = [
   'Google Page Speed',
   'Qwantify',
 	'pinterestbot',
-  'Bitrix link preview'
+  'Bitrix link preview',
+  'XING-contenttabreceiver'
 ];
 
 
