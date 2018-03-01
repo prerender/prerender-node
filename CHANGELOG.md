@@ -1,3 +1,8 @@
+## 3.1.0 (2018-03-01)
+Changed:
+
+  - Point to https endpoint for prerender service instead of http
+
 ## 3.0.0 (2018-03-01)
 Removed:
 
