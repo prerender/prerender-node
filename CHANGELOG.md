@@ -1,3 +1,8 @@
+## 3.1.1 (2018-03-01)
+Changed:
+
+  - Fixing test that checked for the old endpoint
+
 ## 3.1.0 (2018-03-01)
 Changed:
 
