@@ -257,7 +257,7 @@ prerender.buildApiUrl = function(req) {
 };
 
 prerender.getPrerenderServiceUrl = function() {
-  return this.prerenderServiceUrl || process.env.PRERENDER_SERVICE_URL || 'http://service.prerender.io/';
+  return this.prerenderServiceUrl || process.env.PRERENDER_SERVICE_URL || 'https://service.prerender.io/';
 };
 
 prerender.beforeRenderFn = function(req, done) {
