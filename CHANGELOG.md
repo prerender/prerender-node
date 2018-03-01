@@ -1,3 +1,17 @@
+## 3.0.0 (2018-03-01)
+Removed:
+
+  - Node 0.10 support
+  - Node 0.12 support
+
+Changed:
+
+  - Bumped request dependency version
+
+Added:
+
+  - Node 8 to travis.yml
+
 ## 2.8.0 (2018-02-21)
 Added:
 
