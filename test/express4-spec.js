@@ -7,7 +7,7 @@ describe('prerender-node in Express 4', function(){
   it('responds with prerendered content', function(done){
     var expectedGETregex = /\/http:\/\/127.0.0.1:[0-9]*\/\?_escaped_fragment_=/
 
-    mockRequestToPrerenderService = nock('http://service.prerender.io')
+    mockRequestToPrerenderService = nock('https://service.prerender.io')
       .filteringPath(function(path){
         return '/';
       })

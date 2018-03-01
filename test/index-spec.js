@@ -29,7 +29,7 @@ describe ('Prerender', function(){
     it('should return a prerendered response with the returned status code and headers', function(done){
       var req = { method: 'GET', url: '/', headers: { 'user-agent': bot, host: 'google.com' }, connection: { encrypted: false } };
 
-      nock('http://service.prerender.io', {
+      nock('https://service.prerender.io', {
         reqheaders: {
           'x-prerender-token': 'MY_TOKEN',
           'Accept-Encoding': 'gzip'
@@ -57,7 +57,7 @@ describe ('Prerender', function(){
     it('should return a prerendered response if user is a bot by checking for _escaped_fragment_', function(done){
       var req = { method: 'GET', url: '/path?_escaped_fragment_=', headers: { 'user-agent': user, host: 'google.com' }, connection: { encrypted: false } };
 
-      nock('http://service.prerender.io', {
+      nock('https://service.prerender.io', {
         reqheaders: {
           'x-prerender-token': 'MY_TOKEN',
           'Accept-Encoding': 'gzip'
@@ -92,7 +92,7 @@ describe ('Prerender', function(){
       };
 
       zlib.gzip(new Buffer('<html></html>', 'utf-8'), function (err, zipped) {
-        nock('http://service.prerender.io', {
+        nock('https://service.prerender.io', {
           reqheaders: {
             'x-prerender-token': 'MY_TOKEN',
             'Accept-Encoding': 'gzip'
@@ -161,7 +161,7 @@ describe ('Prerender', function(){
     it('should return a prerendered response if the url is part of the regex specific whitelist', function(done){
       var req = { method: 'GET', url: '/search/things?query=blah&_escaped_fragment_=', headers: { 'user-agent': bot, host: 'google.com' }, connection: { encrypted: false } };
 
-      nock('http://service.prerender.io', {
+      nock('https://service.prerender.io', {
         reqheaders: {
           'x-prerender-token': 'MY_TOKEN',
           'Accept-Encoding': 'gzip'
@@ -185,7 +185,7 @@ describe ('Prerender', function(){
 
       prerender.whitelisted(['^/search.*query', '/help'])(req, res, next);
       delete prerender.whitelist;
-      
+
     });
 
     it('should call next() if the url is part of the regex specific blacklist', function(){
@@ -203,7 +203,7 @@ describe ('Prerender', function(){
       var req = { method: 'GET', url: '/profile/search/blah', headers: { 'user-agent': bot, host: 'google.com' }, connection: { encrypted: false } };
 
 
-      nock('http://service.prerender.io', {
+      nock('https://service.prerender.io', {
         reqheaders: {
           'x-prerender-token': 'MY_TOKEN',
           'Accept-Encoding': 'gzip'
@@ -240,7 +240,7 @@ describe ('Prerender', function(){
     it('should return a prerendered response if the referer is not part of the regex specific blacklist', function(done){
       var req = { method: 'GET', url: '/api/results', headers: { referer: '/profile/search', 'user-agent': bot, host: 'google.com' }, connection: { encrypted: false } };
 
-      nock('http://service.prerender.io', {
+      nock('https://service.prerender.io', {
         reqheaders: {
           'x-prerender-token': 'MY_TOKEN',
           'Accept-Encoding': 'gzip'
@@ -260,7 +260,7 @@ describe ('Prerender', function(){
 
       prerender.blacklisted(['^/search', '/help'])(req, res, next);
       delete prerender.blacklist;
-      
+
     });
 
     it('should return a prerendered response if a string is returned from beforeRender', function(){
@@ -300,7 +300,7 @@ describe ('Prerender', function(){
     it('calls afterRender with error if the prerender service is unavailable', function(done){
       var req = { method: 'GET', url: '/fail', headers: { 'user-agent': bot, host: 'google.com' }, connection: { encrypted: false } };
 
-      nock('http://service.prerender.io')
+      nock('https://service.prerender.io')
       .get('/http://google.com/fail')
       .replyWithError('uh oh');
 
@@ -319,7 +319,7 @@ describe ('Prerender', function(){
     it('calls afterRender with request and prerender response', function(done){
       var req = { method: 'GET', url: '/path?_escaped_fragment_=', headers: { 'user-agent': user, host: 'google.com' }, connection: { encrypted: false } };
 
-      nock('http://service.prerender.io', {
+      nock('https://service.prerender.io', {
         reqheaders: {
           'x-prerender-token': 'MY_TOKEN',
           'Accept-Encoding': 'gzip'
@@ -356,7 +356,7 @@ describe ('Prerender', function(){
     it('calls next with error if the prerender service is unavailable', function(done){
       var req = { method: 'GET', url: '/fail', headers: { 'user-agent': bot, host: 'google.com' }, connection: { encrypted: false } };
 
-      nock('http://service.prerender.io')
+      nock('https://service.prerender.io')
       .get('/http://google.com/fail')
       .replyWithError('uh oh');
 
@@ -394,7 +394,7 @@ describe ('Prerender', function(){
       };
 
       delete process.env.PRERENDER_SERVICE_URL;
-      assert.equal(prerender.buildApiUrl(req), 'http://service.prerender.io/http://google.com/search?q=javascript');
+      assert.equal(prerender.buildApiUrl(req), 'https://service.prerender.io/http://google.com/search?q=javascript');
     });
 
     it('should build the correct api url with an environment variable url', function(){
@@ -443,7 +443,7 @@ describe ('Prerender', function(){
       };
 
       delete process.env.PRERENDER_SERVICE_URL;
-      assert.equal(prerender.buildApiUrl(req), 'http://service.prerender.io/https://google.com/search?q=javascript');
+      assert.equal(prerender.buildApiUrl(req), 'https://service.prerender.io/https://google.com/search?q=javascript');
     });
 
     // Check X-Forwarded-Proto because Heroku SSL Support terminates at the load balancer
@@ -460,7 +460,7 @@ describe ('Prerender', function(){
       };
 
       delete process.env.PRERENDER_SERVICE_URL;
-      assert.equal(prerender.buildApiUrl(req), 'http://service.prerender.io/https://google.com/search?q=javascript');
+      assert.equal(prerender.buildApiUrl(req), 'https://service.prerender.io/https://google.com/search?q=javascript');
     });
 
     // Check X-Forwarded-Proto because Heroku SSL Support terminates at the load balancer
@@ -477,7 +477,7 @@ describe ('Prerender', function(){
       };
 
       delete process.env.PRERENDER_SERVICE_URL;
-      assert.equal(prerender.buildApiUrl(req), 'http://service.prerender.io/https://google.com/search?q=javascript');
+      assert.equal(prerender.buildApiUrl(req), 'https://service.prerender.io/https://google.com/search?q=javascript');
     });
 
 
@@ -493,7 +493,7 @@ describe ('Prerender', function(){
       };
 
       delete process.env.PRERENDER_SERVICE_URL;
-      assert.equal(prerender.buildApiUrl(req), 'http://service.prerender.io/https://google.com/search?q=javascript');
+      assert.equal(prerender.buildApiUrl(req), 'https://service.prerender.io/https://google.com/search?q=javascript');
     });
   });
 
