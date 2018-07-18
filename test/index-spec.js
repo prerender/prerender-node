@@ -510,5 +510,18 @@ describe ('Prerender', function(){
       assert(prerender.shouldShowPrerenderedPage(req));
 
     });
+
+    it('returns false if x-prerender header is present', function() {
+      var req = {
+        headers: {
+          'x-prerender': '1'
+        },
+        method: 'GET',
+        url: '/'
+      };
+
+      assert.equal(false, prerender.shouldShowPrerenderedPage(req));
+
+    });
   });
 });

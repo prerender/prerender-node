@@ -34,13 +34,10 @@ var prerender = module.exports = function(req, res, next) {
   });
 };
 
-// googlebot, yahoo, and bingbot are not in this list because
-// we support _escaped_fragment_ and want to ensure people aren't
-// penalized for cloaking.
 prerender.crawlerUserAgents = [
-  // 'googlebot',
-  // 'yahoo',
-  // 'bingbot',
+  'googlebot',
+  'yahoo',
+  'bingbot',
   'baiduspider',
   'facebookexternalhit',
   'twitterbot',
@@ -136,6 +133,7 @@ prerender.shouldShowPrerenderedPage = function(req) {
 
   if(!userAgent) return false;
   if(req.method != 'GET' && req.method != 'HEAD') return false;
+  if(req.headers && req.headers['x-prerender']) return false;
 
   //if it contains _escaped_fragment_, show prerendered page
   var parsedQuery = url.parse(req.url, true).query;
