@@ -1,3 +1,9 @@
+## 3.2.0 (2018-07-18)
+Added:
+
+  - Added Googlebot, Bingbot, and Yandex to user agent check for new Dynamic Rendering and phase-out of escaped fragment URLs
+	- Added check for x-prerender header for mobile adaptive feature for websites that serve different HTML to mobile vs desktop crawlers
+
 ## 3.1.1 (2018-03-01)
 Changed:
 
