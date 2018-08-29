@@ -36,7 +36,7 @@ var prerender = module.exports = function(req, res, next) {
 
 prerender.crawlerUserAgents = [
   'googlebot',
-  'yahoo',
+  'Yahoo! Slurp',
   'bingbot',
   'baiduspider',
   'facebookexternalhit',
