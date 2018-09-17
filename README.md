@@ -48,7 +48,7 @@ If your URLs use push-state:
 	2. The middleware checks to make sure we aren't requesting a resource (js, css, etc...)
 	3. (optional) The middleware checks to make sure the url is in the whitelist
 	4. (optional) The middleware checks to make sure the url isn't in the blacklist
-2. The middleware makes a `GET` request to the [prerender service](https://github.com/prerender/prerender) (phantomjs server) for the page's prerendered HTML
+2. The middleware makes a `GET` request to the [prerender service](https://github.com/prerender/prerender) for the page's prerendered HTML
 3. Return that HTML to the crawler
 
 # Customization
