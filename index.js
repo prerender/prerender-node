@@ -111,7 +111,8 @@ prerender.extensionsToIgnore = [
   '.torrent',
   '.woff',
   '.ttf',
-  '.svg'
+  '.svg',
+  '.webmanifest'
 ];
 
 
