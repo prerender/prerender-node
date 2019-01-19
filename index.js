@@ -66,7 +66,10 @@ prerender.crawlerUserAgents = [
   'Qwantify',
   'pinterestbot',
   'Bitrix link preview',
-  'XING-contenttabreceiver'
+  'XING-contenttabreceiver',
+  'Mediapartners-Google',
+  'AdsBot-Google-Mobile',
+  'AdsBot-Google'
 ];
 
 
