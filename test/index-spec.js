@@ -497,6 +497,50 @@ describe ('Prerender', function(){
     });
   });
 
+  describe('#getPrerenderedPageResponse', function() {
+    var sandbox, req, callback;
+
+    beforeEach(function () {
+      var mockRequest = {
+        get: function() {
+          return this;
+        },
+        on: function() {
+          return this;
+        }
+      };
+      
+      sandbox = sinon.sandbox.create();
+      
+      callback = sandbox.stub();
+      req = { 
+        connection: {}, 
+        headers: {
+          'user-agent': 'Mozilla/5.0 (compatible; redditbot/1.0; +http://www.reddit.com/feedback)'
+        },
+      };
+      
+      sandbox.stub(request, 'get').returns(mockRequest);
+    });
+
+    afterEach(function () {
+      sandbox.restore();
+    });
+
+
+    it('makes request with custom user agent when custom user agent is set', function() {
+      prerender.customUserAgent = 'iPhone prerender';
+      prerender.getPrerenderedPageResponse(req, callback);
+      assert.equal(request.get.getCall(0).args[0].headers['User-Agent'], 'iPhone prerender');
+      delete prerender.customUserAgent;
+    });
+    
+    it('makes request with request user agent when custom user agent is not set', function() {
+      prerender.getPrerenderedPageResponse(req, callback);
+      assert.equal(request.get.getCall(0).args[0].headers['User-Agent'], req.headers['user-agent']);
+    });
+  });
+  
   describe('#shouldShowPrerenderedPage', function() {
     it('returns true if bot is redditbot', function() {
       var req = {

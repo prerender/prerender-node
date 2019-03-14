@@ -115,6 +115,13 @@ Option to forward headers from request to prerender.
 app.use(require('prerender-node').set('forwardHeaders', true));
 ```
 
+### customUserAgent
+
+Option to override User-Agent header sent to the prerender server.
+```js
+app.use(require('prerender-node').set('customUserAgent', 'iPhone'));
+```
+
 ### prerenderServerRequestOptions
 
 Option to add options to the request sent to the prerender server.
