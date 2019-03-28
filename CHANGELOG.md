@@ -1,3 +1,8 @@
+## 3.2.2 (2019-03-27)
+Added:
+
+  - Added Chrome-Lighthouse user agent so Google page speed insight tool will show prerendered pages
+
 ## 3.2.1 (2018-08-29)
 Added:
 
