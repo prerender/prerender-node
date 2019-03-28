@@ -91,7 +91,7 @@ describe ('Prerender', function(){
         done();
       };
 
-      zlib.gzip(new Buffer('<html></html>', 'utf-8'), function (err, zipped) {
+      zlib.gzip(Buffer.from('<html></html>', 'utf-8'), function (err, zipped) {
         nock('https://service.prerender.io', {
           reqheaders: {
             'x-prerender-token': 'MY_TOKEN',
