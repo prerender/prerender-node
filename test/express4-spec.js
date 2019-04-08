@@ -23,6 +23,7 @@ describe('prerender-node in Express 4', function(){
       .expect('cached content')
       .end(function(err){
         mockRequestToPrerenderService.done();
+        app.serverForTests.close();
         done(err);
       })
   });

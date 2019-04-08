@@ -59,5 +59,8 @@ app.use(function(err, req, res, next) {
   });
 });
 
+//hold onto the server so we can close it properly in our test
+app.serverForTests = app.listen(process.env.PORT || 3000)
+
 
 module.exports = app;

@@ -15,7 +15,7 @@ describe ('Prerender', function(){
 
     beforeEach(function () {
 
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
 
       prerender.prerenderToken = 'MY_TOKEN';
       res = { writeHead: sandbox.stub(), end: sandbox.stub() };
