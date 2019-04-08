@@ -1,3 +1,8 @@
+## 3.2.3 (2019-04-08)
+Changed:
+
+  - Modified request dependency from ^2.83.0 to ^2.88.0 and added package-lock.json file
+
 ## 3.2.2 (2019-03-27)
 Added:
 
