@@ -16,13 +16,13 @@
     "seo"
   ],
   "devDependencies": {
-    "mocha": "^6.1.2",
+    "mocha": "^6.2.0",
     "nock": "^10.0.6",
     "sinon": "^7.3.1",
     "supertest": "^4.0.2"
   },
   "scripts": {
-    "test": "./node_modules/.bin/mocha"
+    "test": "echo 'Make sure to unset PRERENDER_SERVICE_URL when running locally' && ./node_modules/.bin/mocha"
   },
   "dependencies": {
     "request": "^2.88.0"

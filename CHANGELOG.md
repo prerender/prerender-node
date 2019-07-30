@@ -1,3 +1,8 @@
+## 3.2.5 (2019-07-30)
+Changed:
+
+  - Updated lodash and mocha to resolve security vulnerability warning
+
 ## 3.2.4 (2019-04-08)
 Changed:
 
