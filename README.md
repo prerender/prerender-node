@@ -73,14 +73,14 @@ app.use(require('prerender-node').blacklisted('^/search'));
 app.use(require('prerender-node').blacklisted(['/search', '/users/.*/profile']));
 ```
 
-### extensionsToAllow
+### allowedExtensions
 
-Allows a given file or files that would normally be ignored by prerender based on their extension to pass thru and be prerendered. Compares using regex, so be specific when possible. If extensionsToAllow is applied, these files will be prerendered.
+Allows a given file or files that would normally be ignored by prerender based on their extension to pass thru and be prerendered. Compares using regex, so be specific when possible. If allowedExtensions is applied, these files will be prerendered.
 ```js
-app.use(require('prerender-node').extensionsToAllow('sitemap.xml'));
+app.use(require('prerender-node').allowedExtensions('sitemap.xml'));
 ```
 ```js
-app.use(require('prerender-node').extensionsToAllow(['favicon.ico', '/sitemap/*.xml']));
+app.use(require('prerender-node').allowedExtensions(['favicon.ico', '/sitemap/*.xml']));
 ```
 
 ### beforeRender
