@@ -253,7 +253,12 @@ prerender.buildApiUrl = function(req) {
   if (this.protocol) {
     protocol = this.protocol;
   }
-  var fullUrl = protocol + "://" + (this.host || req.headers['x-forwarded-host'] || req.headers['host']) + req.url;
+
+  var hostRaw = this.host || req.headers['x-forwarded-host'] || req.headers['host'];
+  // Take the first hostname in case of multiple values
+  var host = ('' + hostRaw).replace(/,.*$/, '');
+  var fullUrl = protocol + "://" + host + req.url;
+
   return prerenderUrl + forwardSlash + fullUrl;
 };
 
