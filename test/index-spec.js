@@ -263,6 +263,42 @@ describe ('Prerender', function(){
 
     });
 
+    it('should return a prerendered response if the url is part of the regex specific allowedList', function(){
+      var req = { method: 'GET', url: '/favicon.ico', headers: { 'user-agent': bot }, connection: { encrypted: false } };
+
+      nock('https://service.prerender.io', {
+        reqheaders: {
+          'x-prerender-token': 'MY_TOKEN',
+          'Accept-Encoding': 'gzip'
+        }
+      })
+      .get('/http://google.com/favicon.ico')
+      .reply(200, '<html></html>');
+
+      res.end = sandbox.spy(function(){
+        assert.equal(next.callCount, 0);
+        assert.equal(res.writeHead.callCount, 1);
+        assert.equal(res.writeHead.getCall(0).args[0], 200);
+        assert.equal(res.end.callCount, 1);
+        assert.equal(res.end.getCall(0).args[0], '<html></html>');
+        done();
+      });
+
+      prerender.allowedExtensions('favicon.ico')(req, res, next);
+      delete prerender.extensionsToAllow;
+    });
+
+    it('should call next() if the url is not part of the regex specific allowedList', function(){
+      var req = { method: 'GET', url: '/favicon.ico', headers: { 'user-agent': bot }, connection: { encrypted: false } };
+
+      prerender.allowedExtensions(['sitemap/*.xml', '^/*.jpg'])(req, res, next);
+
+      delete prerender.extensionsToAllow;
+      assert.equal(next.callCount, 1);
+      assert.equal(res.writeHead.callCount, 0);
+      assert.equal(res.end.callCount, 0);
+    });
+
     it('should return a prerendered response if a string is returned from beforeRender', function(){
       var req = { method: 'GET', url: '/', headers: { 'user-agent': bot }, connection: { encrypted: false } };
 

@@ -129,6 +129,11 @@ prerender.blacklisted = function(blacklist) {
 };
 
 
+prerender.allowedExtensions = function(extensionsToAllow) {
+  prerender.extensionsToAllow = typeof extensionsToAllow === 'string' ? [extensionsToAllow] : extensionsToAllow;
+  return this;
+}
+
 prerender.shouldShowPrerenderedPage = function(req) {
   var userAgent = req.headers['user-agent']
     , bufferAgent = req.headers['x-bufferbot']
@@ -149,7 +154,10 @@ prerender.shouldShowPrerenderedPage = function(req) {
   if(bufferAgent) isRequestingPrerenderedPage = true;
 
   //if it is a bot and is requesting a resource...dont prerender
-  if(prerender.extensionsToIgnore.some(function(extension){return req.url.toLowerCase().indexOf(extension) !== -1;})) return false;
+  if(prerender.extensionsToIgnore.some(function(extension){return req.url.toLowerCase().indexOf(extension) !== -1;})){
+    //if there is a list of allowed files or extensions let them through
+    if(!Array.isArray(this.extensionsToAllow) || !this.extensionsToAllow.some(function(allowed){return (new RegExp(allowed)).test(req.url) === true;})) return false;
+  }
 
   //if it is a bot and not requesting a resource and is not whitelisted...dont prerender
   if(Array.isArray(this.whitelist) && this.whitelist.every(function(whitelisted){return (new RegExp(whitelisted)).test(req.url) === false;})) return false;
