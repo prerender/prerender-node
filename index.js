@@ -254,7 +254,7 @@ prerender.buildApiUrl = function(req) {
     protocol = this.protocol;
   }
   
-  var host = '';
+  var host;
   if (this.host) {
     host = this.host;
   } else if (req.headers['x-forwarded-host']) {
