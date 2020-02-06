@@ -34,40 +34,42 @@ var prerender = module.exports = function(req, res, next) {
   });
 };
 
+prerender.whitelist=[];
+prerender.blacklisted=[];
 prerender.crawlerUserAgents = [
-  'googlebot',
-  'Yahoo! Slurp',
-  'bingbot',
-  'yandex',
-  'baiduspider',
-  'facebookexternalhit',
-  'twitterbot',
-  'rogerbot',
-  'linkedinbot',
-  'embedly',
-  'quora link preview',
-  'showyoubot',
-  'outbrain',
-  'pinterest/0.',
-  'developers.google.com/+/web/snippet',
-  'slackbot',
-  'vkShare',
-  'W3C_Validator',
-  'redditbot',
-  'Applebot',
-  'WhatsApp',
-  'flipboard',
-  'tumblr',
-  'bitlybot',
-  'SkypeUriPreview',
-  'nuzzel',
-  'Discordbot',
-  'Google Page Speed',
-  'Qwantify',
-  'pinterestbot',
-  'Bitrix link preview',
-  'XING-contenttabreceiver',
-  'Chrome-Lighthouse'
+  'googlebot', 
+  'yahoo! slurp', 
+  'bingbot', 
+  'yandex', 
+  'baiduspider', 
+  'facebookexternalhit', 
+  'twitterbot', 
+  'rogerbot', 
+  'linkedinbot', 
+  'embedly', 
+  'quora link preview', 
+  'showyoubot', 
+  'outbrain', 
+  'pinterest/0.', 
+  'developers.google.com/+/web/snippet', 
+  'slackbot', 
+  'vkshare', 
+  'w3c_validator', 
+  'redditbot', 
+  'applebot', 
+  'whatsapp', 
+  'flipboard', 
+  'tumblr', 
+  'bitlybot', 
+  'skypeuripreview', 
+  'nuzzel', 
+  'discordbot', 
+  'google page speed', 
+  'qwantify', 
+  'pinterestbot', 
+  'bitrix link preview', 
+  'xing-contenttabreceiver', 
+  'chrome-lighthouse'
 ];
 
 
@@ -116,46 +118,39 @@ prerender.extensionsToIgnore = [
   '.webmanifest'
 ];
 
-
 prerender.whitelisted = function(whitelist) {
-  prerender.whitelist = typeof whitelist === 'string' ? [whitelist] : whitelist;
+  if(!whitelist instanceof Array){
+    throw new TypeError('Expected whitelist to be an array')
+  }
+  prerender.whitelist = whitelist;
   return this;
 };
 
-
 prerender.blacklisted = function(blacklist) {
-  prerender.blacklist = typeof blacklist === 'string' ? [blacklist] : blacklist;
+  if(!blacklist instanceof Array){
+    throw new TypeError('Expected blacklist to be an array')
+  }
+  prerender.blacklist = blacklist;
   return this;
 };
 
 
 prerender.shouldShowPrerenderedPage = function(req) {
   var userAgent = req.headers['user-agent']
-    , bufferAgent = req.headers['x-bufferbot']
-    , isRequestingPrerenderedPage = false;
+    , bufferAgent = req.headers['x-bufferbot'];
 
-  if(!userAgent) return false;
-  if(req.method != 'GET' && req.method != 'HEAD') return false;
+  if(!userAgent) return false; // it is not a bot
+  if(req.method !== 'GET' && req.method !== 'HEAD') return false;
   if(req.headers && req.headers['x-prerender']) return false;
-
-  //if it contains _escaped_fragment_, show prerendered page
-  var parsedQuery = url.parse(req.url, true).query;
-  if(parsedQuery && parsedQuery['_escaped_fragment_'] !== undefined) isRequestingPrerenderedPage = true;
-
-  //if it is a bot...show prerendered page
-  if(prerender.crawlerUserAgents.some(function(crawlerUserAgent){ return userAgent.toLowerCase().indexOf(crawlerUserAgent.toLowerCase()) !== -1;})) isRequestingPrerenderedPage = true;
-
-  //if it is BufferBot...show prerendered page
-  if(bufferAgent) isRequestingPrerenderedPage = true;
 
   //if it is a bot and is requesting a resource...dont prerender
   if(prerender.extensionsToIgnore.some(function(extension){return req.url.toLowerCase().indexOf(extension) !== -1;})) return false;
 
   //if it is a bot and not requesting a resource and is not whitelisted...dont prerender
-  if(Array.isArray(this.whitelist) && this.whitelist.every(function(whitelisted){return (new RegExp(whitelisted)).test(req.url) === false;})) return false;
+  if(this.whitelist.every(function(whitelisted){return (new RegExp(whitelisted)).test(req.url) === false;})) return false;
 
   //if it is a bot and not requesting a resource and is not blacklisted(url or referer)...dont prerender
-  if(Array.isArray(this.blacklist) && this.blacklist.some(function(blacklisted){
+  if(this.blacklist.some(function(blacklisted){
     var blacklistedUrl = false
       , blacklistedReferer = false
       , regex = new RegExp(blacklisted);
@@ -166,7 +161,17 @@ prerender.shouldShowPrerenderedPage = function(req) {
     return blacklistedUrl || blacklistedReferer;
   })) return false;
 
-  return isRequestingPrerenderedPage;
+  //if it contains _escaped_fragment_, show prerendered page
+  var parsedQuery = url.parse(req.url, true).query;
+  if(parsedQuery && parsedQuery['_escaped_fragment_'] !== undefined) return true;
+
+  //if it is a bot...show prerendered page
+  if(prerender.crawlerUserAgents.some(function(crawlerUserAgent){ return userAgent.toLowerCase().indexOf(crawlerUserAgent) !== -1;})) return true;
+
+  //if it is BufferBot...show prerendered page
+  if(bufferAgent) return true;
+
+  return false;
 };
 
 
