@@ -113,7 +113,31 @@ Option to add options to the request sent to the prerender server.
 app.use(require('prerender-node').set('prerenderServerRequestOptions', {}));
 ```
 
+### `crawlerUserAgents` and `extensionsToIgnore`
 
+`prerender.crawlerUserAgents` and `prerender.extensionsToIgnore` can be customized simply by editing the data from the module directly after import. For example, to add user agents:
+
+```js
+var prerender = require('prerender-node');
+prerender.crawlerUserAgents.push("useragent1", "useragent2");
+app.use(prerender);
+```
+
+To remove certain user agents:
+
+```js
+var prerender = require('prerender-node');
+prerender.crawlerUserAgents = prerender.crawlerUserAgents.filter(function(ua) { return ua !== 'googlebot'; });
+app.use(prerender);
+```
+
+Or, to completely replace the list with your own:
+
+```js
+var prerender = require('prerender-node');
+prerender.crawlerUserAgents = [ 'facebookexternalhit' ]; //add any other user agents you'd like to support
+app.use(prerender);
+```
 
 ## Caching
 
