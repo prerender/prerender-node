@@ -37,31 +37,31 @@ The best way to test the prerendered page is to [set the User Agent of your brow
 1. The middleware checks to make sure we should show a prerendered page
 	1. The middleware checks if the request is from a crawler by checking the user agent string against a default list of crawler user agents
 	2. The middleware checks to make sure we aren't requesting a resource (js, css, etc...)
-	3. (optional) The middleware checks to make sure the url is in the whitelist
-	4. (optional) The middleware checks to make sure the url isn't in the blacklist
+	3. (optional) The middleware checks to make sure the url is in the safelist
+	4. (optional) The middleware checks to make sure the url isn't in the blocklist
 2. The middleware makes a `GET` request to the [prerender service](https://github.com/prerender/prerender) for the page's prerendered HTML
 3. Return that HTML to the crawler from your server
 
 # Customization
 
-### Whitelist
+### Safelist
 
-Whitelist a single url path or multiple url paths. Compares using regex, so be specific when possible. If a whitelist is supplied, only urls containing a whitelist path will be prerendered.
+safelist a single url path or multiple url paths. Compares using regex, so be specific when possible. If a safelist is supplied, only urls containing a safelist path will be prerendered.
 ```js
-app.use(require('prerender-node').whitelisted('^/search'));
+app.use(require('prerender-node').safelisted('^/search'));
 ```
 ```js
-app.use(require('prerender-node').whitelisted(['/search', '/users/.*/profile']));
+app.use(require('prerender-node').safelisted(['/search', '/users/.*/profile']));
 ```
 
-### Blacklist
+### Blocklist
 
-Blacklist a single url path or multiple url paths. Compares using regex, so be specific when possible. If a blacklist is supplied, all url's will be prerendered except ones containing a blacklist path.
+Blocklist a single url path or multiple url paths. Compares using regex, so be specific when possible. If a blocklist is supplied, all url's will be prerendered except ones containing a blocklist path.
 ```js
-app.use(require('prerender-node').blacklisted('^/search'));
+app.use(require('prerender-node').blocklisted('^/search'));
 ```
 ```js
-app.use(require('prerender-node').blacklisted(['/search', '/users/.*/profile']));
+app.use(require('prerender-node').blocklisted(['/search', '/users/.*/profile']));
 ```
 
 ### beforeRender

@@ -147,18 +147,18 @@ describe ('Prerender', function(){
       assert.equal(res.end.callCount, 0);
     });
 
-    it('should call next() if the url is not part of the regex specific whitelist', function(){
+    it('should call next() if the url is not part of the regex specific safelist', function(){
       var req = { method: 'GET', url: '/saved/search/blah?_escaped_fragment_=', headers: { 'user-agent': bot }, connection: { encrypted: false } };
 
-      prerender.whitelisted(['^/search', '/help'])(req, res, next);
+      prerender.safelisted(['^/search', '/help'])(req, res, next);
 
-      delete prerender.whitelist;
+      delete prerender.safelist;
       assert.equal(next.callCount, 1);
       assert.equal(res.writeHead.callCount, 0);
       assert.equal(res.end.callCount, 0);
     });
 
-    it('should return a prerendered response if the url is part of the regex specific whitelist', function(done){
+    it('should return a prerendered response if the url is part of the regex specific safelist', function(done){
       var req = { method: 'GET', url: '/search/things?query=blah&_escaped_fragment_=', headers: { 'user-agent': bot, host: 'google.com' }, connection: { encrypted: false } };
 
       nock('https://service.prerender.io', {
@@ -183,23 +183,23 @@ describe ('Prerender', function(){
         done();
       });
 
-      prerender.whitelisted(['^/search.*query', '/help'])(req, res, next);
-      delete prerender.whitelist;
+      prerender.safelisted(['^/search.*query', '/help'])(req, res, next);
+      delete prerender.safelist;
 
     });
 
-    it('should call next() if the url is part of the regex specific blacklist', function(){
+    it('should call next() if the url is part of the regex specific blocklist', function(){
       var req = { method: 'GET', url: '/search/things?query=blah', headers: { 'user-agent': bot }, connection: { encrypted: false } };
 
-      prerender.blacklisted(['^/search', '/help'])(req, res, next);
+      prerender.blocklisted(['^/search', '/help'])(req, res, next);
 
-      delete prerender.blacklist;
+      delete prerender.blocklist;
       assert.equal(next.callCount, 1);
       assert.equal(res.writeHead.callCount, 0);
       assert.equal(res.end.callCount, 0);
     });
 
-    it('should return a prerendered response if the url is not part of the regex specific blacklist', function(done){
+    it('should return a prerendered response if the url is not part of the regex specific blocklist', function(done){
       var req = { method: 'GET', url: '/profile/search/blah', headers: { 'user-agent': bot, host: 'google.com' }, connection: { encrypted: false } };
 
 
@@ -221,23 +221,23 @@ describe ('Prerender', function(){
         done();
       });
 
-      prerender.blacklisted(['^/search', '/help'])(req, res, next);
-      delete prerender.blacklist;
+      prerender.blocklisted(['^/search', '/help'])(req, res, next);
+      delete prerender.blocklist;
 
     });
 
-    it('should call next() if the referer is part of the regex specific blacklist', function(){
+    it('should call next() if the referer is part of the regex specific blocklist', function(){
       var req = { method: 'GET', url: '/api/results', headers: { referer: '/search', 'user-agent': bot }, connection: { encrypted: false } };
 
-      prerender.blacklisted(['^/search', '/help'])(req, res, next);
+      prerender.blocklisted(['^/search', '/help'])(req, res, next);
 
-      delete prerender.blacklist;
+      delete prerender.blocklist;
       assert.equal(next.callCount, 1);
       assert.equal(res.writeHead.callCount, 0);
       assert.equal(res.end.callCount, 0);
     });
 
-    it('should return a prerendered response if the referer is not part of the regex specific blacklist', function(done){
+    it('should return a prerendered response if the referer is not part of the regex specific blocklist', function(done){
       var req = { method: 'GET', url: '/api/results', headers: { referer: '/profile/search', 'user-agent': bot, host: 'google.com' }, connection: { encrypted: false } };
 
       nock('https://service.prerender.io', {
@@ -258,8 +258,8 @@ describe ('Prerender', function(){
         done();
       });
 
-      prerender.blacklisted(['^/search', '/help'])(req, res, next);
-      delete prerender.blacklist;
+      prerender.blocklisted(['^/search', '/help'])(req, res, next);
+      delete prerender.blocklist;
 
     });
 
@@ -369,15 +369,15 @@ describe ('Prerender', function(){
     });
   });
 
-  describe('#whitelisted', function(){
+  describe('#safelisted', function(){
     it('should return the prerendered middleware function', function(){
-      assert.equal(prerender.whitelisted(), prerender);
+      assert.equal(prerender.safelisted(), prerender);
     });
   });
 
-  describe('#blacklisted', function(){
+  describe('#blocklisted', function(){
     it('should return the prerendered middleware function', function(){
-      assert.equal(prerender.blacklisted(), prerender);
+      assert.equal(prerender.blocklisted(), prerender);
     });
   });
 

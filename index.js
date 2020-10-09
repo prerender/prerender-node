@@ -117,14 +117,14 @@ prerender.extensionsToIgnore = [
 ];
 
 
-prerender.whitelisted = function(whitelist) {
-  prerender.whitelist = typeof whitelist === 'string' ? [whitelist] : whitelist;
+prerender.safelisted = function(safelist) {
+  prerender.safelist = typeof safelist === 'string' ? [safelist] : safelist;
   return this;
 };
 
 
-prerender.blacklisted = function(blacklist) {
-  prerender.blacklist = typeof blacklist === 'string' ? [blacklist] : blacklist;
+prerender.blocklisted = function(blocklist) {
+  prerender.blocklist = typeof blocklist === 'string' ? [blocklist] : blocklist;
   return this;
 };
 
@@ -151,19 +151,19 @@ prerender.shouldShowPrerenderedPage = function(req) {
   //if it is a bot and is requesting a resource...dont prerender
   if(prerender.extensionsToIgnore.some(function(extension){return req.url.toLowerCase().indexOf(extension) !== -1;})) return false;
 
-  //if it is a bot and not requesting a resource and is not whitelisted...dont prerender
-  if(Array.isArray(this.whitelist) && this.whitelist.every(function(whitelisted){return (new RegExp(whitelisted)).test(req.url) === false;})) return false;
+  //if it is a bot and not requesting a resource and is not safelisted...dont prerender
+  if(Array.isArray(this.safelist) && this.safelist.every(function(safelisted){return (new RegExp(safelisted)).test(req.url) === false;})) return false;
 
-  //if it is a bot and not requesting a resource and is not blacklisted(url or referer)...dont prerender
-  if(Array.isArray(this.blacklist) && this.blacklist.some(function(blacklisted){
-    var blacklistedUrl = false
-      , blacklistedReferer = false
-      , regex = new RegExp(blacklisted);
+  //if it is a bot and not requesting a resource and is not blocklisted(url or referer)...dont prerender
+  if(Array.isArray(this.blocklist) && this.blocklist.some(function(blocklisted){
+    var blocklistedUrl = false
+      , blocklistedReferer = false
+      , regex = new RegExp(blocklisted);
 
-    blacklistedUrl = regex.test(req.url) === true;
-    if(req.headers['referer']) blacklistedReferer = regex.test(req.headers['referer']) === true;
+    blocklistedUrl = regex.test(req.url) === true;
+    if(req.headers['referer']) blocklistedReferer = regex.test(req.headers['referer']) === true;
 
-    return blacklistedUrl || blacklistedReferer;
+    return blocklistedUrl || blocklistedReferer;
   })) return false;
 
   return isRequestingPrerenderedPage;
