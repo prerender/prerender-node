@@ -1,5 +1,5 @@
 {
-  "name": "prerender-node",
+  "name": "prerender-node-qt",
   "version": "3.2.5",
   "description": "express middleware for serving prerendered javascript-rendered pages for SEO",
   "author": "Todd Hooper",
@@ -7,7 +7,7 @@
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git://github.com/prerender/prerender-node"
+    "url": "git://github.com/prerender/prerender-node.git"
   },
   "keywords": [
     "angular",
@@ -26,5 +26,12 @@
   },
   "dependencies": {
     "request": "^2.88.0"
+  },
+  "bugs": {
+    "url": "https://github.com/prerender/prerender-node/issues"
+  },
+  "homepage": "https://github.com/prerender/prerender-node#readme",
+  "directories": {
+    "test": "test"
   }
 }
