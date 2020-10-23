@@ -6,37 +6,31 @@ var prerender = module.exports = function(req, res, next) {
   if(!prerender.shouldShowPrerenderedPage(req)) return next();
 
   prerender.beforeRenderFn(req, function(err, cachedRender) {
-    console.log("--------------------------inside before render", err, cachedRender)
+
     if (!err && cachedRender) {
       if (typeof cachedRender == 'string') {
         res.writeHead(200, {
-          "Content-Type": "text/html",
-          "Cache-Control": "public,max-age=10,s-maxage=1200,stale-while-revalidate=1000,stale-if-error=14400"
-        });
-        res.writeHead(400, {
-          "Content-Type": "text/html",
-          "Cache-Control": "public,max-age=10,s-maxage=900,stale-while-revalidate=1000,stale-if-error=14400"
+          "Content-Type": "text/html"
         });
         return res.end(cachedRender);
       } else if (typeof cachedRender == 'object') {
         res.writeHead(cachedRender.status || 200, {
-          "Content-Type": "text/html",
-          "Cache-Control": "public,max-age=15,s-maxage=1200,stale-while-revalidate=1000,stale-if-error=14400"
-        });
-        res.writeHead(400, {
-          "Content-Type": "text/html",
-          "Cache-Control": "public,max-age=10,s-maxage=900,stale-while-revalidate=1000,stale-if-error=14400"
+          "Content-Type": "text/html"
         });
         return res.end(cachedRender.body || '');
       }
     }
 
     prerender.getPrerenderedPageResponse(req, function(err, prerenderedResponse){
-      console.log('inside afterrender-------------', prerenderedResponse)
       prerender.afterRenderFn(err, req, prerenderedResponse);
 
       if(prerenderedResponse){
-        res.writeHead(prerenderedResponse.statusCode, prerenderedResponse.headers);
+        const cacheControlHeader = {
+          "Cache-Control":
+            "public,max-age=15,s-maxage=900,stale-while-revalidate=1000,stale-if-error=14400"
+        }
+        const prerenderedRespHeader = { ...cacheControlHeader, ...prerenderedResponse.headers };
+        res.writeHead(prerenderedResponse.statusCode, prerenderedRespHeader);
         return res.end(prerenderedResponse.body);
       } else {
         next(err);
@@ -184,7 +178,6 @@ prerender.shouldShowPrerenderedPage = function(req) {
 prerender.prerenderServerRequestOptions = {};
 
 prerender.getPrerenderedPageResponse = function(req, callback) {
-  console.log('-----------------', "inside get pre rendered response")
   var options = {
     uri: url.parse(prerender.buildApiUrl(req)),
     followRedirect: false,
@@ -200,8 +193,6 @@ prerender.getPrerenderedPageResponse = function(req, callback) {
       options.headers[h] = req.headers[h];
     });
   }
-  options.headers["Content-Type"] = "text/html",
-  options.headers["Cache-Control"] = "public,max-age=10,s-maxage=900,stale-while-revalidate=1000,stale-if-error=14400",
   options.headers['User-Agent'] = req.headers['user-agent'];
   options.headers['Accept-Encoding'] = 'gzip';
   if(this.prerenderToken || process.env.PRERENDER_TOKEN) {
