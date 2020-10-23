@@ -11,7 +11,7 @@ var prerender = module.exports = function(req, res, next) {
       if (typeof cachedRender == 'string') {
         res.writeHead(200, {
           "Content-Type": "text/html",
-          "Cache-Control": "public,max-age=15,s-maxage=900,stale-while-revalidate=1000,stale-if-error=14400"
+          "Cache-Control": "public,max-age=10,s-maxage=1200,stale-while-revalidate=1000,stale-if-error=14400"
         });
         res.writeHead(400, {
           "Content-Type": "text/html",

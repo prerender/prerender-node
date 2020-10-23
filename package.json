@@ -1,6 +1,6 @@
 {
   "name": "@quintype/prerender-node",
-  "version": "3.2.7-beta.0",
+  "version": "3.2.7-beta.1",
   "description": "express middleware for serving prerendered javascript-rendered pages for SEO",
   "author": "Todd Hooper",
   "license": "MIT",
