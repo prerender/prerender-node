@@ -1,5 +1,5 @@
 {
-  "name": "y",
+  "name": "@quintype/prerender-node",
   "version": "3.2.5",
   "description": "express middleware for serving prerendered javascript-rendered pages for SEO",
   "author": "Todd Hooper",
@@ -7,7 +7,7 @@
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git://github.com/prerender/prerender-node.git"
+    "url": "git://github.com/quintype/prerender-node"
   },
   "keywords": [
     "angular",
@@ -28,9 +28,9 @@
     "request": "^2.88.0"
   },
   "bugs": {
-    "url": "https://github.com/prerender/prerender-node/issues"
+    "url": "https://github.com/quintype/prerender-node/issues"
   },
-  "homepage": "https://github.com/prerender/prerender-node#readme",
+  "homepage": "https://github.com/quintype/prerender-node",
   "directories": {
     "test": "test"
   }
