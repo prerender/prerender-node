@@ -1,6 +1,7 @@
 var request = require('request')
   , url = require('url')
   , zlib = require('zlib');
+const { addCacheHeadersToResult } = require('./cdn-caching');
 
 var prerender = module.exports = function(req, res, next) {
   if(!prerender.shouldShowPrerenderedPage(req)) return next();
@@ -25,10 +26,7 @@ var prerender = module.exports = function(req, res, next) {
       prerender.afterRenderFn(err, req, prerenderedResponse);
 
       if(prerenderedResponse){
-        const cacheControlHeader = {
-          "Cache-Control":
-            "public,max-age=15,s-maxage=900,stale-while-revalidate=1000,stale-if-error=14400"
-        }
+        const cacheControlHeader = addCacheHeadersToResult("prerenderKey")
         const prerenderedRespHeader = { ...cacheControlHeader, ...prerenderedResponse.headers };
         res.writeHead(prerenderedResponse.statusCode, prerenderedRespHeader);
         return res.end(prerenderedResponse.body);

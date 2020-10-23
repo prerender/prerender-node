@@ -25,6 +25,7 @@
     "test": "echo 'Make sure to unset PRERENDER_SERVICE_URL when running locally' && ./node_modules/.bin/mocha"
   },
   "dependencies": {
+    "lodash": "^4.17.20",
     "request": "^2.88.0"
   },
   "bugs": {
