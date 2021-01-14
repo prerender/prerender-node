@@ -199,9 +199,9 @@ prerender.getPrerenderedPageResponse = function(req, callback) {
 
   fetch(input, init)
     .then(function(response) {
-      for (var header of response.headers) {
-        headers[header] = response.headers[header];
-      }
+      response.headers.forEach(function(val, key) {
+        headers[key] = val;
+      });
       statusCode = response.status;
       return response.text()
     })
