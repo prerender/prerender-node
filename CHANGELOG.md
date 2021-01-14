@@ -1,3 +1,8 @@
+## Unreleased
+Changed:
+
+  - Replaced deprecated `request` with `node-fetch`
+
 ## 3.2.5 (2019-07-30)
 Changed:
 

@@ -1,4 +1,4 @@
-var request = require('request')
+var fetch = require('node-fetch').default
   , url = require('url')
   , zlib = require('zlib');
 
@@ -194,49 +194,23 @@ prerender.getPrerenderedPageResponse = function(req, callback) {
     options.headers['X-Prerender-Token'] = this.prerenderToken || process.env.PRERENDER_TOKEN;
   }
 
-  request.get(options).on('response', function(response) {
-    if(response.headers['content-encoding'] && response.headers['content-encoding'] === 'gzip') {
-      prerender.gunzipResponse(response, callback);
-    } else {
-      prerender.plainResponse(response, callback);
-    }
-  }).on('error', function(err) {
-    callback(err);
-  });
+  var headers = {};
+  var statusCode;
+
+  fetch(input, init)
+    .then(function(response) {
+      for (var header of response.headers) {
+        headers[header] = response.headers[header];
+      }
+      statusCode = response.status;
+      return response.text()
+    })
+    .then(function(response) {
+      callback(null, { headers: headers, statusCode: statusCode, body: response });
+    }).catch(function(err) {
+      callback(err);
+    });
 };
-
-prerender.gunzipResponse = function(response, callback) {
-  var gunzip = zlib.createGunzip()
-    , content = '';
-
-  gunzip.on('data', function(chunk) {
-    content += chunk;
-  });
-  gunzip.on('end', function() {
-    response.body = content;
-    delete response.headers['content-encoding'];
-    delete response.headers['content-length'];
-    callback(null, response);
-  });
-  gunzip.on('error', function(err){
-    callback(err);
-  });
-
-  response.pipe(gunzip);
-};
-
-prerender.plainResponse = function(response, callback) {
-  var content = '';
-
-  response.on('data', function(chunk) {
-    content += chunk;
-  });
-  response.on('end', function() {
-    response.body = content;
-    callback(null, response);
-  });
-};
-
 
 prerender.buildApiUrl = function(req) {
   var prerenderUrl = prerender.getPrerenderServiceUrl();
@@ -267,13 +241,11 @@ prerender.beforeRenderFn = function(req, done) {
   return this.beforeRender(req, done);
 };
 
-
 prerender.afterRenderFn = function(err, req, prerender_res) {
   if (!this.afterRender) return;
 
   this.afterRender(err, req, prerender_res);
 };
-
 
 prerender.set = function(name, value) {
   this[name] = value;
