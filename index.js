@@ -173,9 +173,9 @@ prerender.shouldShowPrerenderedPage = function(req) {
 prerender.prerenderServerRequestOptions = {};
 
 prerender.getPrerenderedPageResponse = function(req, callback) {
-  var options = {
-    uri: url.parse(prerender.buildApiUrl(req)),
-    followRedirect: false,
+  var input = url.parse(prerender.buildApiUrl(req))
+  var init = {
+    follow: 0,
     headers: {}
   };
   for (var attrname in this.prerenderServerRequestOptions) { options[attrname] = this.prerenderServerRequestOptions[attrname]; }
