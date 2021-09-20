@@ -67,7 +67,8 @@ prerender.crawlerUserAgents = [
   'pinterestbot',
   'Bitrix link preview',
   'XING-contenttabreceiver',
-  'Chrome-Lighthouse'
+  'Chrome-Lighthouse',
+  'Iframely'
 ];
 
 
