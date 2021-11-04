@@ -193,7 +193,7 @@ prerender.getPrerenderedPageResponse = function(req, callback) {
     options.headers['X-Prerender-Token'] = this.prerenderToken || process.env.PRERENDER_TOKEN;
   }
 
-  https.get(url.parse(prerender.buildApiUrl(req)).href, options, (response) => {
+  https.get(new URL(prerender.buildApiUrl(req)), options, (response) => {
     if(response.headers['content-encoding'] && response.headers['content-encoding'] === 'gzip') {
       prerender.gunzipResponse(response, callback);
     } else {
