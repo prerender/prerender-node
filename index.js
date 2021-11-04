@@ -175,7 +175,6 @@ prerender.prerenderServerRequestOptions = {};
 
 prerender.getPrerenderedPageResponse = function(req, callback) {
   var options = {
-    followRedirect: false,
     headers: {}
   };
   for (var attrname in this.prerenderServerRequestOptions) { options[attrname] = this.prerenderServerRequestOptions[attrname]; }
@@ -194,17 +193,7 @@ prerender.getPrerenderedPageResponse = function(req, callback) {
     options.headers['X-Prerender-Token'] = this.prerenderToken || process.env.PRERENDER_TOKEN;
   }
 
-  // request.get(options).on('response', function(response) {
-  //   if(response.headers['content-encoding'] && response.headers['content-encoding'] === 'gzip') {
-  //     prerender.gunzipResponse(response, callback);
-  //   } else {
-  //     prerender.plainResponse(response, callback);
-  //   }
-  // }).on('error', function(err) {
-  //   callback(err);
-  // });
-
-  https.get(url.parse(prerender.buildApiUrl(req)), options, (response) => {
+  https.get(url.parse(prerender.buildApiUrl(req)).href, options, (response) => {
     if(response.headers['content-encoding'] && response.headers['content-encoding'] === 'gzip') {
       prerender.gunzipResponse(response, callback);
     } else {
