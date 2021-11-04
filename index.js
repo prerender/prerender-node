@@ -1,4 +1,4 @@
-var request = require('request')
+var https = require('https')
   , url = require('url')
   , zlib = require('zlib');
 
@@ -175,7 +175,6 @@ prerender.prerenderServerRequestOptions = {};
 
 prerender.getPrerenderedPageResponse = function(req, callback) {
   var options = {
-    uri: url.parse(prerender.buildApiUrl(req)),
     followRedirect: false,
     headers: {}
   };
@@ -195,7 +194,17 @@ prerender.getPrerenderedPageResponse = function(req, callback) {
     options.headers['X-Prerender-Token'] = this.prerenderToken || process.env.PRERENDER_TOKEN;
   }
 
-  request.get(options).on('response', function(response) {
+  // request.get(options).on('response', function(response) {
+  //   if(response.headers['content-encoding'] && response.headers['content-encoding'] === 'gzip') {
+  //     prerender.gunzipResponse(response, callback);
+  //   } else {
+  //     prerender.plainResponse(response, callback);
+  //   }
+  // }).on('error', function(err) {
+  //   callback(err);
+  // });
+
+  https.get(url.parse(prerender.buildApiUrl(req)), options, (response) => {
     if(response.headers['content-encoding'] && response.headers['content-encoding'] === 'gzip') {
       prerender.gunzipResponse(response, callback);
     } else {
@@ -204,6 +213,7 @@ prerender.getPrerenderedPageResponse = function(req, callback) {
   }).on('error', function(err) {
     callback(err);
   });
+  
 };
 
 prerender.gunzipResponse = function(response, callback) {
