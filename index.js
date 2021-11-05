@@ -196,7 +196,7 @@ prerender.getPrerenderedPageResponse = function(req, callback) {
     options.headers['X-Prerender-Token'] = this.prerenderToken || process.env.PRERENDER_TOKEN;
   }
 
-  let url = new URL(prerender.buildApiUrl(req));
+  const url = new URL(prerender.buildApiUrl(req));
   // Dynamically use "http" or "https" module, since process.env.PRERENDER_SERVICE_URL can be set to http protocol
   adapters[url.protocol].get(url, options, (response) => {
     if(response.headers['content-encoding'] && response.headers['content-encoding'] === 'gzip') {
