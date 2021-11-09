@@ -1,6 +1,9 @@
-var request = require('request')
+var http = require('http')
+  , https = require('https')
   , url = require('url')
   , zlib = require('zlib');
+
+const adapters = { 'http:': http, 'https:': https};
 
 var prerender = module.exports = function(req, res, next) {
   if(!prerender.shouldShowPrerenderedPage(req)) return next();
@@ -175,8 +178,6 @@ prerender.prerenderServerRequestOptions = {};
 
 prerender.getPrerenderedPageResponse = function(req, callback) {
   var options = {
-    uri: url.parse(prerender.buildApiUrl(req)),
-    followRedirect: false,
     headers: {}
   };
   for (var attrname in this.prerenderServerRequestOptions) { options[attrname] = this.prerenderServerRequestOptions[attrname]; }
@@ -195,7 +196,9 @@ prerender.getPrerenderedPageResponse = function(req, callback) {
     options.headers['X-Prerender-Token'] = this.prerenderToken || process.env.PRERENDER_TOKEN;
   }
 
-  request.get(options).on('response', function(response) {
+  const url = new URL(prerender.buildApiUrl(req));
+  // Dynamically use "http" or "https" module, since process.env.PRERENDER_SERVICE_URL can be set to http protocol
+  adapters[url.protocol].get(url, options, (response) => {
     if(response.headers['content-encoding'] && response.headers['content-encoding'] === 'gzip') {
       prerender.gunzipResponse(response, callback);
     } else {
@@ -204,6 +207,7 @@ prerender.getPrerenderedPageResponse = function(req, callback) {
   }).on('error', function(err) {
     callback(err);
   });
+  
 };
 
 prerender.gunzipResponse = function(response, callback) {
