@@ -1,3 +1,13 @@
+## 3.4.0 (2021-11-09)
+Changed:
+
+  - Replace requests lib with the native nodejs http and https modules
+
+## 3.3.0 (2021-11-04)
+Changed:
+
+  - Add telegram bot to the recognized user agents
+
 ## 3.2.5 (2019-07-30)
 Changed:
 
