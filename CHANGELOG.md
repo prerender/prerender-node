@@ -1,3 +1,8 @@
+## 3.4.1 (2022-01-17)
+Added:
+
+- Add seznam.cz bot to the recognized user agents
+
 ## 3.4.0 (2021-11-09)
 Changed:
 
