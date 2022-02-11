@@ -64,6 +64,16 @@ app.use(require('prerender-node').blacklisted('^/search'));
 app.use(require('prerender-node').blacklisted(['/search', '/users/.*/profile']));
 ```
 
+### allowedExtensions
+
+Allows a given file or files that would normally be ignored by prerender based on their extension to pass thru and be prerendered. Compares using regex, so be specific when possible. If allowedExtensions is applied, these files will be prerendered.
+```js
+app.use(require('prerender-node').allowedExtensions('sitemap.xml'));
+```
+```js
+app.use(require('prerender-node').allowedExtensions(['favicon.ico', '/sitemap/*.xml']));
+```
+
 ### beforeRender
 
 This method is intended to be used for caching, but could be used to save analytics or anything else you need to do for each crawler request. If you return a string from beforeRender, the middleware will serve that to the crawler (with status `200`) instead of making a request to the prerender service. If you return an object the middleware will look for a `status` and `body` property (defaulting to `200` and `""` respectively) and serve those instead.
