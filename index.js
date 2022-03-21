@@ -143,8 +143,9 @@ prerender.shouldShowPrerenderedPage = function(req) {
   if(req.method != 'GET' && req.method != 'HEAD') return false;
   if(req.headers && req.headers['x-prerender']) return false;
 
+  var parsedUrl = url.parse(req.url, true);
   //if it contains _escaped_fragment_, show prerendered page
-  var parsedQuery = url.parse(req.url, true).query;
+  var parsedQuery = parsedUrl.query;
   if(parsedQuery && parsedQuery['_escaped_fragment_'] !== undefined) isRequestingPrerenderedPage = true;
 
   //if it is a bot...show prerendered page
@@ -154,7 +155,8 @@ prerender.shouldShowPrerenderedPage = function(req) {
   if(bufferAgent) isRequestingPrerenderedPage = true;
 
   //if it is a bot and is requesting a resource...dont prerender
-  if(prerender.extensionsToIgnore.some(function(extension){return req.url.toLowerCase().indexOf(extension) !== -1;})) return false;
+  var parsedPathname = parsedUrl.pathname.toLowerCase();
+  if(prerender.extensionsToIgnore.some(function(extension){return parsedPathname.endsWith(extension)})) return false;
 
   //if it is a bot and not requesting a resource and is not whitelisted...dont prerender
   if(Array.isArray(this.whitelist) && this.whitelist.every(function(whitelisted){return (new RegExp(whitelisted)).test(req.url) === false;})) return false;
