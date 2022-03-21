@@ -1,3 +1,9 @@
+## 3.4.2 (2022-03-21)
+Fixed:
+
+- Extensions must be at the end of the pathname.
+Solves cases when the URL contained pieces of extensions like www.example.com/this.is.data.of.something.html  -  In this case the because of .dat the URL was filtered
+
 ## 3.4.1 (2022-01-17)
 Added:
 
