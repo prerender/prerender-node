@@ -25,8 +25,8 @@ var prerender = module.exports = function(req, res, next) {
     }
 
     prerender.getPrerenderedPageResponse(req, function(err, prerenderedResponse){
-      var result = prerender.afterRenderFn(err, req, prerenderedResponse);
-      if (result && result.cancelled) {
+      var options = prerender.afterRenderFn(err, req, prerenderedResponse);
+      if (options && options.cancelled) {
         return next();
       }
 
