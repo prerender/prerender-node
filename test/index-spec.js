@@ -370,7 +370,7 @@ describe ('Prerender', function(){
 
     it('calls next when afterRender cancels prerender', function(done){
       var req = mockSuccessfulPrerender();
-      prerender.set('afterRender', () => ({ cancelled: true }));
+      prerender.set('afterRender', () => ({ cancelRender: true }));
 
       next = sandbox.spy(function(){
         assert.equal(next.callCount, 1);
@@ -383,7 +383,7 @@ describe ('Prerender', function(){
 
     it('does not call next when afterRender does not cancel prerender', function(done){
       var req = mockSuccessfulPrerender();
-      prerender.set('afterRender', () => ({ cancelled: false }));
+      prerender.set('afterRender', () => ({ cancelRender: false }));
 
       res.end = sandbox.spy(function(){
         assert.equal(next.callCount, 0);
