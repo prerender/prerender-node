@@ -76,10 +76,20 @@ app.use(require('prerender-node').set('beforeRender', function(req, done) {
 
 ### afterRender
 
-This method is intended to be used for caching, but could be used to save analytics or anything else you need to do for each crawler request. This method is a noop and is called after the prerender service returns HTML.
+This method is intended to be used for caching, but could be used to save analytics or anything else you need to do for each crawler request. This method is called after the prerender service returns HTML.
 ```js
 app.use(require('prerender-node').set('afterRender', function(err, req, prerender_res) {
 	// do whatever you need to do
+}));
+```
+
+You can also use `afterRender` to cancel the prerendered response and skip to the next middleware. For example, you may want to implement your own fallback behaviour for when Prerender returns errors or if the HTML is missing expected content. To cancel the render, return an object containing `cancelRender: true` from `afterRender`:
+
+```js
+app.use(require('prerender-node').set('afterRender', function(err, req, prerender_res) {
+	if (err) {
+		return { cancelRender: true };
+	}
 }));
 ```
 
