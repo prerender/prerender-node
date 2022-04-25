@@ -25,7 +25,10 @@ var prerender = module.exports = function(req, res, next) {
     }
 
     prerender.getPrerenderedPageResponse(req, function(err, prerenderedResponse){
-      prerender.afterRenderFn(err, req, prerenderedResponse);
+      var result = prerender.afterRenderFn(err, req, prerenderedResponse);
+      if (result && result.cancelled) {
+        return next();
+      }
 
       if(prerenderedResponse){
         res.writeHead(prerenderedResponse.statusCode, prerenderedResponse.headers);
@@ -279,7 +282,7 @@ prerender.beforeRenderFn = function(req, done) {
 prerender.afterRenderFn = function(err, req, prerender_res) {
   if (!this.afterRender) return;
 
-  this.afterRender(err, req, prerender_res);
+  return this.afterRender(err, req, prerender_res);
 };
 
 
