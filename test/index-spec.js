@@ -7,7 +7,7 @@ var assert = require('assert')
   , bot = 'Baiduspider+(+http://www.baidu.com/search/spider.htm)'
   , user = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.76 Safari/537.36';
 
-var mockSuccessfulPrerenderedResponse = function(){
+var mockSuccessfulPrerender = function(){
   var req = { method: 'GET', url: '/path', headers: { 'user-agent': bot, host: 'google.com' }, connection: { encrypted: false } };
 
   nock('https://service.prerender.io', {
@@ -369,7 +369,7 @@ describe ('Prerender', function(){
     });
 
     it('calls next when afterRender cancels prerender', function(done){
-      var req = mockSuccessfulPrerenderedResponse();
+      var req = mockSuccessfulPrerender();
       prerender.set('afterRender', () => ({ cancelled: true }));
 
       next = sandbox.spy(function(){
@@ -382,7 +382,7 @@ describe ('Prerender', function(){
     });
 
     it('does not call next when afterRender does not cancel prerender', function(done){
-      var req = mockSuccessfulPrerenderedResponse();
+      var req = mockSuccessfulPrerender();
       prerender.set('afterRender', () => ({ cancelled: false }));
 
       res.end = sandbox.spy(function(){
@@ -395,7 +395,7 @@ describe ('Prerender', function(){
     });
 
     it('does not call next when afterRender returns undefined', function(done){
-      var req = mockSuccessfulPrerenderedResponse();
+      var req = mockSuccessfulPrerender();
       prerender.set('afterRender', () => undefined);
 
       res.end = sandbox.spy(function(){
