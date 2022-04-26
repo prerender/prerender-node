@@ -7,6 +7,21 @@ var assert = require('assert')
   , bot = 'Baiduspider+(+http://www.baidu.com/search/spider.htm)'
   , user = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.76 Safari/537.36';
 
+var mockSuccessfulPrerender = function(){
+  var req = { method: 'GET', url: '/path', headers: { 'user-agent': bot, host: 'google.com' }, connection: { encrypted: false } };
+
+  nock('https://service.prerender.io', {
+    reqheaders: {
+      'x-prerender-token': 'MY_TOKEN',
+      'Accept-Encoding': 'gzip'
+    }
+  })
+  .get('/http://google.com/path')
+  .reply(200, '<html></html>');
+
+  return req;
+}
+
 describe ('Prerender', function(){
 
   describe('#prerender', function(){
@@ -347,6 +362,45 @@ describe ('Prerender', function(){
         assert.equal(afterRenderStub.getCall(0).args[0], null);
         assert.equal(afterRenderStub.getCall(0).args[1], req);
         assert.equal(afterRenderStub.getCall(0).args[2], prerenderResponseSpy.getCall(0).args[1]);
+        done();
+      });
+
+      prerender(req, res, next);
+    });
+
+    it('calls next when afterRender cancels prerender', function(done){
+      var req = mockSuccessfulPrerender();
+      prerender.set('afterRender', () => ({ cancelRender: true }));
+
+      next = sandbox.spy(function(){
+        assert.equal(next.callCount, 1);
+        prerender.set('afterRender', null);
+        done();
+      });
+
+      prerender(req, res, next);
+    });
+
+    it('does not call next when afterRender does not cancel prerender', function(done){
+      var req = mockSuccessfulPrerender();
+      prerender.set('afterRender', () => ({ cancelRender: false }));
+
+      res.end = sandbox.spy(function(){
+        assert.equal(next.callCount, 0);
+        prerender.set('afterRender', null);
+        done();
+      });
+
+      prerender(req, res, next);
+    });
+
+    it('does not call next when afterRender returns undefined', function(done){
+      var req = mockSuccessfulPrerender();
+      prerender.set('afterRender', () => undefined);
+
+      res.end = sandbox.spy(function(){
+        assert.equal(next.callCount, 0);
+        prerender.set('afterRender', null);
         done();
       });
 
