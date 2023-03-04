@@ -76,6 +76,8 @@ prerender.crawlerUserAgents = [
   'Chrome-Lighthouse',
   'TelegramBot',
   'SeznamBot',
+  'AhrefsBot',
+  'AhrefsSiteAudit',
 ];
 
 
