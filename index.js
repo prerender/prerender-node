@@ -76,6 +76,7 @@ prerender.crawlerUserAgents = [
   'Chrome-Lighthouse',
   'TelegramBot',
   'SeznamBot',
+  'screaming frog SEO spider'
 ];
 
 
