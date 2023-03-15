@@ -17,6 +17,16 @@ And when you set up your express app, add:
 app.use(require('prerender-node'));
 ```
 
+You can use ESM syntax as well:
+
+```js
+import prerender from 'prerender-node';
+import express from 'express';
+
+const app = express();
+app.use(prerender);
+```
+
 or if you have an account on [prerender.io](https://prerender.io/) and want to use your token:
 
 ```js

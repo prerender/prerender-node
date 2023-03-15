@@ -1,10 +1,15 @@
 {
   "name": "prerender-node",
-  "version": "3.5.0",
+  "version": "4.0.0-beta.1",
   "description": "express middleware for serving prerendered javascript-rendered pages for SEO",
   "author": "Todd Hooper",
+  "authors": [
+    "Todd Hooper",
+    "PoOwAa <ray@prerender.io>"
+  ],
   "license": "MIT",
-  "main": "index.js",
+  "main": "./lib/cjs/index.js",
+  "types": "./lib/cjs/types/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git://github.com/prerender/prerender-node"
@@ -13,16 +18,43 @@
     "angular",
     "backbone",
     "emberjs",
-    "seo"
+    "seo",
+    "react",
+    "prerender",
+    "express",
+    "fastify"
   ],
   "devDependencies": {
+    "@types/node": "^18.14.6",
     "mocha": "^6.2.0",
     "nock": "^11.9.1",
     "request": "^2.88.2",
+    "rimraf": "^4.3.1",
     "sinon": "^7.3.1",
-    "supertest": "^4.0.2"
+    "supertest": "^4.0.2",
+    "typescript": "^4.9.5"
   },
   "scripts": {
+    "clean": "rimraf lib",
+    "build": "npm run clean && npm run build:cjs && npm run build:esm",
+    "build:cjs": "tsc --project tsconfig.cjs.json",
+    "build:esm": "tsc --project tsconfig.esm.json && mv lib/esm/index.js lib/esm/index.mjs",
+    "prepack": "npm run build",
     "test": "echo 'Make sure to unset PRERENDER_SERVICE_URL when running locally' && ./node_modules/.bin/mocha"
-  }
+  },
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./lib/esm/types/index.d.ts",
+        "default": "./lib/esm/index.mjs"
+      },
+      "require": {
+        "types": "./lib/cjs/types/index.d.ts",
+        "default": "./lib/cjs/index.js"
+      }
+    }
+  },
+  "files": [
+    "lib/**/*"
+  ]
 }
