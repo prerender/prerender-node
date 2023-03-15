@@ -121,6 +121,7 @@ prerender.extensionsToIgnore = [
   '.m4v',
   '.torrent',
   '.woff',
+  '.woff2',
   '.ttf',
   '.svg',
   '.webmanifest',
@@ -216,7 +217,7 @@ prerender.getPrerenderedPageResponse = function(req, callback) {
   }).on('error', function(err) {
     callback(err);
   });
-  
+
 };
 
 prerender.gunzipResponse = function(response, callback) {
