@@ -1,6 +1,6 @@
 {
   "name": "prerender-node",
-  "version": "3.5.0",
+  "version": "3.6.0",
   "description": "express middleware for serving prerendered javascript-rendered pages for SEO",
   "author": "Todd Hooper",
   "license": "MIT",
