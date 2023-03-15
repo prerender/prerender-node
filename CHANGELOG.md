@@ -1,3 +1,17 @@
+## 3.6.0 (2023-03-15)
+Added:
+
+- .webp, .woff2 extensions to the list of extensions that are not prerendered
+- Add AhrefsBot to the recognized user agents
+- Add AhrefsSiteAudit to the recognized user agents
+- Add Iframely to the recognized user agents
+- Add screaming frog to the recognized user agents
+
+## 3.5.0 ()
+Added:
+
+- cancelRender flag in afterRender callback
+
 ## 3.4.2 (2022-03-21)
 Fixed:
 
