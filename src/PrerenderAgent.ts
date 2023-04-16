@@ -1,10 +1,10 @@
-import { PrerenderConfig } from './config.interface';
+import { PrerenderAgentOptions } from './config.interface';
 import url from 'url';
 import zlib from 'zlib';
 import { crawlerUserAgents } from './crawlerAgent';
-import http from 'http';
+import http, { IncomingMessage } from 'http';
 import https from 'https';
-import { IncomingMessage } from 'http';
+import { extensionsToIgnore } from './extensionsToIgnore';
 
 export type CachedRender = string | { status?: number; body?: string };
 export type PrerenderedPageResponse = {
@@ -17,16 +17,133 @@ export type PrerenderedPageResponse = {
  * // TODO: Add a description of the class
  */
 export default class PrerenderAgent {
+  private extensionsToIgnore: string[] = extensionsToIgnore;
   private crawlerUserAgents: string[] = crawlerUserAgents;
   private protocol: 'http' | 'https';
-  private host: string;
+  private host: string | undefined;
   private serviceUrl: string = 'https://service.prerender.io';
+  private whiteList: string[] = [];
+  private blackList: string[] = [];
   private token: string = '';
   private prerenderServerRequestOptions = {};
-  private forwardHeaders: boolean;
+  private forwardHeaders: boolean = false;
 
-  init(config: PrerenderConfig) {}
+  /**
+   * Initialize the PrerenderAgent
+   *
+   * @param options - Configuration object
+   */
+  init(options: PrerenderAgentOptions) {
+    if (options.crawlerUserAgents)
+      this.addCrawlerUserAgents(options.crawlerUserAgents);
 
+    if (options.extensionsToIgnore)
+      this.addExtensionsToIgnore(options.extensionsToIgnore);
+
+    if (options.token) this.setToken(options.token);
+
+    if (options.serviceUrl) this.setServiceUrl(options.serviceUrl);
+
+    if (options.whiteList) this.addResourceToWhiteList(options.whiteList);
+
+    if (options.blackList) this.addResourceToBlackList(options.blackList);
+
+    if (options.protocol) this.setProtocol(options.protocol);
+
+    if (options.host) this.setHost(options.host);
+
+    if (options.forwardHeaders) this.setForwardHeaders(options.forwardHeaders);
+
+    if (options.prerenderServerRequestOptions)
+      this.setPrerenderServerRequestOptions(
+        options.prerenderServerRequestOptions
+      );
+  }
+
+  /**
+   * Override the default white list
+   *
+   * @param whiteList - Array of resources to use as the white list
+   */
+  setWhiteList(whiteList: string[]): void {
+    this.whiteList = whiteList;
+  }
+
+  /**
+   * Add resources to the default white list
+   *
+   * @param whiteList - Array of resources to add to the white list
+   */
+  addResourceToWhiteList(whiteList: string[]): void {
+    whiteList.forEach((whiteListItem) => {
+      this.whiteList.push(whiteListItem);
+    });
+  }
+
+  /**
+   * Override the default black list
+   *
+   * @param blackList - Array of resources to use as the black list
+   */
+  setBlackList(blackList: string[]): void {
+    this.blackList = blackList;
+  }
+
+  /**
+   * Add resources to the default black list
+   *
+   * @param blackList - Array of resources to add to the black list
+   */
+  addResourceToBlackList(blackList: string[]): void {
+    blackList.forEach((blackListItem) => {
+      this.blackList.push(blackListItem);
+    });
+  }
+
+  /**
+   * Override the default bot/crawler user agents
+   *
+   * @param crawlerUserAgents - Array of user agents to use as the crawler user agents
+   */
+  setCrawlerUserAgents(crawlerUserAgents: string[]): void {
+    this.crawlerUserAgents = crawlerUserAgents;
+  }
+
+  /**
+   * Add user agents to the default crawler user agents
+   *
+   * @param crawlerUserAgents - Array of user agents to add to the crawler user agents
+   */
+  addCrawlerUserAgents(crawlerUserAgents: string[]): void {
+    crawlerUserAgents.forEach((crawlerUserAgent) => {
+      this.crawlerUserAgents.push(crawlerUserAgent);
+    });
+  }
+
+  /**
+   * Override the default extensions to ignore
+   *
+   * @param extensionsToIgnore - Array of extensions to use as the extensions to ignore
+   */
+  setExtensionsToIgnore(extensionsToIgnore: string[]): void {
+    this.extensionsToIgnore = extensionsToIgnore;
+  }
+
+  /**
+   * Add extensions to the default extensions to ignore
+   *
+   * @param extensionsToIgnore - Array of extensions to add to the extensions to ignore
+   */
+  addExtensionsToIgnore(extensionsToIgnore: string[]): void {
+    extensionsToIgnore.forEach((extensionToIgnore) => {
+      this.extensionsToIgnore.push(extensionToIgnore);
+    });
+  }
+
+  /**
+   * Set prerender service url
+   * @param serviceUrl - Prerender service url
+   */
   setServiceUrl(serviceUrl: string): void {
     this.serviceUrl = this.removeAllTrailingSlash(serviceUrl);
   }
@@ -35,6 +152,18 @@ export default class PrerenderAgent {
     return this.serviceUrl;
   }
 
+  setHost(host: string): void {
+    this.host = host;
+  }
+
+  getHost(): string | undefined {
+    return this.host;
+  }
+
+  /**
+   * Set the prerender.io API token. Use it only if you have a Prererender.io account.
+   * @param token - Prerender.io API token
+   */
   setToken(token: string): void {
     this.token = token;
   }
@@ -51,6 +180,10 @@ export default class PrerenderAgent {
     return this.prerenderServerRequestOptions;
   }
 
+  /**
+   * Set whether to forward headers to the Prerender server
+   * @param forwardHeaders - Whether to forward headers to the Prerender server
+   */
   setForwardHeaders(forwardHeaders: boolean) {
     this.forwardHeaders = forwardHeaders;
   }
@@ -97,17 +230,15 @@ export default class PrerenderAgent {
 
     const url = new URL(this.buildApiUrl(requestUrl, headers));
 
-    return new Promise((resolve, reject) => {
-      const responseHandler = async (res: http.IncomingMessage) => {
+    return new Promise<PrerenderedPageResponse>((resolve, reject) => {
+      const responseHandler = (res: IncomingMessage) => {
         if (
           res.headers['content-encoding'] &&
           res.headers['content-encoding'] === 'gzip'
         ) {
-          const response = await this.gunzipResponse(res);
-          resolve(response);
+          this.gunzipResponse(res, resolve, reject);
         } else {
-          const response = await this.plainResponse(res);
-          resolve(response);
+          this.plainResponse(res, resolve, reject);
         }
       };
 
@@ -151,80 +282,81 @@ export default class PrerenderAgent {
   }
 
   /**
-   * TODO: refactor back to using streams with callbacks
+   * Unzip the gzipped response and resolve/reject the promise
    *
    * @param response - IncomingMessage
-   * @returns {Promise<PrerenderedPageResponse>} - Prerendered page response
    */
-  private async gunzipResponse(
-    response: http.IncomingMessage
-  ): Promise<PrerenderedPageResponse> {
+  private gunzipResponse(
+    response: IncomingMessage,
+    resolve: (
+      value: PrerenderedPageResponse | PromiseLike<PrerenderedPageResponse>
+    ) => void,
+    reject: (reason?: any) => void
+  ): void {
     const gunzip = zlib.createGunzip();
     const contentChunks: Buffer[] = [];
 
-    return new Promise((resolve, reject) => {
-      gunzip.on('error', (err) => {
-        reject(err);
-      });
-
-      gunzip.on('data', (chunk: Buffer) => {
-        contentChunks.push(chunk);
-      });
-
-      gunzip.on('end', () => {
-        // We don't need these headers anymore, because we already decompressed the response
-        delete response.headers['content-encoding'];
-        delete response.headers['content-length'];
-        resolve({
-          /**
-           * Docs says about statusCode:
-           * **Only valid for response obtained from {@link ClientRequest}.**
-           * We used http.get() and https.get() to get response, so it's valid.
-           * @see https://nodejs.org/api/http.html#http_message_statuscode
-           */
-          statusCode: response.statusCode as number,
-          headers: response.headers,
-          body: Buffer.concat(contentChunks).toString(),
-        });
-      });
-
-      response.pipe(gunzip);
+    gunzip.on('error', (err) => {
+      reject(err);
     });
+
+    gunzip.on('data', (chunk: Buffer) => {
+      contentChunks.push(chunk);
+    });
+
+    gunzip.on('end', () => {
+      // We don't need these headers anymore, because we already decompressed the response
+      delete response.headers['content-encoding'];
+      delete response.headers['content-length'];
+      resolve({
+        /**
+         * Docs says about statusCode:
+         * **Only valid for response obtained from {@link ClientRequest}.**
+         * We used http.get() and https.get() to get response, so it's valid.
+         * @see https://nodejs.org/api/http.html#http_message_statuscode
+         */
+        statusCode: response.statusCode as number,
+        headers: response.headers,
+        body: Buffer.concat(contentChunks).toString(),
+      });
+    });
+
+    response.pipe(gunzip);
   }
 
   /**
-   * TODO: refactor back to using streams with callbacks
+   * Resolve/reject the promise with the response
    *
-   * Returns plain response
    * @param response {IncomingMessage} Incoming message
-   * @returns {Promise<PrerenderedPageResponse>} Prerendered page response
    */
-  private async plainResponse(
-    response: IncomingMessage
-  ): Promise<PrerenderedPageResponse> {
+  private plainResponse(
+    response: IncomingMessage,
+    resolve: (
+      value: PrerenderedPageResponse | PromiseLike<PrerenderedPageResponse>
+    ) => void,
+    reject: (reason?: any) => void
+  ): void {
     const contentChunks: Buffer[] = [];
 
-    return new Promise((resolve, reject) => {
-      response.on('error', (err) => {
-        reject(err);
-      });
+    response.on('error', (err) => {
+      reject(err);
+    });
 
-      response.on('data', (chunk: Buffer) => {
-        contentChunks.push(chunk);
-      });
+    response.on('data', (chunk: Buffer) => {
+      contentChunks.push(chunk);
+    });
 
-      response.on('end', () => {
-        resolve({
-          /**
-           * Docs says about statusCode:
-           * **Only valid for response obtained from {@link ClientRequest}.**
-           * We used http.get() and https.get() to get response, so it's valid.
-           * @see https://nodejs.org/api/http.html#http_message_statuscode
-           */
-          statusCode: response.statusCode as number,
-          headers: response.headers,
-          body: Buffer.concat(contentChunks).toString(),
-        });
+    response.on('end', () => {
+      resolve({
+        /**
+         * Docs says about statusCode:
+         * **Only valid for response obtained from {@link ClientRequest}.**
+         * We used http.get() and https.get() to get response, so it's valid.
+         * @see https://nodejs.org/api/http.html#http_message_statuscode
+         */
+        statusCode: response.statusCode as number,
+        headers: response.headers,
+        body: Buffer.concat(contentChunks).toString(),
       });
     });
   }
