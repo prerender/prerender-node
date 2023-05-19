@@ -42,6 +42,7 @@ var prerender = module.exports = function(req, res, next) {
 
 prerender.crawlerUserAgents = [
   'googlebot',
+  'Google-InspectionTool',
   'Yahoo! Slurp',
   'bingbot',
   'yandex',
