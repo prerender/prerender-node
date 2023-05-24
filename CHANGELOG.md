@@ -1,3 +1,7 @@
+## 3.7.0 (2023-05-22)
+Added:
+ - Add Google-InspectionTool to the recognized user agents
+
 ## 3.6.0 (2023-03-15)
 Added:
 
