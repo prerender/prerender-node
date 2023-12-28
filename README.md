@@ -123,9 +123,9 @@ Option to ignore `X-Forwarded-Host` header. Can be used to block SSRF attacks.
 **Important:** this header is used to preserve the original host header for servers that sit behind a load balancer or internal reverse proxy. If your server does not need this header then it's probably safe to enable this option. Check your environment before enabling this option and make sure to test it first.
 
 The url that Prerender will get and return the (possibly cached) contents of is created by taking the first available of the following:  
-- The `host` option, as set with `app.use(require('prerender-node').set('host', 'example.com'));`
-- The `X-Forwarded-Host` header, if `ignoreXForwardedHost` is **NOT** set to `true`
-- The Host header
+- The `host` option, as set with `app.use(require('prerender-node').set('host', 'example.com'));`  
+- The `X-Forwarded-Host` header, if `ignoreXForwardedHost` is **NOT** set to `true`  
+- The Host header  
 Finally the originally requested url path is added to the end.
 
 The Prerender.io servers will connect to any url you specify at the end of the prerender service URL. This means that if someone visits `https://mysite.com`, and the request is modified with the path `/some/path` and the header `x-forwarded-host` set to `example.com`, Prerender will connect to `https://example.com/some/path`. (You actually don't need to intercept any request, you can just run the whole request directly, e.g. by using Postman.)
