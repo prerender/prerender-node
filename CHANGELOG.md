@@ -1,3 +1,7 @@
+## 3.8.0 (2023-12-22)
+Added:
+ - Added option `ignoreXForwardedHost` to ignore any `X-Forwarded-Host` headers, which can be used to block SSRF attacks
+
 ## 3.7.0 (2023-05-22)
 Added:
  - Add Google-InspectionTool to the recognized user agents
