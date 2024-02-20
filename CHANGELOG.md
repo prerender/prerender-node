@@ -1,3 +1,7 @@
+## 3.8.0 (2024-02-20)
+Added:
+ - Add X-Prerender-Int-Type to recognized user integration type
+
 ## 3.7.0 (2023-05-22)
 Added:
  - Add Google-InspectionTool to the recognized user agents

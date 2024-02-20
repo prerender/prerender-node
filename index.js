@@ -204,6 +204,7 @@ prerender.getPrerenderedPageResponse = function(req, callback) {
     });
   }
   options.headers['User-Agent'] = req.headers['user-agent'];
+  options.headers['X-Prerender-Int-Type']= 'Node';
   options.headers['Accept-Encoding'] = 'gzip';
   if(this.prerenderToken || process.env.PRERENDER_TOKEN) {
     options.headers['X-Prerender-Token'] = this.prerenderToken || process.env.PRERENDER_TOKEN;
