@@ -80,7 +80,12 @@ prerender.crawlerUserAgents = [
   'screaming frog SEO spider',
   'AhrefsBot',
   'AhrefsSiteAudit',
-  'Iframely'
+  'Iframely',
+  'OAI-SearchBot',
+  'ChatGPT',
+  'GPTBot',
+  'ClaudeBot',
+  'Amazonbot'
 ];
 
 
