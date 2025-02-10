@@ -81,6 +81,7 @@ prerender.crawlerUserAgents = [
   'AhrefsBot',
   'AhrefsSiteAudit',
   'Iframely',
+  'Perplexity',
   'OAI-SearchBot',
   'ChatGPT',
   'GPTBot',
