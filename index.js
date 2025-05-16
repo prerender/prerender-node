@@ -3,7 +3,9 @@ var http = require('http')
   , url = require('url')
   , zlib = require('zlib');
 
-const adapters = { 'http:': http, 'https:': https};
+// var URL = require('url').URL;
+
+// const adapters = { 'http:': http, 'https:': https};
 
 var prerender = module.exports = function(req, res, next) {
   if(!prerender.shouldShowPrerenderedPage(req)) return next();
@@ -210,18 +212,37 @@ prerender.getPrerenderedPageResponse = function(req, callback) {
     options.headers['X-Prerender-Token'] = this.prerenderToken || process.env.PRERENDER_TOKEN;
   }
 
-  const url = new URL(prerender.buildApiUrl(req));
-  // Dynamically use "http" or "https" module, since process.env.PRERENDER_SERVICE_URL can be set to http protocol
-  adapters[url.protocol].get(url, options, (response) => {
+  // Build URL in a Node 8-compatible way
+  var urlString = prerender.buildApiUrl(req);
+  var parsedUrl = require('url').parse(urlString);
+  var protocol = parsedUrl.protocol;
+
+  // Directly use the http or https module
+  var httpModule = protocol === 'https:' ? require('https') : require('http');
+
+  // Create request in an old-school way that works with Node 8
+  var request = httpModule.request({
+    method: 'GET',
+    host: parsedUrl.hostname,
+    port: parsedUrl.port || (protocol === 'https:' ? 443 : 80),
+    path: parsedUrl.path,
+    headers: options.headers
+  }, function(response) {
+    // Response handling 
     if(response.headers['content-encoding'] && response.headers['content-encoding'] === 'gzip') {
       prerender.gunzipResponse(response, callback);
     } else {
       prerender.plainResponse(response, callback);
     }
-  }).on('error', function(err) {
+  });
+
+  // Setup error handler
+  request.on('error', function(err) {
     callback(err);
   });
 
+  // Complete the request
+  request.end();
 };
 
 prerender.gunzipResponse = function(response, callback) {
