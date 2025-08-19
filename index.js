@@ -339,10 +339,11 @@ prerender.set = function(name, value) {
 };
 
 prerender.addUserAgents = function(newAgents) {
-  if (Array.isArray(newAgents)) {
-    this.crawlerUserAgents = this.crawlerUserAgents.concat(newAgents);
-  } else if (typeof newAgents === 'string') {
-    this.crawlerUserAgents.push(newAgents);
-  }
+  var newAgentsArray = Array.isArray(newAgents) ? newAgents : [newAgents];
+  newAgentsArray.forEach(agent => {
+    if (!this.crawlerUserAgents.includes(agent)) {
+      this.crawlerUserAgents.push(agent);
+    }
+  });
   return this;
 }
