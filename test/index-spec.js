@@ -578,4 +578,25 @@ describe ('Prerender', function(){
 
     });
   });
+  
+  describe('#addUserAgents', function() {
+    it('should add a single user agent', function() {
+      prerender.addUserAgents('NewBot/1.0');
+      assert(prerender.crawlerUserAgents.includes('NewBot/1.0'));
+    });
+    it('should add multiple user agents', function() {
+      prerender.addUserAgents(['BotOne/1.0', 'BotTwo/2.0']);
+      assert(prerender.crawlerUserAgents.includes('BotOne/1.0'));
+      assert(prerender.crawlerUserAgents.includes('BotTwo/2.0'));
+    });
+    it('should not add duplicates', function() {
+      prerender.addUserAgents('NewBot/1.0');
+      prerender.addUserAgents('NewBot/1.0');
+      assert.equal(prerender.crawlerUserAgents.filter(agent => agent === 'NewBot/1.0').length, 1);
+    });
+    it('should return the prerender instance', function() {
+      var result = prerender.addUserAgents('AnotherBot/1.0');
+      assert.equal(result, prerender);
+    });
+  });
 });
