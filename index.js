@@ -337,3 +337,12 @@ prerender.set = function(name, value) {
   this[name] = value;
   return this;
 };
+
+prerender.addUserAgents = function(newAgents) {
+  if (Array.isArray(newAgents)) {
+    this.crawlerUserAgents = this.crawlerUserAgents.concat(newAgents);
+  } else if (typeof newAgents === 'string') {
+    this.crawlerUserAgents.push(newAgents);
+  }
+  return this;
+}
