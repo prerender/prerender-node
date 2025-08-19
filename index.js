@@ -265,13 +265,13 @@ prerender.getPrerenderedPageResponse = function(req, callback) {
 
 prerender.gunzipResponse = function(response, callback) {
   var gunzip = zlib.createGunzip()
-    , content = '';
+    , contentChunks = [];
 
   gunzip.on('data', function(chunk) {
-    content += chunk;
+    contentChunks.push(chunk);
   });
   gunzip.on('end', function() {
-    response.body = content;
+    response.body = Buffer.concat(contentChunks).toString();
     delete response.headers['content-encoding'];
     delete response.headers['content-length'];
     callback(null, response);
@@ -284,13 +284,13 @@ prerender.gunzipResponse = function(response, callback) {
 };
 
 prerender.plainResponse = function(response, callback) {
-  var content = '';
+  var contentChunks = [];
 
   response.on('data', function(chunk) {
-    content += chunk;
+    contentChunks.push(chunk);
   });
   response.on('end', function() {
-    response.body = content;
+    response.body = Buffer.concat(contentChunks).toString();
     callback(null, response);
   });
 };
