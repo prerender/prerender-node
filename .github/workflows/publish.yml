@@ -20,6 +20,7 @@ jobs:
     environment: npm-publish
     steps:
       - name: Checkout repository
+
         uses: actions/checkout@v5
 
       - name: Setup Node.js
@@ -82,8 +83,6 @@ jobs:
       - name: Publish to npm
         if: steps.version-check.outputs.should-publish == 'true'
         run: npm publish --access public --provenance
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Output result
         run: |
