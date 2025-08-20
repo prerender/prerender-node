@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "express": "~3.21.2",
-    "method-override": "~2.3.10",
+    "method-override": "~3.0.0",
     "pug": "~2.0.3"
   }
 }
