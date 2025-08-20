@@ -26,9 +26,12 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           registry-url: 'https://registry.npmjs.org'
 
+      - name: Update npm
+        run: npm install -g npm@latest
+        
       - name: Install dependencies
         run: npm ci
 
@@ -80,13 +83,6 @@ jobs:
           echo "should-publish=$SHOULD_PUBLISH" >> $GITHUB_OUTPUT
           echo "Should publish: $SHOULD_PUBLISH"
 
-      - name: Debug npm authentication
-        if: steps.version-check.outputs.should-publish == 'true'
-        run: |
-          echo "Checking npm authentication..."
-          npm whoami || echo "Not authenticated yet"
-          echo "Registry: $(npm config get registry)"
-          
       - name: Publish to npm
         if: steps.version-check.outputs.should-publish == 'true'
         run: npm publish --access public --provenance
