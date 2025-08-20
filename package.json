@@ -20,7 +20,7 @@
     "nock": "^11.9.1",
     "request": "^2.88.2",
     "sinon": "^7.3.1",
-    "supertest": "^4.0.2"
+    "supertest": "^7.1.4"
   },
   "scripts": {
     "test": "echo 'Make sure to unset PRERENDER_SERVICE_URL when running locally' && ./node_modules/.bin/mocha"
