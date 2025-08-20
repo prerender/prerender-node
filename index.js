@@ -339,7 +339,7 @@ prerender.set = function(name, value) {
 };
 
 prerender.addUserAgents = function(newAgents) {
-  var newAgentsArray = Array.isArray(newAgents) ? newAgents : [newAgents];
+  const newAgentsArray = Array.isArray(newAgents) ? newAgents : [newAgents];
   newAgentsArray.forEach(agent => {
     if (!this.crawlerUserAgents.includes(agent)) {
       this.crawlerUserAgents.push(agent);
