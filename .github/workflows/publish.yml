@@ -80,6 +80,13 @@ jobs:
           echo "should-publish=$SHOULD_PUBLISH" >> $GITHUB_OUTPUT
           echo "Should publish: $SHOULD_PUBLISH"
 
+      - name: Debug npm authentication
+        if: steps.version-check.outputs.should-publish == 'true'
+        run: |
+          echo "Checking npm authentication..."
+          npm whoami || echo "Not authenticated yet"
+          echo "Registry: $(npm config get registry)"
+          
       - name: Publish to npm
         if: steps.version-check.outputs.should-publish == 'true'
         run: npm publish --access public --provenance
