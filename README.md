@@ -183,6 +183,42 @@ As an alternative, you can pass `prerenderServiceUrl` in the options object duri
 app.use(require('prerender-node').set('prerenderServiceUrl', '<new url>'));
 ```
 
+## Publishing
+
+This package uses npm Trusted Publisher with GitHub Actions for secure, automated publishing.
+
+### Setup
+
+1. **npm Trusted Publisher**: Configured with OpenID Connect (OIDC) for secure publishing without storing npm tokens
+   - Publisher: GitHub Actions
+   - Organization: prerender
+   - Repository: prerender-node
+   - Workflow: `publish.yml`
+   - Environment: `npm-publish`
+
+2. **GitHub Environment**: The `npm-publish` environment is configured with required reviewers for additional security
+
+### Publishing Process
+
+**Automatic Publishing**: The workflow automatically publishes to npm when:
+- Code is pushed to `main` or `master` branch
+- The version in `package.json` is higher than the current published version
+- All tests pass
+
+**Manual Publishing**: Trigger via GitHub Actions "Run workflow" button
+
+### Workflow Steps
+
+1. **Setup**: Checkout code, install Node.js and dependencies
+2. **Test**: Run full test suite including Express 3/4 integration tests
+3. **Version Check**: Compare `package.json` version with npm registry
+4. **Publish**: If version is higher, publish with `--provenance` flag for supply chain security
+
+To publish a new version:
+1. Update version in `package.json` using `npm version [major|minor|patch]`
+2. Push to main branch
+3. GitHub Actions will automatically publish if tests pass
+
 ## Contributing
 
 We love any contributions! Feel free to create issues, pull requests, or middleware for other languages/frameworks!
