@@ -183,6 +183,67 @@ As an alternative, you can pass `prerenderServiceUrl` in the options object duri
 app.use(require('prerender-node').set('prerenderServiceUrl', '<new url>'));
 ```
 
+## Publishing
+
+This package uses npm Trusted Publisher with GitHub Actions for secure, automated publishing.
+
+### Setup
+
+1. **npm Trusted Publisher**: Configured with OpenID Connect (OIDC) for secure publishing without storing npm tokens
+   - Publisher: GitHub Actions
+   - Organization: prerender
+   - Repository: prerender-node
+   - Workflow: `publish.yml`
+   - Environment: `npm-publish`
+
+2. **GitHub Environment**: The `npm-publish` environment is configured with required reviewers for additional security
+
+### Publishing Process
+
+**Automatic Publishing**: The workflow automatically publishes to npm when:
+- Code is pushed to `main` or `master` branch
+- The version in `package.json` is higher than the current published version
+- All tests pass
+
+**Manual Publishing**: Trigger via GitHub Actions "Run workflow" button
+
+### Workflow Steps
+
+1. **Setup**: Checkout code, install Node.js and dependencies
+2. **Test**: Run full test suite including Express 3/4 integration tests
+3. **Version Check**: Compare `package.json` version with npm registry
+4. **Publish**: If version is higher, publish with `--provenance` flag for supply chain security
+
+To publish a new version:
+1. Update version in `package.json` using `npm version [major|minor|patch]`
+2. Push to master branch
+3. GitHub Actions will automatically publish if tests pass
+
+## Security & Maintenance
+
+### Automated Dependency Updates
+This repository uses **Dependabot** to automatically create pull requests for:
+- Security vulnerability fixes
+- Dependency updates for the main package
+- Test dependencies for Express 3 and Express 4 integration tests
+- GitHub Actions workflow updates
+
+Dependabot runs weekly and creates PRs with conventional commit messages:
+- `deps: update package-name from x.x.x to y.y.y` - Main dependencies
+- `deps(express3-test): update package-name` - Express 3 test app dependencies
+- `deps(express4-test): update package-name` - Express 4 test app dependencies  
+- `ci: update actions/checkout from v4 to v5` - GitHub Actions updates
+
+### Express Version Support
+This middleware is tested against **Express 3 and Express 4** to ensure compatibility:
+- `test/support/express3/` - Express 3.x integration tests
+- `test/support/express4/` - Express 4.x integration tests
+
+Both test apps have separate `package.json` files with their respective Express versions to verify the middleware works correctly across different Express major versions.
+
+### Security Policy
+For security vulnerabilities, please see our [Security Policy](SECURITY.md). Do not report security issues through public GitHub issues.
+
 ## Contributing
 
 We love any contributions! Feel free to create issues, pull requests, or middleware for other languages/frameworks!
