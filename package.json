@@ -19,7 +19,7 @@
     "mocha": "^6.2.0",
     "nock": "^11.9.1",
     "request": "^2.88.2",
-    "sinon": "^7.3.1",
+    "sinon": "^21.0.0",
     "supertest": "^4.0.2"
   },
   "scripts": {
