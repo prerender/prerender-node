@@ -187,17 +187,6 @@ app.use(require('prerender-node').set('prerenderServiceUrl', '<new url>'));
 
 This package uses npm Trusted Publisher with GitHub Actions for secure, automated publishing.
 
-### Setup
-
-1. **npm Trusted Publisher**: Configured with OpenID Connect (OIDC) for secure publishing without storing npm tokens
-   - Publisher: GitHub Actions
-   - Organization: prerender
-   - Repository: prerender-node
-   - Workflow: `publish.yml`
-   - Environment: `npm-publish`
-
-2. **GitHub Environment**: The `npm-publish` environment is configured with required reviewers for additional security
-
 ### Publishing Process
 
 **Automatic Publishing**: The workflow automatically publishes to npm when:
