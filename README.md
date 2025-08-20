@@ -216,8 +216,33 @@ This package uses npm Trusted Publisher with GitHub Actions for secure, automate
 
 To publish a new version:
 1. Update version in `package.json` using `npm version [major|minor|patch]`
-2. Push to main branch
+2. Push to master branch
 3. GitHub Actions will automatically publish if tests pass
+
+## Security & Maintenance
+
+### Automated Dependency Updates
+This repository uses **Dependabot** to automatically create pull requests for:
+- Security vulnerability fixes
+- Dependency updates for the main package
+- Test dependencies for Express 3 and Express 4 integration tests
+- GitHub Actions workflow updates
+
+Dependabot runs weekly and creates PRs with conventional commit messages:
+- `deps: update package-name from x.x.x to y.y.y` - Main dependencies
+- `deps(express3-test): update package-name` - Express 3 test app dependencies
+- `deps(express4-test): update package-name` - Express 4 test app dependencies  
+- `ci: update actions/checkout from v4 to v5` - GitHub Actions updates
+
+### Express Version Support
+This middleware is tested against **Express 3 and Express 4** to ensure compatibility:
+- `test/support/express3/` - Express 3.x integration tests
+- `test/support/express4/` - Express 4.x integration tests
+
+Both test apps have separate `package.json` files with their respective Express versions to verify the middleware works correctly across different Express major versions.
+
+### Security Policy
+For security vulnerabilities, please see our [Security Policy](SECURITY.md). Do not report security issues through public GitHub issues.
 
 ## Contributing
 

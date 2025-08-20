@@ -1,0 +1,48 @@
+version: 2
+updates:
+  # Enable version updates for npm
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "@prerender/maintainers"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+
+  # Enable version updates for Express 3 test app
+  - package-ecosystem: "npm"
+    directory: "/test/support/express3"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "@prerender/maintainers"
+    commit-message:
+      prefix: "deps(express3-test)"
+
+  # Enable version updates for Express 4 test app  
+  - package-ecosystem: "npm"
+    directory: "/test/support/express4"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "@prerender/maintainers"
+    commit-message:
+      prefix: "deps(express4-test)"
+
+  # Enable version updates for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    reviewers:
+      - "@prerender/maintainers"
+    commit-message:
+      prefix: "ci"
