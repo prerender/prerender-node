@@ -16,7 +16,7 @@
     "seo"
   ],
   "devDependencies": {
-    "mocha": "^6.2.0",
+    "mocha": "^11.7.4",
     "nock": "^11.9.1",
     "request": "^2.88.2",
     "sinon": "^7.3.1",
