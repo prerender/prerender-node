@@ -48,7 +48,7 @@ prerender.crawlerUserAgents = [
   'google-safety',
   'feedfetcher-google',
   'googleproducer',
-  'google-site-verification'
+  'google-site-verification',
   'Google-InspectionTool',
   'Yahoo! Slurp',
   'bingbot',
