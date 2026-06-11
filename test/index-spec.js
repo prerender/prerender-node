@@ -162,6 +162,16 @@ describe ('Prerender', function(){
       assert.equal(res.end.callCount, 0);
     });
 
+    it('should call next() if user is a bot, but the bot is requesting a font file', function(){
+      var req = { method: 'GET', url: '/fonts/inter.woff2?v=3', headers: { 'user-agent': bot } };
+
+      prerender(req, res, next);
+
+      assert.equal(next.callCount, 1);
+      assert.equal(res.writeHead.callCount, 0);
+      assert.equal(res.end.callCount, 0);
+    });
+
     it('should call next() if the url is not part of the regex specific whitelist', function(){
       var req = { method: 'GET', url: '/saved/search/blah?_escaped_fragment_=', headers: { 'user-agent': bot }, connection: { encrypted: false } };
 
