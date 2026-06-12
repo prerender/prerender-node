@@ -177,7 +177,6 @@ prerender.extensionsToIgnore = [
   '.rar',
   '.exe',
   '.wmv',
-  '.doc',
   '.avi',
   '.ppt',
   '.mpg',
@@ -200,9 +199,12 @@ prerender.extensionsToIgnore = [
   '.woff',
   '.woff2',
   '.ttf',
+  '.otf',
+  '.eot',
   '.svg',
   '.webmanifest',
-  '.webp'
+  '.webp',
+  '.avif'
 ];
 
 
