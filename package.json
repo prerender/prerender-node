@@ -7,7 +7,7 @@
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git://github.com/prerender/prerender-node"
+    "url": "git+https://github.com/prerender/prerender-node.git"
   },
   "keywords": [
     "angular",
