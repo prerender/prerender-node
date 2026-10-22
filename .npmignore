@@ -1,2 +1,4 @@
 test
 .travis.yml
+vitest.config.js
+.github
