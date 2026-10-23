@@ -1,3 +1,5 @@
+import { describe, it, beforeEach, afterEach } from 'vitest';
+
 var assert = require('assert')
   , sinon = require('sinon')
   , nock = require('nock')
@@ -41,7 +43,7 @@ describe ('Prerender', function(){
       sandbox.restore();
     });
 
-    it('should return a prerendered response with the returned status code and headers', function(done){
+    it('should return a prerendered response with the returned status code and headers', async function(){
       var req = { method: 'GET', url: '/', headers: { 'user-agent': bot, host: 'google.com' }, connection: { encrypted: false } };
 
       nock('https://service.prerender.io', {
@@ -54,22 +56,21 @@ describe ('Prerender', function(){
         Location: 'http://google.com'
       });
 
-      res.end = sandbox.spy(function(){
-        assert.equal(next.callCount, 0);
-        assert.equal(res.writeHead.callCount, 1);
-        assert.equal(res.end.callCount, 1);
-        assert.deepEqual(res.writeHead.getCall(0).args[1], { 'location': 'http://google.com'});
-        assert.equal(res.end.getCall(0).args[0], '<html></html>');
-        assert.equal(res.writeHead.getCall(0).args[0], 301);
-        done();
+      await new Promise(function(resolve){
+        res.end = sandbox.spy(resolve);
+        prerender(req, res, next);
       });
 
-      prerender(req, res, next);
-
+      assert.equal(next.callCount, 0);
+      assert.equal(res.writeHead.callCount, 1);
+      assert.equal(res.end.callCount, 1);
+      assert.deepEqual(res.writeHead.getCall(0).args[1], { 'location': 'http://google.com'});
+      assert.equal(res.end.getCall(0).args[0], '<html></html>');
+      assert.equal(res.writeHead.getCall(0).args[0], 301);
     });
 
 
-    it('should return a prerendered response if user is a bot by checking for _escaped_fragment_', function(done){
+    it('should return a prerendered response if user is a bot by checking for _escaped_fragment_', async function(){
       var req = { method: 'GET', url: '/path?_escaped_fragment_=', headers: { 'user-agent': user, host: 'google.com' }, connection: { encrypted: false } };
 
       nock('https://service.prerender.io', {
@@ -82,44 +83,43 @@ describe ('Prerender', function(){
       .query({_escaped_fragment_: ''})
       .reply(200, '<html></html>');
 
-      res.end = sandbox.spy(function(){
-        assert.equal(next.callCount, 0);
-        assert.equal(res.writeHead.callCount, 1);
-        assert.equal(res.writeHead.getCall(0).args[0], 200);
-        assert.equal(res.end.callCount, 1);
-        assert.equal(res.end.getCall(0).args[0], '<html></html>');
-        done();
-      });
-
-      prerender(req, res, next);
-
-    });
-
-    it('should return a prerendered gzipped response', function(done){
-      var req = { method: 'GET', url: '/path?_escaped_fragment_=', headers: { 'user-agent': user, host: 'google.com' }, connection: { encrypted: false } };
-
-      res.end = function (content) {
-        assert.equal(res.writeHead.callCount, 1);
-        assert.equal(res.writeHead.getCall(0).args[0], 200);
-        assert.equal(next.callCount, 0);
-        assert.equal(content, '<html></html>');
-        done();
-      };
-
-      zlib.gzip(Buffer.from('<html></html>', 'utf-8'), function (err, zipped) {
-        nock('https://service.prerender.io', {
-          reqheaders: {
-            'x-prerender-token': 'MY_TOKEN',
-            'Accept-Encoding': 'gzip'
-          }
-        })
-        .get('/http://google.com/path')
-        .query({_escaped_fragment_: ''})
-        .reply(200, [zipped], {'content-encoding': 'gzip'});
-
+      await new Promise(function(resolve){
+        res.end = sandbox.spy(resolve);
         prerender(req, res, next);
       });
 
+      assert.equal(next.callCount, 0);
+      assert.equal(res.writeHead.callCount, 1);
+      assert.equal(res.writeHead.getCall(0).args[0], 200);
+      assert.equal(res.end.callCount, 1);
+      assert.equal(res.end.getCall(0).args[0], '<html></html>');
+    });
+
+    it('should return a prerendered gzipped response', async function(){
+      var req = { method: 'GET', url: '/path?_escaped_fragment_=', headers: { 'user-agent': user, host: 'google.com' }, connection: { encrypted: false } };
+
+      var content = await new Promise(function(resolve){
+        res.end = resolve;
+
+        zlib.gzip(Buffer.from('<html></html>', 'utf-8'), function (err, zipped) {
+          nock('https://service.prerender.io', {
+            reqheaders: {
+              'x-prerender-token': 'MY_TOKEN',
+              'Accept-Encoding': 'gzip'
+            }
+          })
+          .get('/http://google.com/path')
+          .query({_escaped_fragment_: ''})
+          .reply(200, [zipped], {'content-encoding': 'gzip'});
+
+          prerender(req, res, next);
+        });
+      });
+
+      assert.equal(res.writeHead.callCount, 1);
+      assert.equal(res.writeHead.getCall(0).args[0], 200);
+      assert.equal(next.callCount, 0);
+      assert.equal(content, '<html></html>');
     });
 
     it('should call next() if the url is a bad url with _escaped_fragment_', function(){
@@ -183,7 +183,7 @@ describe ('Prerender', function(){
       assert.equal(res.end.callCount, 0);
     });
 
-    it('should return a prerendered response if the url is part of the regex specific whitelist', function(done){
+    it('should return a prerendered response if the url is part of the regex specific whitelist', async function(){
       var req = { method: 'GET', url: '/search/things?query=blah&_escaped_fragment_=', headers: { 'user-agent': bot, host: 'google.com' }, connection: { encrypted: false } };
 
       nock('https://service.prerender.io', {
@@ -199,18 +199,17 @@ describe ('Prerender', function(){
       })
       .reply(200, '<html></html>');
 
-      res.end = sandbox.spy(function(){
-        assert.equal(next.callCount, 0);
-        assert.equal(res.writeHead.callCount, 1);
-        assert.equal(res.writeHead.getCall(0).args[0], 200);
-        assert.equal(res.end.callCount, 1);
-        assert.equal(res.end.getCall(0).args[0], '<html></html>');
-        done();
+      await new Promise(function(resolve){
+        res.end = sandbox.spy(resolve);
+        prerender.whitelisted(['^/search.*query', '/help'])(req, res, next);
+        delete prerender.whitelist;
       });
 
-      prerender.whitelisted(['^/search.*query', '/help'])(req, res, next);
-      delete prerender.whitelist;
-
+      assert.equal(next.callCount, 0);
+      assert.equal(res.writeHead.callCount, 1);
+      assert.equal(res.writeHead.getCall(0).args[0], 200);
+      assert.equal(res.end.callCount, 1);
+      assert.equal(res.end.getCall(0).args[0], '<html></html>');
     });
 
     it('should call next() if the url is part of the regex specific blacklist', function(){
@@ -224,7 +223,7 @@ describe ('Prerender', function(){
       assert.equal(res.end.callCount, 0);
     });
 
-    it('should return a prerendered response if the url is not part of the regex specific blacklist', function(done){
+    it('should return a prerendered response if the url is not part of the regex specific blacklist', async function(){
       var req = { method: 'GET', url: '/profile/search/blah', headers: { 'user-agent': bot, host: 'google.com' }, connection: { encrypted: false } };
 
 
@@ -237,18 +236,17 @@ describe ('Prerender', function(){
       .get('/http://google.com/profile/search/blah')
       .reply(200, '<html></html>');
 
-      res.end = sandbox.spy(function(){
-        assert.equal(next.callCount, 0);
-        assert.equal(res.writeHead.callCount, 1);
-        assert.equal(res.writeHead.getCall(0).args[0], 200);
-        assert.equal(res.end.callCount, 1);
-        assert.equal(res.end.getCall(0).args[0], '<html></html>');
-        done();
+      await new Promise(function(resolve){
+        res.end = sandbox.spy(resolve);
+        prerender.blacklisted(['^/search', '/help'])(req, res, next);
+        delete prerender.blacklist;
       });
 
-      prerender.blacklisted(['^/search', '/help'])(req, res, next);
-      delete prerender.blacklist;
-
+      assert.equal(next.callCount, 0);
+      assert.equal(res.writeHead.callCount, 1);
+      assert.equal(res.writeHead.getCall(0).args[0], 200);
+      assert.equal(res.end.callCount, 1);
+      assert.equal(res.end.getCall(0).args[0], '<html></html>');
     });
 
     it('should call next() if the referer is part of the regex specific blacklist', function(){
@@ -262,7 +260,7 @@ describe ('Prerender', function(){
       assert.equal(res.end.callCount, 0);
     });
 
-    it('should return a prerendered response if the referer is not part of the regex specific blacklist', function(done){
+    it('should return a prerendered response if the referer is not part of the regex specific blacklist', async function(){
       var req = { method: 'GET', url: '/api/results', headers: { referer: '/profile/search', 'user-agent': bot, host: 'google.com' }, connection: { encrypted: false } };
 
       nock('https://service.prerender.io', {
@@ -274,18 +272,17 @@ describe ('Prerender', function(){
       .get('/http://google.com/api/results')
       .reply(200, '<html></html>');
 
-      res.end = sandbox.spy(function(){
-        assert.equal(next.callCount, 0);
-        assert.equal(res.writeHead.callCount, 1);
-        assert.equal(res.writeHead.getCall(0).args[0], 200);
-        assert.equal(res.end.callCount, 1);
-        assert.equal(res.end.getCall(0).args[0], '<html></html>');
-        done();
+      await new Promise(function(resolve){
+        res.end = sandbox.spy(resolve);
+        prerender.blacklisted(['^/search', '/help'])(req, res, next);
+        delete prerender.blacklist;
       });
 
-      prerender.blacklisted(['^/search', '/help'])(req, res, next);
-      delete prerender.blacklist;
-
+      assert.equal(next.callCount, 0);
+      assert.equal(res.writeHead.callCount, 1);
+      assert.equal(res.writeHead.getCall(0).args[0], 200);
+      assert.equal(res.end.callCount, 1);
+      assert.equal(res.end.getCall(0).args[0], '<html></html>');
     });
 
     it('should return a prerendered response if a string is returned from beforeRender', function(){
@@ -322,7 +319,7 @@ describe ('Prerender', function(){
       assert.equal(res.end.getCall(0).args[0], '<html>Bad Request</html>');
     });
 
-    it('calls afterRender with error if the prerender service is unavailable', function(done){
+    it('calls afterRender with error if the prerender service is unavailable', async function(){
       var req = { method: 'GET', url: '/fail', headers: { 'user-agent': bot, host: 'google.com' }, connection: { encrypted: false } };
 
       nock('https://service.prerender.io')
@@ -333,15 +330,16 @@ describe ('Prerender', function(){
 
       prerender.set('afterRender', afterRenderStub);
 
-      prerender(req, res, function(err){
-        prerender.set('afterRender', null);
-        assert.equal(afterRenderStub.callCount, 1);
-        assert.equal(afterRenderStub.getCall(0).args[0], err);
-        done();
+      var err = await new Promise(function(resolve){
+        prerender(req, res, resolve);
       });
+
+      prerender.set('afterRender', null);
+      assert.equal(afterRenderStub.callCount, 1);
+      assert.equal(afterRenderStub.getCall(0).args[0], err);
     });
 
-    it('calls afterRender with request and prerender response', function(done){
+    it('calls afterRender with request and prerender response', async function(){
       var req = { method: 'GET', url: '/path?_escaped_fragment_=', headers: { 'user-agent': user, host: 'google.com' }, connection: { encrypted: false } };
 
       nock('https://service.prerender.io', {
@@ -365,71 +363,72 @@ describe ('Prerender', function(){
 
       prerender.set('afterRender', afterRenderStub);
 
-      res.end = sandbox.spy(function(){
-        prerender.set('afterRender', null);
-        prerender.getPrerenderedPageResponse = getPrerenderedPageResponseOriginal;
-        assert.equal(next.callCount, 0);
-        assert.equal(afterRenderStub.getCall(0).args[0], null);
-        assert.equal(afterRenderStub.getCall(0).args[1], req);
-        assert.equal(afterRenderStub.getCall(0).args[2], prerenderResponseSpy.getCall(0).args[1]);
-        done();
+      await new Promise(function(resolve){
+        res.end = sandbox.spy(resolve);
+        prerender(req, res, next);
       });
 
-      prerender(req, res, next);
+      prerender.set('afterRender', null);
+      prerender.getPrerenderedPageResponse = getPrerenderedPageResponseOriginal;
+      assert.equal(next.callCount, 0);
+      assert.equal(afterRenderStub.getCall(0).args[0], null);
+      assert.equal(afterRenderStub.getCall(0).args[1], req);
+      assert.equal(afterRenderStub.getCall(0).args[2], prerenderResponseSpy.getCall(0).args[1]);
     });
 
-    it('calls next when afterRender cancels prerender', function(done){
+    it('calls next when afterRender cancels prerender', async function(){
       var req = mockSuccessfulPrerender();
       prerender.set('afterRender', () => ({ cancelRender: true }));
 
-      next = sandbox.spy(function(){
-        assert.equal(next.callCount, 1);
-        prerender.set('afterRender', null);
-        done();
+      await new Promise(function(resolve){
+        next = sandbox.spy(resolve);
+        prerender(req, res, next);
       });
 
-      prerender(req, res, next);
+      assert.equal(next.callCount, 1);
+      prerender.set('afterRender', null);
     });
 
-    it('does not call next when afterRender does not cancel prerender', function(done){
+    it('does not call next when afterRender does not cancel prerender', async function(){
       var req = mockSuccessfulPrerender();
       prerender.set('afterRender', () => ({ cancelRender: false }));
 
-      res.end = sandbox.spy(function(){
-        assert.equal(next.callCount, 0);
-        prerender.set('afterRender', null);
-        done();
+      await new Promise(function(resolve){
+        res.end = sandbox.spy(resolve);
+        prerender(req, res, next);
       });
 
-      prerender(req, res, next);
+      assert.equal(next.callCount, 0);
+      prerender.set('afterRender', null);
     });
 
-    it('does not call next when afterRender returns undefined', function(done){
+    it('does not call next when afterRender returns undefined', async function(){
       var req = mockSuccessfulPrerender();
       prerender.set('afterRender', () => undefined);
 
-      res.end = sandbox.spy(function(){
-        assert.equal(next.callCount, 0);
-        prerender.set('afterRender', null);
-        done();
+      await new Promise(function(resolve){
+        res.end = sandbox.spy(resolve);
+        prerender(req, res, next);
       });
 
-      prerender(req, res, next);
+      assert.equal(next.callCount, 0);
+      prerender.set('afterRender', null);
     });
 
-    it('calls next with error if the prerender service is unavailable', function(done){
+    it('calls next with error if the prerender service is unavailable', async function(){
       var req = { method: 'GET', url: '/fail', headers: { 'user-agent': bot, host: 'google.com' }, connection: { encrypted: false } };
 
       nock('https://service.prerender.io')
       .get('/http://google.com/fail')
       .replyWithError('uh oh');
 
-      prerender(req, res, function(err){
-        assert.equal(err.message, 'uh oh');
-        assert.equal(res.writeHead.callCount, 0);
-        assert.equal(res.end.callCount, 0);
-        done();
+      var err = await new Promise(function(resolve){
+        prerender(req, res, resolve);
       });
+
+      assert.equal(err.message, 'uh oh');
+      assert.equal(res.writeHead.callCount, 0);
+      assert.equal(res.end.callCount, 0);
     });
   });
 
